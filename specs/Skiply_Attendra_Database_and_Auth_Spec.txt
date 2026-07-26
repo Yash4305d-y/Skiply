@@ -1,0 +1,253 @@
+================================================================================
+    SKIPLY / ATTENDRA — DATABASE & UNIQUE ID AUTHENTICATION SPECIFICATION
+================================================================================
+An AI-Assisted Development Guide for Antigravity, Cursor, and Windsurf
+Optimized for Next.js 14+ (App Router), Supabase Auth, and RLS Policies
+
+================================================================================
+1. THE "UNIQUE ID + PASSWORD" AUTHENTICATION PATTERN
+================================================================================
+Why this pattern?
+By default, Supabase Auth requires an email address or phone number for password-based 
+authentication. College students, however, prefer logging into campus tools using their
+unique student identifier (e.g., Roll Number, Registration Number, or Student ID like 
+"2025CSE01") alongside a simple password.
+
+The Cleanest Architecture Solution: "Virtual Email Proxying"
+Instead of building a complex custom JWT auth server, we use a Virtual Email mapping 
+layer between the frontend UI and Supabase Auth:
+1. Student enters: Unique ID (`2025CSE01`) and Password (`mysecretpass`) on the UI.
+2. Next.js Server Action sanitizes the ID (lowercase, alphanumeric) and appends a 
+   virtual internal domain: `2025cse01@skiply.internal`.
+3. Supabase Auth receives: `email: "2025cse01@skiply.internal", password: "mysecretpass"`.
+4. The user is authenticated natively, generating standard Supabase JWT access tokens, 
+   while their actual display `unique_id` is stored cleanly inside the `profiles` table.
+
+================================================================================
+2. COMPREHENSIVE DATABASE & AUTH SCHEMA (SUPABASE SQL)
+================================================================================
+Run the following SQL script inside your Supabase Dashboard -> SQL Editor:
+
+-- 1. Create custom profiles table tied to Supabase Auth
+CREATE TABLE profiles (
+    id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    unique_id TEXT UNIQUE NOT NULL,       -- e.g., '2025cse01' (Student Roll Number / ID)
+    full_name TEXT NOT NULL,
+    target_attendance_percentage NUMERIC DEFAULT 75.0,
+    semester_start_date DATE,
+    semester_end_date DATE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Create subjects table
+CREATE TABLE subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    subject_code TEXT NOT NULL,
+    subject_name TEXT NOT NULL,
+    is_lab BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Create timetable_slots table
+CREATE TABLE timetable_slots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    subject_id UUID REFERENCES subjects(id) ON DELETE CASCADE NOT NULL,
+    day_of_week INTEGER NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    room_number TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Create holidays table
+CREATE TABLE holidays (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    holiday_date DATE NOT NULL,
+    holiday_name TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Create attendance_logs table
+CREATE TABLE attendance_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    subject_id UUID REFERENCES subjects(id) ON DELETE CASCADE NOT NULL,
+    timetable_slot_id UUID REFERENCES timetable_slots(id) ON DELETE SET NULL,
+    log_date DATE NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('PRESENT', 'ABSENT', 'CANCELLED')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, timetable_slot_id, log_date)
+);
+
+-- ============================================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES — ENSURING USER DATA ISOLATION
+-- ============================================================================
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE timetable_slots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE holidays ENABLE ROW LEVEL SECURITY;
+ALTER TABLE attendance_logs ENABLE ROW LEVEL SECURITY;
+
+-- Profiles Policies
+CREATE POLICY "Users can view their own profile" ON profiles
+    FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update their own profile" ON profiles
+    FOR UPDATE USING (auth.uid() = id);
+
+-- Subjects Policies
+CREATE POLICY "Users can manage their own subjects" ON subjects
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Timetable Slots Policies
+CREATE POLICY "Users can manage their own timetable slots" ON timetable_slots
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Holidays Policies
+CREATE POLICY "Users can manage their own holidays" ON holidays
+    FOR ALL USING (auth.uid() = user_id);
+
+-- Attendance Logs Policies
+CREATE POLICY "Users can manage their own attendance logs" ON attendance_logs
+    FOR ALL USING (auth.uid() = user_id);
+
+-- ============================================================================
+-- AUTOMATIC PROFILE CREATION TRIGGER
+-- ============================================================================
+-- Automatically inserts a row into public.profiles whenever a user signs up.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, unique_id, full_name)
+  VALUES (
+    new.id,
+    new.raw_user_meta_data->>'unique_id',
+    new.raw_user_meta_data->>'full_name'
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+================================================================================
+3. NEXT.JS SERVER ACTIONS FOR AUTHENTICATION
+================================================================================
+Implement these clean server actions (`app/auth/actions.ts`) to handle login and sign-up
+using the Unique ID proxy:
+
+```typescript
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+
+// Helper to convert unique student ID into internal virtual email
+function getVirtualEmail(uniqueId: string): string {
+  const sanitized = uniqueId.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '')
+  return `${sanitized}@skiply.internal`
+}
+
+export async function signUpWithUniqueId(formData: FormData) {
+  const supabase = await createClient()
+  
+  const uniqueId = formData.get('uniqueId') as string
+  const password = formData.get('password') as string
+  const fullName = formData.get('fullName') as string
+  
+  if (!uniqueId || !password || !fullName) {
+    return { error: 'All fields are required.' }
+  }
+
+  const virtualEmail = getVirtualEmail(uniqueId)
+
+  const { error } = await supabase.auth.signUp({
+    email: virtualEmail,
+    password: password,
+    options: {
+      data: {
+        unique_id: uniqueId.trim().toLowerCase(),
+        full_name: fullName.trim(),
+      },
+    },
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  redirect('/dashboard')
+}
+
+export async function signInWithUniqueId(formData: FormData) {
+  const supabase = await createClient()
+  
+  const uniqueId = formData.get('uniqueId') as string
+  const password = formData.get('password') as string
+  
+  if (!uniqueId || !password) {
+    return { error: 'Please enter your Unique ID and password.' }
+  }
+
+  const virtualEmail = getVirtualEmail(uniqueId)
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: virtualEmail,
+    password: password,
+  })
+
+  if (error) {
+    return { error: 'Invalid Student ID or password.' }
+  }
+
+  redirect('/dashboard')
+}
+
+export async function signOut() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/login')
+}
+```
+
+================================================================================
+4. STEP-BY-STEP PROMPT ROADMAP FOR ANTIGRAVITY (IDE)
+================================================================================
+Copy and paste these prompts sequentially into Antigravity or your AI IDE tool:
+
+--- PROMPT 1: SUPABASE CLIENT SETUP & MIDDLEWARE ---
+"Act as a Senior Next.js Architect. Install `@supabase/ssr` and `@supabase/supabase-js`. 
+Set up the standard Next.js 14 App Router Supabase client utilities in `@/lib/supabase/client.ts` 
+(browser client) and `@/lib/supabase/server.ts` (server client using cookies). Also create 
+a Next.js `middleware.ts` file that refreshes Supabase auth sessions and redirects 
+unauthenticated users away from `/dashboard` and `/calendar` back to `/login`."
+
+--- PROMPT 2: UNIQUE ID LOGIN & SIGNUP UI ---
+"Create an authentication UI featuring a tabbed card (Login / Register) using shadcn/ui 
+in `app/login/page.tsx`. Instead of asking for an email address, the input fields must ask for:
+1. 'Student Roll Number / Unique ID' (e.g., 2025CSE01)
+2. 'Full Name' (only on Register tab)
+3. 'Password'
+Hook these forms up to the server actions `signInWithUniqueId` and `signUpWithUniqueId`. 
+Include clear inline error banner displays for invalid credentials or duplicate IDs."
+
+--- PROMPT 3: DATABASE HOOKS & ONBOARDING STATE ---
+"Create a custom data layer or server actions in `@/lib/db/actions.ts` to connect our app 
+to the Supabase PostgreSQL database. Write functions to:
+1. Fetch the logged-in user's profile (`unique_id`, `full_name`, `target_attendance_percentage`).
+2. Batch-insert confirmed AI-parsed timetable slots into `subjects` and `timetable_slots`.
+3. Batch-insert confirmed holiday dates into `holidays` and update `semester_start_date` 
+   and `semester_end_date` in the user's `profile` table."
+
+--- PROMPT 4: CONNECTING THE DASHBOARD & CALENDAR TO REAL DB DATA ---
+"Refactor the `/dashboard` and `/calendar` views to pull live database rows instead of mock data.
+When a user marks attendance (Present, Absent, or Cancelled) on the dashboard card or 
+calendar day drawer, execute an optimistic UI update locally, then trigger a Supabase 
+upsert into the `attendance_logs` table matching `(user_id, timetable_slot_id, log_date)`. 
+Ensure all RLS policies work seamlessly so students only see their own attendance logs."
+================================================================================

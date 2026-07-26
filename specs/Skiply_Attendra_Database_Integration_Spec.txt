@@ -1,0 +1,301 @@
+================================================================================
+     SKIPLY / ATTENDRA — DATABASE INTEGRATION & SERVER ACTIONS SPEC
+================================================================================
+An AI-Assisted Development Guide for Antigravity, Cursor, and Windsurf
+Optimized for Next.js 14+ (App Router), @supabase/ssr, and TypeScript
+
+================================================================================
+1. OVERVIEW: THE DATABASE INTEGRATION LAYER
+================================================================================
+Now that the UI components, authentication, and AI onboarding wizards are built, 
+this specification provides the exact Server Actions and data-fetching hooks 
+needed to connect the frontend UI directly to your Supabase PostgreSQL tables.
+
+We use Next.js Server Actions (`'use server'`) for all database writes (inserting 
+schedules, logging attendance) and Supabase Server Clients for secure, 
+RLS-protected data fetching.
+
+================================================================================
+2. CORE SERVER ACTIONS (`lib/db/actions.ts`)
+================================================================================
+Create or replace `@/lib/db/actions.ts` with these complete Server Actions. 
+These handle saving onboarding data, logging daily attendance, and pulling stats:
+
+```typescript
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+
+// ============================================================================
+// 1. PROFILE & SEMESTER DATES
+// ============================================================================
+export async function getUserProfile() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
+  if (error) throw new Error(error.message)
+  return data
+}
+
+export async function updateSemesterDates(startDate: string, endDate: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ semester_start_date: startDate, semester_end_date: endDate })
+    .eq('id', user.id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ============================================================================
+// 2. ONBOARDING: BATCH SAVE TIMETABLE & HOLIDAYS
+// ============================================================================
+export async function saveOnboardingData(payload: {
+  subjects: { code: string; name: string; is_lab: boolean }[]
+  slots: { subject_code: string; day_of_week: number; start_time: string; end_time: string; room?: string }[]
+  holidays: { date: string; name: string }[]
+  startDate: string
+  endDate: string
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  // A. Update semester dates
+  await supabase.from('profiles').update({
+    semester_start_date: payload.startDate,
+    semester_end_date: payload.endDate,
+  }).eq('id', user.id)
+
+  // B. Insert Subjects
+  const subjectsToInsert = payload.subjects.map(s => ({
+    user_id: user.id,
+    subject_code: s.code,
+    subject_name: s.name,
+    is_lab: s.is_lab,
+  }))
+
+  const { data: insertedSubjects, error: subError } = await supabase
+    .from('subjects')
+    .insert(subjectsToInsert)
+    .select()
+
+  if (subError || !insertedSubjects) throw new Error(subError?.message || 'Failed to insert subjects')
+
+  // Create a map of subject_code -> subject_id
+  const subjectMap = new Map(insertedSubjects.map(s => [s.subject_code, s.id]))
+
+  // C. Insert Timetable Slots
+  const slotsToInsert = payload.slots.map(slot => ({
+    user_id: user.id,
+    subject_id: subjectMap.get(slot.subject_code),
+    day_of_week: slot.day_of_week,
+    start_time: slot.start_time,
+    end_time: slot.end_time,
+    room_number: slot.room || '',
+  })).filter(slot => slot.subject_id) // Ensure valid mapping
+
+  const { error: slotError } = await supabase
+    .from('timetable_slots')
+    .insert(slotsToInsert)
+
+  if (slotError) throw new Error(slotError.message)
+
+  // D. Insert Holidays
+  if (payload.holidays.length > 0) {
+    const holidaysToInsert = payload.holidays.map(h => ({
+      user_id: user.id,
+      holiday_date: h.date,
+      holiday_name: h.name,
+    }))
+    const { error: holError } = await supabase.from('holidays').insert(holidaysToInsert)
+    if (holError) throw new Error(holError.message)
+  }
+
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
+// ============================================================================
+// 3. DAILY ATTENDANCE MARKING (SINGLE-TAP)
+// ============================================================================
+export async function markAttendance(payload: {
+  subjectId: string
+  timetableSlotId: string | null
+  logDate: string // YYYY-MM-DD
+  status: 'PRESENT' | 'ABSENT' | 'CANCELLED'
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  // Upsert ensures we overwrite if the student changes their mind (e.g., Absent -> Present)
+  const { error } = await supabase
+    .from('attendance_logs')
+    .upsert({
+      user_id: user.id,
+      subject_id: payload.subjectId,
+      timetable_slot_id: payload.timetableSlotId,
+      log_date: payload.logDate,
+      status: payload.status,
+    }, {
+      onConflict: 'user_id,timetable_slot_id,log_date'
+    })
+
+  if (error) throw new Error(error.message)
+  
+  revalidatePath('/dashboard')
+  revalidatePath('/calendar')
+  revalidatePath('/analytics')
+  return { success: true }
+}
+
+// ============================================================================
+// 4. DATA FETCHING FOR DASHBOARD & CALENDAR
+// ============================================================================
+export async function getDailySchedule(dayOfWeek: number, dateStr: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  // Check if today is a holiday
+  const { data: holiday } = await supabase
+    .from('holidays')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('holiday_date', dateStr)
+    .single()
+
+  if (holiday) return { isHoliday: true, holidayName: holiday.holiday_name, slots: [] }
+
+  // Fetch slots for this day of the week with joined subject details
+  const { data: slots, error: slotsError } = await supabase
+    .from('timetable_slots')
+    .select(`
+      *,
+      subjects (id, subject_code, subject_name, is_lab)
+    `)
+    .eq('user_id', user.id)
+    .eq('day_of_week', dayOfWeek)
+    .order('start_time', { ascending: true })
+
+  if (slotsError) throw new Error(slotsError.message)
+
+  // Fetch existing attendance logs for this specific date
+  const { data: logs } = await supabase
+    .from('attendance_logs')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('log_date', dateStr)
+
+  // Merge logs into slots so UI knows button active states
+  const mergedSlots = slots.map(slot => {
+    const log = logs?.find(l => l.timetable_slot_id === slot.id)
+    return {
+      ...slot,
+      currentStatus: log ? log.status : null,
+    }
+  })
+
+  return { isHoliday: false, holidayName: null, slots: mergedSlots }
+}
+
+export async function getMonthAttendanceLogs(year: number, month: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  // Format start and end of the month (YYYY-MM-DD)
+  const startDate = `${year}-${String(month).padStart(2, '0')}-01`
+  const lastDay = new Date(year, month, 0).getDate()
+  const endDate = `${year}-${String(month).padStart(2, '0')}-${lastDay}`
+
+  const { data: logs, error } = await supabase
+    .from('attendance_logs')
+    .select(`
+      *,
+      subjects (subject_code, subject_name)
+    `)
+    .eq('user_id', user.id)
+    .gte('log_date', startDate)
+    .lte('log_date', endDate)
+
+  if (error) throw new Error(error.message)
+  return logs
+}
+```
+
+================================================================================
+3. FRONTEND UI WIRING INSTRUCTIONS
+================================================================================
+Here is how to connect the server actions to your existing frontend pages:
+
+[A. Onboarding Wizard (`app/onboarding/page.tsx`)]
+- When the user finishes reviewing the AI-extracted timetable and holiday list, 
+  call `saveOnboardingData(payload)`.
+- On success, execute `router.push('/dashboard')` to land on the active tracking page.
+
+[B. Daily Action Dashboard (`app/dashboard/page.tsx`)]
+- Use `getDailySchedule(new Date().getDay(), new Date().toISOString().split('T')[0])` 
+  to load today's class cards.
+- On each class card, wire the Present, Absent, and Cancelled buttons to call:
+  `markAttendance({ subjectId: slot.subject_id, timetableSlotId: slot.id, logDate: today, status: 'PRESENT' })`.
+- For instant visual feedback, wrap the button onClick handlers in React's 
+  `useOptimistic` hook or local component state so the card border turns green/red 
+  immediately before the server response returns.
+
+[C. Visual Calendar View (`app/calendar/page.tsx`)]
+- When changing months, call `getMonthAttendanceLogs(selectedYear, selectedMonth)`.
+- Map the returned logs to calendar day cells:
+  * If a cell has logs with status == 'PRESENT', display a green badge.
+  * If status == 'ABSENT', display a red badge.
+- Clicking a date opens the Day Drawer, where users can trigger `markAttendance` 
+  to retroactively edit a past class status.
+
+================================================================================
+4. STEP-BY-STEP PROMPT ROADMAP FOR ANTIGRAVITY (IDE)
+================================================================================
+Copy and paste these exact sequential prompts into your Antigravity chat box:
+
+--- PROMPT 1: IMPLEMENT SERVER ACTIONS LAYER ---
+"Read `Skiply_Attendra_Database_Integration_Spec.txt`. Create or update the file 
+`@/lib/db/actions.ts` with all the exported Server Actions detailed in Section 2 
+(`getUserProfile`, `saveOnboardingData`, `markAttendance`, `getDailySchedule`, 
+and `getMonthAttendanceLogs`). Ensure proper TypeScript types and error handling 
+using our `@supabase/ssr` server client."
+
+--- PROMPT 2: WIRE UP THE ONBOARDING WIZARD ---
+"Connect the completion step of our Onboarding Wizard in `app/onboarding/page.tsx` 
+to the `saveOnboardingData` server action from `@/lib/db/actions.ts`. When the user 
+clicks 'Confirm & Save Schedule', gather the confirmed subjects, timetable slots, 
+holidays, and semester start/end dates, pass them to the action, and upon success, 
+redirect the user to `/dashboard` with a success toast notification."
+
+--- PROMPT 3: WIRE UP THE DAILY DASHBOARD & OPTIMISTIC MARKING ---
+"Refactor `app/dashboard/page.tsx` to fetch today's real schedule using `getDailySchedule`. 
+Connect the 'Present', 'Absent', and 'Cancelled' action buttons on each class card to 
+our `markAttendance` server action. Implement optimistic UI updates using React state or 
+`useOptimistic` so that tapping a button instantly highlights the card border (Green for 
+Present, Red for Absent, Gray for Cancelled) without waiting for network latency."
+
+--- PROMPT 4: WIRE UP THE VISUAL CALENDAR & HISTORY DRAWER ---
+"Refactor `app/calendar/page.tsx` to fetch live historical logs using `getMonthAttendanceLogs` 
+for the currently displayed month. Render corresponding color-coded dots or badges inside the 
+calendar day cells. When a student clicks any date on the calendar, open the Day Drawer and 
+populate it with the specific class schedule for that day, allowing them to retroactively 
+mark or update attendance using `markAttendance`."
+================================================================================

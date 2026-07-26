@@ -723,7 +723,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                             <strong className="text-white underline">{stats.classes_to_attend} consecutive class(es)</strong>{' '}
                             to recover and reach{' '}
                             <strong className="font-mono text-white">
-                              {Math.round(((stats.present + stats.classes_to_attend) / (stats.total_available + stats.classes_to_attend)) * 1000) / 10}%
+                              {Math.round(((stats.present + stats.classes_to_attend) / stats.total_available) * 1000) / 10}%
                             </strong>.
                           </>
                         )}
