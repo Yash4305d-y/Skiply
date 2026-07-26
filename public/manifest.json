@@ -1,0 +1,40 @@
+{
+  "name": "Skiply (Attendra) — AI Attendance Planner",
+  "short_name": "Skiply",
+  "description": "AI-powered college attendance tracker and safe skip calculator.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#090e1a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Daily Dashboard",
+      "short_name": "Dashboard",
+      "description": "View today's lectures and mark attendance",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Onboarding",
+      "short_name": "AI Setup",
+      "description": "Upload timetable or calendar with Vision AI",
+      "url": "/onboarding",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

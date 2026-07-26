@@ -1,0 +1,318 @@
+================================================================================
+           SKIPLY / ATTENDRA — MASTER PROJECT SPECIFICATION & ARCHITECTURE
+================================================================================
+A Comprehensive Guide for AI-Assisted Development (Antigravity / IDE Tools)
+Optimized for Cross-Platform Progressive Web App (PWA) Deployment
+
+================================================================================
+1. EXECUTIVE SUMMARY & SYSTEM VISION
+================================================================================
+Skiply (also referred to as Attendra) is an AI-powered attendance planning and
+decision-support application designed specifically for college students. 
+
+The core mission is to eliminate the tedious manual data entry associated with
+traditional attendance trackers by leveraging Vision AI to ingest unstructured
+timetables and academic calendars during onboarding. Once configured, the
+system transitions to a deterministic, low-friction daily tracking tool that
+answers one critical question: "How many classes can I safely skip while
+maintaining my target attendance percentage?"
+
+Key Architectural Principles:
+1. AI for Onboarding, Deterministic Logic for Daily Use: AI is expensive and
+   probabilistic. Use Vision LLMs strictly for one-time parsing of schedules. Use
+   100% deterministic, robust code for daily attendance math.
+2. Zero App-Store Friction (PWA): By building a Progressive Web App (PWA), the
+   application installs natively on both iOS/Android home screens and works flawlessly
+   on desktop browsers from a single codebase, bypassing app stores entirely.
+3. Offline-First Daily Interaction: Marking attendance must take under 3 seconds.
+   The app must support offline marking that syncs automatically once reconnected.
+
+================================================================================
+2. RECOMMENDED TECH STACK (OPTIMIZED FOR PWA & SUPABASE)
+================================================================================
+To achieve seamless desktop/mobile compatibility, easy deployment, and rapid
+development using AI coding assistants (Antigravity/Cursor/Windsurf), the
+following stack is recommended:
+
+[Frontend & Core Framework]
+- Next.js (14+ App Router, TypeScript): Provides React rendering, built-in API
+  routes (for secure AI calls), and seamless Vercel deployment.
+- Tailwind CSS & shadcn/ui: Utility-first styling with accessible, highly polished
+  pre-built components (modals, bottom sheets, sliders) that render cleanly on mobile.
+- Serwist (Next-PWA): Transforms the Next.js web app into a full Progressive Web App
+  with offline caching, manifest configuration, and home-screen installability.
+- Lucide React: Clean, lightweight icons for UI navigation and status indicators.
+
+[Backend & Database]
+- Supabase (PostgreSQL + Auth + Storage + RLS):
+  * PostgreSQL: Relational database to handle complex queries (e.g., aggregating
+    attendance logs across specific date ranges).
+  * Supabase Auth: Simple email/password, Google OAuth, or guest-to-registered
+    account conversion.
+  * Supabase Storage: Securely stores uploaded timetable screenshots and academic
+    calendar PDFs/images for review and reprocessing.
+  * Row Level Security (RLS): Ensures students can only access and modify their
+    own schedule and attendance data.
+
+[AI & Document Processing]
+- Google Gemini 1.5 Flash (via Google AI SDK) or OpenAI GPT-4o-mini:
+  * Highly cost-effective, extremely fast vision LLMs capable of OCR and complex
+    spatial reasoning.
+  * Structured JSON Output: Configured to return strictly enforced JSON schemas
+    representing subjects, slots, and holidays without conversational filler.
+
+[Hosting & Deployment]
+- Vercel: Zero-config deployment for Next.js. Automatically configures global CDN,
+  SSL certificates, and serverless execution for API routes.
+- Supabase Cloud: Fully managed PostgreSQL database hosting.
+
+================================================================================
+3. SYSTEM ARCHITECTURE & END-TO-END DATA FLOW
+================================================================================
+
+[Phase 1: AI Onboarding Pipeline]
+1. Image Upload: The student uploads an image of their class timetable and academic
+   calendar via the frontend UI.
+2. Storage & URL Generation: The frontend uploads the images to a secure Supabase
+   Storage bucket and retrieves a signed URL or temporary public URL.
+3. Serverless AI Request: The frontend calls a Next.js API route (/api/parse-schedule),
+   passing the image URLs and target attendance percentage (default 75%).
+4. Vision LLM Execution: The serverless route sends the images to Gemini 1.5 Flash
+   with a strict system prompt and a JSON Schema definition.
+5. Extraction & Structuring: The LLM reads grid layouts, merges multi-hour lab
+   blocks, resolves abbreviations, and maps dates to holidays.
+6. User Review & Confirmation UI: The frontend presents an interactive grid where
+   the student can edit extracted subject names, adjust timings, or add missing slots.
+7. Database Commit: Upon confirmation, the application executes a batch insert
+   into Supabase, populating subjects, timetables, and academic_calendar.
+
+[Phase 2: Daily Attendance & Math Pipeline]
+1. Daily Dashboard Load: On app launch, the frontend queries Supabase for today's
+   scheduled classes based on day of the week and academic calendar exclusions.
+2. Single-Tap Interaction: The user taps "Present", "Absent", or "Cancelled" on a
+   class card.
+3. Optimistic UI Update & Local Storage: The UI updates immediately (zero latency).
+   If offline, the action is queued in local browser storage (IndexedDB).
+4. Database Sync: The action is sent to Supabase attendance_logs.
+5. Math Engine Recalculation: The deterministic math engine recalculates metrics
+   and updates the "Safe Skips" counter displayed at the top of the dashboard.
+
+================================================================================
+4. DATABASE SCHEMA DESIGN (POSTGRESQL / SUPABASE)
+================================================================================
+
+-- 1. Users Table (Extends Supabase Auth)
+CREATE TABLE profiles (
+    id UUID REFERENCES auth.users(id) PRIMARY KEY,
+    full_name TEXT,
+    target_attendance_percentage NUMERIC DEFAULT 75.0,
+    semester_start_date DATE NOT NULL,
+    semester_end_date DATE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Subjects Table
+CREATE TABLE subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    subject_code TEXT NOT NULL,
+    subject_name TEXT NOT NULL,
+    is_lab BOOLEAN DEFAULT FALSE,
+    credit_hours INTEGER DEFAULT 3,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Timetable Slots Table (The Weekly Schedule Master)
+CREATE TABLE timetable_slots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    subject_id UUID REFERENCES subjects(id) ON DELETE CASCADE,
+    day_of_week INTEGER NOT NULL, -- 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    room_number TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Academic Calendar & Holidays Table
+CREATE TABLE academic_holidays (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    holiday_date DATE NOT NULL,
+    description TEXT,
+    is_exam_day BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Daily Attendance Logs Table
+CREATE TABLE attendance_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    subject_id UUID REFERENCES subjects(id) ON DELETE CASCADE,
+    timetable_slot_id UUID REFERENCES timetable_slots(id) ON DELETE SET NULL,
+    log_date DATE NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('PRESENT', 'ABSENT', 'CANCELLED', 'SWAPPED')),
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, subject_id, timetable_slot_id, log_date)
+);
+
+-- Enable Row Level Security (RLS) on all tables:
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE timetable_slots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE academic_holidays ENABLE ROW LEVEL SECURITY;
+ALTER TABLE attendance_logs ENABLE ROW LEVEL SECURITY;
+
+-- Example Policy: Users can only see and modify their own data
+CREATE POLICY "Users can access own profile" ON profiles
+    FOR ALL USING (auth.uid() = id);
+CREATE POLICY "Users can access own subjects" ON subjects
+    FOR ALL USING (auth.uid() = user_id);
+-- (Repeat for remaining tables)
+
+================================================================================
+5. THE DETERMINISTIC MATH ENGINE ("SAFE SKIPS" ALGORITHM)
+================================================================================
+This logic must run on the backend or in a synchronized frontend utility.
+Never use an LLM to calculate attendance percentages.
+
+[Step-by-Step Calculation Logic for a Subject]
+
+Let:
+- T_req = User's target attendance percentage (e.g., 75.0)
+- P = Total lectures marked as PRESENT so far
+- A = Total lectures marked as ABSENT so far
+- C = Total lectures marked as CANCELLED so far
+- T_conducted = P + A (Cancelled lectures are removed from the denominator)
+- T_remaining = Total scheduled lectures remaining between tomorrow and semester_end_date,
+                EXCLUDING dates present in academic_holidays and weekends not scheduled.
+- T_total_expected = T_conducted + T_remaining
+
+[Formula 1: Current Percentage]
+Current_Percentage = (T_conducted == 0) ? 100.0 : (P / T_conducted) * 100.0
+
+[Formula 2: Safe Skips Available (How many MORE can I miss?)]
+We want to find the maximum additional absences (S) such that:
+(P / (T_total_expected)) >= (T_req / 100.0)
+
+If we assume the student attends ALL remaining classes EXCEPT the safe skips (S):
+Total Final Presents = P + T_remaining - S
+We require:
+(P + T_remaining - S) / T_total_expected >= (T_req / 100.0)
+
+Solving for S:
+S = floor( P + T_remaining - (T_req / 100.0) * T_total_expected )
+
+If S < 0, the student is in the "Danger Zone" and cannot skip any classes. Instead,
+they need to know how many CONSECUTIVE classes they must attend to get back on track.
+
+[Formula 3: Classes Needed to Recover (If below target)]
+Let N be the number of consecutive upcoming classes the student must attend:
+(P + N) / (T_conducted + N) >= (T_req / 100.0)
+
+Solving for N:
+N = ceil( ((T_req / 100.0) * T_conducted - P) / (1 - (T_req / 100.0)) )
+
+================================================================================
+6. COMPREHENSIVE EDGE CASE ANALYSIS & MITIGATION
+================================================================================
+
+[A. AI Onboarding & Parsing Edge Cases]
+1. Merged Cells / Multi-Hour Labs:
+   - Issue: Timetables often show a lab as a single box spanning 2 PM to 5 PM across
+     3 columns (e.g., "Physics Lab (2:00 - 5:00 PM)").
+   - Mitigation: Instruct the LLM prompt to split multi-hour blocks into discrete
+     1-hour intervals or retain explicit start_time and end_time durations. The DB
+     schema stores start and end times, and the UI should render them as weighted blocks.
+2. Low-Resolution or Handwritten Timetables:
+   - Issue: OCR fails on blurry smartphone images or handwritten professor schedules.
+   - Mitigation: The LLM must output a confidence score for each subject. Low-confidence
+     items trigger a visual badge in the Review UI ("⚠️ Check Subject Code"). The user
+     can manually correct it before saving.
+3. Rotating Schedules (Odd/Even Weeks or Day 1-Day 6 cycles):
+   - Issue: Some universities do not use Monday-Friday schedules; they use Day 1 to
+     Day 6 cycles that ignore weekends.
+   - Mitigation: Include a schedule type toggle in onboarding: "Standard Calendar Week" vs
+     "Day Cycle". If Day Cycle is selected, mapping relies on academic calendar active days
+     rather than weekdays.
+
+[B. Daily Math & Schedule Dynamic Edge Cases]
+1. Sudden Class Cancellations:
+   - Issue: If a professor cancels a class, marking "Absent" would unfairly penalize
+     the student, while marking "Present" inflates their actual hours.
+   - Mitigation: Provide a dedicated "Cancelled" button. When clicked, the math engine
+     ignores that slot for the day (T_conducted does not increase), but decreases
+     T_remaining by 1, dynamically adjusting the safe skip limit for future classes.
+2. Swapped Classes / Proxy Lectures:
+   - Issue: Professor A takes Professor B's slot on a Tuesday.
+   - Mitigation: Implement an "Override / Swap Class" action on the daily card.
+     The user taps the card -> "Swap Subject" -> selects the alternate subject. The
+     log records attendance for the swapped subject without permanently changing the
+     master weekly timetable.
+3. Mid-Semester Syllabus / Timetable Changes:
+   - Issue: Universities often alter timetables 3 weeks into the semester.
+   - Mitigation: Add an "Update Timetable" feature in Settings. Users can upload a
+     new timetable image with an "Effective From [Date]" timestamp. The backend preserves
+     historical logs prior to that date and uses the new schedule for future dates.
+
+[C. UX & Network Edge Cases]
+1. Offline Attendance Marking in Lecture Halls:
+   - Issue: College basements and lecture halls often have zero cellular reception.
+   - Mitigation: Implement Service Workers and TanStack Query (or SWR) with local
+     IndexedDB persistence. When offline, UI state updates instantly. Actions are queued
+     in a background sync ledger and pushed to Supabase immediately upon reconnection.
+2. Accidental Wrong Taps:
+   - Issue: Student taps "Absent" instead of "Present" during a rushed morning.
+   - Mitigation: Allow inline toggling at any time during the day. Also provide a
+     complete "History / Calendar View" tab where students can audit and edit past days.
+
+================================================================================
+7. STEP-BY-STEP DEPLOYMENT GUIDE (PHONE & DESKTOP PWA)
+================================================================================
+This architecture ensures zero app-store friction. Users open a web link on Safari
+or Chrome and tap "Add to Home Screen" to install it like a native app.
+
+[Step 1: Supabase Project Setup]
+1. Create a free account at supabase.com and launch a new project ("Skiply-DB").
+2. Open the SQL Editor in Supabase and execute the schema provided in Section 4.
+3. Navigate to Authentication -> Providers and enable Email and Google Auth.
+4. Navigate to Storage -> Create Bucket -> Name it schedule-uploads (set as
+   private, accessible only via RLS or authenticated server routes).
+5. Copy the SUPABASE_URL and SUPABASE_ANON_KEY from Project Settings -> API.
+
+[Step 2: Next.js & PWA Configuration]
+1. Initialize the project: npx create-next-app@latest skiply-app --typescript --tailwind --app
+2. Install dependencies: npm install @supabase/supabase-js @google/genai lucide-react serwist
+3. Configure manifest.json in the /public folder for native app appearance:
+   {
+     "name": "Skiply - AI Attendance Planner",
+     "short_name": "Skiply",
+     "description": "Know when you can safely skip class.",
+     "start_url": "/",
+     "display": "standalone",
+     "background_color": "#0f172a",
+     "theme_color": "#0f172a",
+     "icons": [
+       { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+       { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+     ]
+   }
+4. Set display: "standalone" and theme_color matching your UI header. This hides
+   the browser address bar on phones, making it indistinguishable from a native iOS/Android app.
+
+[Step 3: Vercel Deployment (Three-Click Setup)]
+1. Push your code repository to GitHub.
+2. Log into Vercel.com -> "Add New Project" -> Import your GitHub repository.
+3. Add Environment Variables in the Vercel Dashboard:
+   - NEXT_PUBLIC_SUPABASE_URL: (from Step 1)
+   - NEXT_PUBLIC_SUPABASE_ANON_KEY: (from Step 1)
+   - GEMINI_API_KEY: (from Google AI Studio)
+4. Click "Deploy". Vercel generates a production HTTPS URL (e.g., https://skiply.vercel.app).
+
+[Step 4: Cross-Platform Installation Instructions for Users]
+- Android (Chrome): Visit URL -> Tap 3 dots menu -> Tap "Install App" or "Add to Home Screen".
+- iOS (Safari): Visit URL -> Tap Share button (square with arrow) -> Scroll down and tap
+  "Add to Home Screen".
+- Desktop (Chrome/Edge): Visit URL -> Click the desktop install icon (monitor with down arrow)
+  in the right side of the address bar.
