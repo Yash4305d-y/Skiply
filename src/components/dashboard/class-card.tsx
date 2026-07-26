@@ -97,7 +97,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
             <span className="text-slate-600">•</span>
             <span className="text-slate-300 font-medium">
               {isDanger ? (
-                <span className="text-rose-400 font-bold">⚠️ Need {stats.classes_to_attend} consecutive present</span>
+                <span className="text-rose-400 font-bold">⚠️ Must attend {stats.classes_to_attend} more class(es)</span>
               ) : (
                 <span>Buffer: <strong className="text-white font-bold">{stats.safe_skips}</strong> safe skip{stats.safe_skips !== 1 ? 's' : ''} left</span>
               )}

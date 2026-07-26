@@ -83,8 +83,8 @@ export default function DailyClassList({
           </div>
         </div>
 
-        {/* Date Stepper Buttons */}
-        <div className="flex items-center gap-1.5 self-end sm:self-auto">
+        {/* Date Stepper & Picker Buttons */}
+        <div className="flex items-center gap-1.5 self-end sm:self-auto flex-wrap justify-end">
           <button
             onClick={() => handleStepDate(-1)}
             className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
@@ -93,6 +93,30 @@ export default function DailyClassList({
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
+
+          {/* Direct Date Picker Button */}
+          <div className="relative group">
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => {
+                if (e.target.value) {
+                  onDateChange(e.target.value);
+                }
+              }}
+              className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
+              title="Select specific date"
+              aria-label="Select specific date"
+            />
+            <button
+              type="button"
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-sm"
+            >
+              <CalendarIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <span className="hidden xs:inline">Jump to Date...</span>
+              <span className="xs:hidden">Date...</span>
+            </button>
+          </div>
 
           {!isToday() && (
             <button
@@ -103,9 +127,9 @@ export default function DailyClassList({
                 const d = String(now.getDate()).padStart(2, '0');
                 onDateChange(`${y}-${m}-${d}`);
               }}
-              className="px-3 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white text-xs font-bold transition-all"
+              className="px-3 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white text-xs font-bold transition-all shadow-sm"
             >
-              Jump to Today
+              Today
             </button>
           )}
 

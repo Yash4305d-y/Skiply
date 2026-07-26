@@ -6,21 +6,26 @@ import Footer from '@/components/layout/footer';
 import HistoryView from '@/components/history/history-view';
 import { 
   getDemoSubjects, getDemoTimetableSlots, getDemoAttendanceLogs, 
+  getDemoHolidays, getDemoProfile,
   saveDemoAttendanceLog, removeDemoAttendanceLog 
 } from '@/lib/demo-store';
-import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus } from '@/types';
+import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { Sparkles } from 'lucide-react';
 
 export default function HistoryPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [slots, setSlots] = useState<TimetableSlot[]>([]);
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
+  const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     setSubjects(getDemoSubjects());
     setSlots(getDemoTimetableSlots());
     setLogs(getDemoAttendanceLogs());
+    setHolidays(getDemoHolidays());
+    setProfile(getDemoProfile());
     setIsLoaded(true);
   }, []);
 
@@ -58,6 +63,9 @@ export default function HistoryPage() {
           logs={logs}
           subjects={subjects}
           slots={slots}
+          holidays={holidays}
+          endDateStr={profile?.semester_end_date}
+          profile={profile}
           onUpdateLog={handleUpdateLog}
           onDeleteLog={handleDeleteLog}
         />

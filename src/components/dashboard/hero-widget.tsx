@@ -78,7 +78,7 @@ export default function HeroWidget({ stats }: HeroWidgetProps) {
         <div className="flex justify-between items-center text-xs font-semibold">
           <span className="text-slate-300">Attendance Progress</span>
           <span className="text-slate-400">
-            {stats.total_present} Present / {stats.total_conducted} Total
+            {stats.total_present} Present / {stats.total_conducted} Conducted Till Date
           </span>
         </div>
 

@@ -18,19 +18,32 @@ export function calculateSubjectStats(
   cancelled: number,
   swapped: number,
   remaining: number,
-  targetPct: number = 75.0
+  defaultTargetPct: number = 75.0,
+  conductedOverride?: number
 ): SubjectAttendanceStats {
-  const conducted = present + absent;
-  const totalExpected = conducted + remaining;
+  const conducted = (conductedOverride !== undefined && conductedOverride >= 0) ? conductedOverride : (present + absent);
+  const effectiveAbsent = (conductedOverride !== undefined && conductedOverride >= 0) ? Math.max(0, conducted - present) : absent;
+  // Total = Total Class Available (conducted + remaining if known, otherwise conducted)
+  const totalAvailable = (conducted + remaining) > 0 ? (conducted + remaining) : conducted;
+  const totalExpected = totalAvailable;
 
-  // Formula 1: Current Percentage
+  const targetPct = (subject.target_attendance_percentage && subject.target_attendance_percentage > 0)
+    ? subject.target_attendance_percentage
+    : defaultTargetPct;
+  const targetDec = targetPct / 100.0;
+
+  // Formula 1: Percentage = (Attended / Classes Conducted Till Present Date) * 100
   const currentPct = conducted === 0 ? 100.0 : (present / conducted) * 100.0;
 
-  // Formula 2: Safe Skips Available
-  // We want: (P + remaining - S) / totalExpected >= (targetPct / 100.0)
-  // S = floor( P + remaining - (targetPct / 100.0) * totalExpected )
-  const requiredPresents = (targetPct / 100.0) * totalExpected;
-  const safeSkips = Math.floor(present + remaining - requiredPresents);
+  // Required total attended classes in the semester to reach target %
+  const requiredTotalPresents = Math.ceil(targetDec * totalAvailable);
+  const neededMore = requiredTotalPresents - present;
+
+  // Formula 2: Safe Skips Available (from current standing)
+  let safeSkips = 0;
+  if (totalAvailable > 0 && targetDec > 0 && targetDec <= 1.0) {
+    safeSkips = Math.floor((present / targetDec) - totalAvailable);
+  }
 
   let status: SafeSkipStatus = 'SAFE';
   let classesToAttend = 0;
@@ -39,29 +52,24 @@ export function calculateSubjectStats(
   if (safeSkips >= 0) {
     if (safeSkips === 0) {
       status = 'WARNING';
-      message = `You are right at the border! Attend tomorrow's lecture to maintain ${targetPct}%.`;
+      message = `You are right at the border of ${targetPct}%! You cannot skip any more classes without dropping below your target.`;
     } else if (safeSkips <= 2) {
       status = 'WARNING';
-      message = `Use caution: You can only skip ${safeSkips} more class(es) this semester.`;
+      message = `Use caution: You can only skip ${safeSkips} more class(es) this semester while maintaining ${targetPct}%.`;
     } else {
       status = 'SAFE';
-      message = `You can safely skip ${safeSkips} more class(es) this semester while staying above ${targetPct}%.`;
+      const futureTotal = totalAvailable + safeSkips;
+      const futurePct = futureTotal > 0 ? (present / futureTotal) * 100.0 : 100.0;
+      message = `You can safely skip up to ${safeSkips} more class(es). If you skip ${safeSkips} class(es), your attendance will be ${Number(futurePct.toFixed(1))}%, keeping you safely above your ${targetPct}% requirement!`;
     }
   } else {
     // Formula 3: Classes Needed to Recover (Danger Zone)
-    // We want: (P + N) / (conducted + N) >= (targetPct / 100.0)
-    // N = ceil( ((targetPct / 100.0) * conducted - P) / (1 - (targetPct / 100.0)) )
     status = 'DANGER';
-    const targetDec = targetPct / 100.0;
+    classesToAttend = Math.max(1, neededMore > 0 ? neededMore : 1);
     
-    // Avoid division by zero if target is 100%
-    if (targetDec >= 1.0) {
-      classesToAttend = remaining;
-    } else {
-      classesToAttend = Math.max(1, Math.ceil((targetDec * conducted - present) / (1.0 - targetDec)));
-    }
-    
-    message = `Critical! Attend the next ${classesToAttend} class(es) consecutively to reach ${targetPct}%.`;
+    const futurePresent = present + classesToAttend;
+    const futurePct = totalAvailable > 0 ? (futurePresent / totalAvailable) * 100.0 : 100.0;
+    message = `You are currently below your ${targetPct}% target! Out of ${totalAvailable} total semester classes, you must attend ${classesToAttend} more class(es) to reach ${Number(futurePct.toFixed(1))}%.`;
   }
 
   return {
@@ -71,18 +79,66 @@ export function calculateSubjectStats(
     is_lab: subject.is_lab,
     color_hex: subject.color_hex,
     present,
-    absent,
+    absent: effectiveAbsent,
     cancelled,
     swapped,
     conducted,
     remaining,
     total_expected: totalExpected,
+    total_available: totalAvailable,
     current_percentage: Number(currentPct.toFixed(2)),
     safe_skips: Math.max(0, safeSkips),
     classes_to_attend: classesToAttend,
     status,
     message,
   };
+}
+
+/**
+ * Calculates how many lectures should have been conducted for a subject from semester_start_date until today (or reference date),
+ * by reading the timetable, counting scheduled lecture days, ignoring holidays, and applying extra/cancelled class modifications.
+ */
+export function calculateConductedTillDate(
+  subjectId: string,
+  slots: TimetableSlot[],
+  holidays: AcademicHoliday[],
+  startDateStr: string,
+  toTimeMs: number = Date.now(),
+  extraClasses: number = 0,
+  cancelledClasses: number = 0
+): number {
+  const subjectSlots = slots.filter(s => s.subject_id === subjectId);
+  if (subjectSlots.length === 0) return Math.max(0, extraClasses - cancelledClasses);
+
+  const activeDaysOfWeek = new Set(subjectSlots.map(s => s.day_of_week));
+  const holidayDates = new Set(holidays.map(h => h.holiday_date));
+
+  const start = new Date(startDateStr);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(toTimeMs);
+  end.setHours(23, 59, 59, 999);
+
+  if (start > end) return Math.max(0, extraClasses - cancelledClasses);
+
+  let conductedCount = 0;
+  const curr = new Date(start);
+  while (curr <= end) {
+    const year = curr.getFullYear();
+    const month = String(curr.getMonth() + 1).padStart(2, '0');
+    const day = String(curr.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    const dayOfWeek = curr.getDay();
+
+    if (!holidayDates.has(dateStr) && activeDaysOfWeek.has(dayOfWeek)) {
+      const slotsOnDay = subjectSlots.filter(s => s.day_of_week === dayOfWeek).length;
+      conductedCount += slotsOnDay;
+    }
+
+    curr.setDate(curr.getDate() + 1);
+  }
+
+  return Math.max(0, conductedCount + extraClasses - cancelledClasses);
 }
 
 /**
@@ -141,7 +197,8 @@ export function calculateOverallSemesterStats(
   holidays: AcademicHoliday[],
   logs: AttendanceLog[],
   targetPct: number = 75.0,
-  endDateStr: string = new Date(Date.now() + 86400000 * 90).toISOString().split('T')[0]
+  endDateStr: string = new Date(Date.now() + 86400000 * 90).toISOString().split('T')[0],
+  startDateStr?: string
 ): { overall: OverallSemesterStats; subjectStats: SubjectAttendanceStats[] } {
   let totalPresent = 0;
   let totalAbsent = 0;
@@ -157,11 +214,12 @@ export function calculateOverallSemesterStats(
     const cancelled = subLogs.filter(l => l.status === 'CANCELLED').length;
     const swapped = subLogs.filter(l => l.status === 'SWAPPED').length;
     const remaining = calculateRemainingLectures(sub.id, slots, holidays, endDateStr);
+    const conductedTillDate = startDateStr ? calculateConductedTillDate(sub.id, slots, holidays, startDateStr, Date.now(), 0, cancelled) : undefined;
 
-    const stats = calculateSubjectStats(sub, present, absent, cancelled, swapped, remaining, targetPct);
+    const stats = calculateSubjectStats(sub, present, absent, cancelled, swapped, remaining, targetPct, conductedTillDate);
 
     totalPresent += present;
-    totalAbsent += absent;
+    totalAbsent += stats.absent;
     totalConducted += stats.conducted;
     totalRemaining += remaining;
     if (stats.status === 'SAFE') {

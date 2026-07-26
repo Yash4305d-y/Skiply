@@ -64,7 +64,8 @@ export default function DashboardPage() {
     holidays,
     logs,
     profile.target_attendance_percentage,
-    profile.semester_end_date
+    profile.semester_end_date,
+    profile.semester_start_date
   );
 
   // Derive DailyClassItems for selectedDate

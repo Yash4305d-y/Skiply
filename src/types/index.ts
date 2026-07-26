@@ -26,6 +26,7 @@ export interface Subject {
   is_lab: boolean;
   credit_hours: number;
   color_hex?: string;
+  target_attendance_percentage?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -85,6 +86,7 @@ export interface SubjectAttendanceStats {
   conducted: number;
   remaining: number;
   total_expected: number;
+  total_available: number;
   current_percentage: number;
   safe_skips: number;
   classes_to_attend: number; // Consecutive classes required if in DANGER
