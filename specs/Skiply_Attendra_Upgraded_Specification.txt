@@ -1,0 +1,234 @@
+================================================================================
+         SKIPLY / ATTENDRA — UPGRADED MASTER PROJECT SPECIFICATION
+================================================================================
+An AI-Assisted Development Guide for Antigravity, Cursor, and Windsurf
+Optimized for Next.js 14+, Supabase, and Progressive Web App (PWA) Deployment
+
+================================================================================
+1. EXECUTIVE SUMMARY & ARCHITECTURAL UPGRADES
+================================================================================
+Skiply has been upgraded to provide a more granular, intuitive, and frictionless
+attendance planning experience for college students. 
+
+Key Upgrades in this Specification:
+1. Subject-Wise Safe Skips & Math Engine: Attendance percentages and safe skip
+   limits are no longer just global. Colleges enforce attendance *per subject*.
+   The engine now calculates exact percentages, safe skip buffers, and recovery
+   requirements for EACH subject individually.
+2. Visual Calendar History View: A dedicated calendar interface where students
+   can visually audit their semester. Days and specific lecture slots are color-coded
+   (Green = Present, Red = Absent, Gray = Cancelled, Blue = Upcoming).
+3. Simplified "Holiday List" Onboarding: Replacing the complex Academic Calendar
+   upload with a lightweight "Holiday List" upload/input. Students simply upload
+   an image of their holiday list or paste the dates, which the AI parses instantly.
+
+================================================================================
+2. RECOMMENDED TECH STACK & LIBRARIES
+================================================================================
+- Frontend: Next.js 14+ (App Router), TypeScript, Tailwind CSS
+- UI Components: shadcn/ui (using Radix UI primitives), Lucide React Icons
+- Calendar Rendering: `react-day-picker` (integrated with shadcn/ui Calendar) or 
+  a custom Tailwind CSS monthly grid for displaying multi-subject daily badges.
+- Backend & Database: Supabase (PostgreSQL, Auth, Storage, Row Level Security)
+- AI & Parsing Engine: Google GenAI SDK (`gemini-1.5-pro` or `gemini-1.5-flash`)
+  with strictly enforced JSON Schema output.
+- PWA & Offline Sync: Serwist (Next-PWA) + LocalStorage / IndexedDB queueing.
+
+================================================================================
+3. STREAMLINED ONBOARDING WORKFLOW (AI PARSER)
+================================================================================
+The onboarding pipeline is reduced to two simple steps:
+
+[Step 1: Class Timetable Upload]
+- User uploads an image/screenshot of their weekly class timetable.
+- AI extracts: Subject Names, Subject Codes, Days of the Week, Start/End Times,
+  and Room Numbers.
+- User reviews and confirms the extracted grid in an interactive editable UI.
+
+[Step 2: Holiday List Upload / Entry]
+- Instead of a complex multi-page academic calendar, the user uploads a simple
+  image of the "Semester Holiday List" OR pastes text directly into a text area.
+- AI extracts: Holiday Date (`YYYY-MM-DD`) and Holiday Name (e.g., "Diwali", "Labor Day").
+- The system asks for the Semester Start Date and Semester End Date via two simple
+  date pickers to establish the semester boundary.
+
+================================================================================
+4. UPGRADED DATABASE SCHEMA (SUPABASE SQL)
+================================================================================
+
+-- 1. Profiles Table
+CREATE TABLE profiles (
+    id UUID REFERENCES auth.users(id) PRIMARY KEY,
+    full_name TEXT,
+    target_attendance_percentage NUMERIC DEFAULT 75.0,
+    semester_start_date DATE NOT NULL,
+    semester_end_date DATE NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Subjects Table
+CREATE TABLE subjects (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    subject_code TEXT NOT NULL,
+    subject_name TEXT NOT NULL,
+    is_lab BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. Weekly Timetable Slots
+CREATE TABLE timetable_slots (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    subject_id UUID REFERENCES subjects(id) ON DELETE CASCADE,
+    day_of_week INTEGER NOT NULL, -- 0 = Sunday, 1 = Monday ... 6 = Saturday
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    room_number TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Simplified Holiday List Table
+CREATE TABLE holidays (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    holiday_date DATE NOT NULL,
+    holiday_name TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Attendance Logs Table (Granular per Lecture Slot)
+CREATE TABLE attendance_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    subject_id UUID REFERENCES subjects(id) ON DELETE CASCADE,
+    timetable_slot_id UUID REFERENCES timetable_slots(id) ON DELETE SET NULL,
+    log_date DATE NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('PRESENT', 'ABSENT', 'CANCELLED')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, timetable_slot_id, log_date)
+);
+
+-- Enable Row Level Security (RLS) across all tables for user isolation.
+
+================================================================================
+5. SUBJECT-WISE MATH ENGINE & "SAFE SKIP" PREDICTION
+================================================================================
+This deterministic algorithm runs for EACH subject independently to populate
+the subject cards and the prediction dashboard.
+
+[The Core Logic per Subject]
+Let:
+- T_req = User's target percentage (e.g., 75.0%)
+- P = Total PRESENT classes logged for this subject
+- A = Total ABSENT classes logged for this subject
+- C = Total CANCELLED classes logged for this subject
+- T_conducted = P + A  (Cancelled classes do NOT penalize the denominator)
+- T_remaining = Future scheduled occurrences of this subject's timetable slots between
+                tomorrow and `semester_end_date`, EXCLUDING dates present in `holidays`.
+- T_total_expected = T_conducted + T_remaining
+
+[Subject-Wise Formulas]
+1. Current Percentage = (T_conducted == 0) ? 100.0 : round((P / T_conducted) * 100, 2)
+
+2. Safe Skips Available (How many more of THIS subject can I miss?):
+   Required Presents = (T_req / 100.0) * T_total_expected
+   Safe Skips (S) = floor(P + T_remaining - Required Presents)
+
+3. Recovery Classes Needed (If S < 0, student is in Danger Zone):
+   Classes Needed (N) = ceil( ((T_req / 100.0) * T_conducted - P) / (1.0 - (T_req / 100.0)) )
+
+[AI Prediction Layer (Smart Insights Summary)]
+The application aggregates these deterministic subject metrics and feeds them to an
+on-device or lightweight LLM utility to generate human-readable smart insights:
+- Example Output: "You are safe in Physics (4 skips left) and English (3 skips left), 
+  but your Data Structures attendance is critical at 71%. You must attend the next 
+  3 consecutive Data Structures lectures to get back above 75%."
+
+================================================================================
+6. UI/UX CORE MODULES & THE VISUAL CALENDAR
+================================================================================
+
+[Module 1: Daily Action Dashboard (Home)]
+- Displays today's scheduled classes as interactive cards.
+- Each card features 3 distinct, large tap-targets:
+  * [ Present ] -> Turns card border border-emerald-500 / background soft green.
+  * [ Absent ]  -> Turns card border border-rose-500 / background soft red.
+  * [ Cancelled ] -> Turns card border border-slate-400 / grays out the card.
+- Hero Widget at Top: "Overall Attendance Status" with a quick horizontal scrollable
+  pill-list showing each subject's current percentage and safe skips badge.
+
+[Module 2: Visual Attendance Calendar (History View)]
+- A monthly calendar grid (using shadcn/ui Calendar or custom CSS Grid).
+- When the user views a month, each day box displays miniature color-coded dots
+  or badges representing the classes scheduled for that day:
+  * 🟢 Green Dot / Pill = Marked Present
+  * 🔴 Red Dot / Pill = Marked Absent
+  * ⚪ Gray Dot / Pill = Class Cancelled or Holiday
+  * 🔵 Blue Hollow Dot = Upcoming Scheduled Class
+- Interactive Day Drawer: Tapping any date on the calendar opens a bottom sheet
+  (shadcn/ui Sheet/Dialog) listing all lectures for that specific day. Students can
+  edit or retroactively change attendance statuses directly from this drawer.
+- Subject Filter Dropdown: A select menu at the top of the calendar allows students
+  to filter the visual calendar to show ONLY one specific subject (e.g., "Show only 
+  Mathematics history").
+
+[Module 3: Subject Analytics & Skip Predictor Tab]
+- A dedicated analytics page listing all subjects as detailed cards.
+- Each Subject Card Displays:
+  * Subject Name & Code
+  * Current Attendance Percentage (with a circular or linear progress bar).
+  * Stats Breakdown: X Present | Y Absent | Z Cancelled.
+  * The "Safe Skip Prediction Box":
+    - If Safe Skips >= 1: Displayed in Green -> "🎉 You can safely skip [X] more lectures."
+    - If Safe Skips == 0: Displayed in Yellow -> "⚠️ On the edge! Do not skip the next class."
+    - If Safe Skips < 0: Displayed in Red -> "🚨 Critical! Attend next [Y] classes consecutively."
+
+================================================================================
+7. STEP-BY-STEP PROMPT ROADMAP FOR ANTIGRAVITY (IDE)
+================================================================================
+Feed these sequential prompts into Antigravity / Cursor to build the upgraded app:
+
+--- PROMPT 1: PROJECT SETUP & SUPABASE SCHEMA ---
+"Act as a Senior Next.js 14 & Supabase Architect. Initialize a project using Next.js 
+App Router, TypeScript, Tailwind CSS, and shadcn/ui. Set up Supabase authentication 
+(Google OAuth & Email). Create the database migration script using the provided 
+SQL schema for `profiles`, `subjects`, `timetable_slots`, `holidays`, and 
+`attendance_logs`, ensuring Row Level Security (RLS) is enabled for user data isolation."
+
+--- PROMPT 2: SIMPLIFIED AI ONBOARDING (TIMETABLE + HOLIDAY LIST) ---
+"Build a two-step AI onboarding wizard using the Google GenAI SDK (`gemini-1.5-pro`).
+Step 1: Allow users to upload a class timetable image. Write an API route `/api/parse-timetable` 
+to extract subjects and weekly timings into a structured JSON grid that users can edit.
+Step 2: Instead of an academic calendar, allow users to upload an image of a 'Holiday List' 
+or paste holiday text directly, alongside picking their Semester Start and End dates. 
+Write an API route `/api/parse-holidays` to extract dates and holiday names. Upon completion, 
+save all confirmed data to Supabase."
+
+--- PROMPT 3: SUBJECT-WISE MATH ENGINE & DAILY DASHBOARD ---
+"Create a TypeScript math engine utility `attendanceMath.ts` that implements the 
+subject-wise safe skip and recovery formulas provided in the specification. 
+Then, build the Home Dashboard (`/dashboard`): fetch today's schedule from Supabase, 
+render class cards with single-tap 'Present', 'Absent', and 'Cancelled' buttons with 
+instant optimistic UI updates, and display a top summary widget showing each subject's 
+real-time percentage and safe skip count."
+
+--- PROMPT 4: VISUAL ATTENDANCE CALENDAR (HISTORY VIEW) ---
+"Implement a dedicated Calendar History page (`/calendar`) using shadcn/ui Calendar 
+and Tailwind CSS. For the displayed month, render color-coded badges/dots inside each 
+date cell (Green for Present, Red for Absent, Gray for Cancelled/Holiday). Add a subject 
+filter dropdown at the top to view history for a specific subject. Tapping a date must 
+open a bottom drawer/modal allowing the student to view and edit attendance logs for that day."
+
+--- PROMPT 5: SUBJECT ANALYTICS & SMART PREDICTIONS ---
+"Create a Subject Analytics page (`/analytics`). Render a detailed card for every subject 
+showing progress bars, total counts (Present/Absent/Cancelled), and the dynamic 'Safe Skip Box' 
+(showing green safe skip allowances or red consecutive recovery warnings). Add an AI Insights 
+banner at the top that generates a 2-sentence summary of their attendance standing across all subjects."
+
+--- PROMPT 6: PWA CONVERSION & OFFLINE OPTIMIZATION ---
+"Integrate Serwist into the Next.js app to configure it as an installable Progressive 
+Web App (PWA) with a standalone display mode for mobile home screens. Implement offline-first 
+attendance marking: if the user taps Present/Absent without network connectivity in a classroom, 
+queue the action in localStorage/IndexedDB and automatically sync to Supabase once reconnected."
+================================================================================

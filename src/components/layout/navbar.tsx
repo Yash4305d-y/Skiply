@@ -3,18 +3,27 @@
 import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sparkles, Calendar, Clock, LayoutDashboard, History, Settings, User, ShieldCheck } from 'lucide-react';
-import { isOnboardedInDemo, getDemoProfile } from '@/lib/demo-store';
+import { Sparkles, LayoutDashboard, History, LogOut, LogIn } from 'lucide-react';
+import { getDemoProfile } from '@/lib/demo-store';
+import { getCurrentUser, signOut } from '@/app/auth/actions';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isOnboarded, setIsOnboarded] = useState(false);
   const [userName, setUserName] = useState('Demo Student');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    setIsOnboarded(isOnboardedInDemo());
-    const prof = getDemoProfile();
-    if (prof.full_name) setUserName(prof.full_name.split(' ')[0]);
+    // Check for real Supabase auth user first
+    getCurrentUser().then((user) => {
+      if (user && user.full_name) {
+        setUserName(`${user.full_name.split(' ')[0]} (${user.unique_id})`);
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+        const prof = getDemoProfile();
+        if (prof.full_name) setUserName(prof.full_name.split(' ')[0]);
+      }
+    });
   }, [pathname]);
 
   const navItems = [
@@ -64,10 +73,30 @@ export default function Navbar() {
         {/* Right Status Badge */}
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-medium text-slate-400">Student:</span>
+            <div className={`w-2 h-2 rounded-full ${isLoggedIn ? 'bg-indigo-400 animate-pulse' : 'bg-emerald-400 animate-pulse'}`} />
+            <span className="font-medium text-slate-400">{isLoggedIn ? 'ID:' : 'Student:'}</span>
             <span className="font-bold text-white">{userName}</span>
           </div>
+
+          {isLoggedIn ? (
+            <button
+              onClick={() => signOut()}
+              className="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 flex items-center gap-1.5 text-xs font-bold transition-all"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden lg:inline">Sign Out</span>
+            </button>
+          ) : (
+            <NextLink
+              href="/login"
+              className="px-3.5 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30 border border-indigo-500/30 flex items-center gap-1.5 text-xs font-bold transition-all"
+              title="Sign In"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Sign In</span>
+            </NextLink>
+          )}
 
           <NextLink
             href="/onboarding"
@@ -78,6 +107,7 @@ export default function Navbar() {
           </NextLink>
         </div>
       </div>
+
 
       {/* Mobile Bottom Navigation Bar (PWA Friendly) */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-slate-800/80 bg-slate-950/90 backdrop-blur-2xl px-4 py-2.5 flex items-center justify-around">

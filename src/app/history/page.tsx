@@ -11,6 +11,8 @@ import {
 } from '@/lib/demo-store';
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { Sparkles } from 'lucide-react';
+import { markAttendance } from '@/lib/db/actions';
+import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 
 export default function HistoryPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -19,6 +21,20 @@ export default function HistoryPage() {
   const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [offlineToast, setOfflineToast] = useState<string | null>(null);
+  const [syncToast, setSyncToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleSynced = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.synced > 0) {
+        setSyncToast('🔄 Offline attendance synced to database!');
+        setTimeout(() => setSyncToast(null), 4000);
+      }
+    };
+    window.addEventListener('skiply_offline_synced', handleSynced);
+    return () => window.removeEventListener('skiply_offline_synced', handleSynced);
+  }, []);
 
   useEffect(() => {
     setSubjects(getDemoSubjects());
@@ -40,13 +56,51 @@ export default function HistoryPage() {
     );
   }
 
-  const handleUpdateLog = (logId: string, newStatus: AttendanceStatus) => {
+  const handleUpdateLog = async (logId: string, newStatus: AttendanceStatus) => {
     const existingLog = logs.find(l => l.id === logId);
     if (!existingLog) return;
 
     const updatedLog: AttendanceLog = { ...existingLog, status: newStatus };
     const updatedList = saveDemoAttendanceLog(updatedLog);
     setLogs([...updatedList]);
+
+    if (newStatus === 'PRESENT' || newStatus === 'ABSENT' || newStatus === 'CANCELLED') {
+      // Check if browser is offline
+      if (typeof window !== 'undefined' && !navigator.onLine) {
+        queueAttendanceAction({
+          subjectId: existingLog.subject_id,
+          timetableSlotId: existingLog.timetable_slot_id || null,
+          logDate: existingLog.log_date,
+          status: newStatus,
+        });
+        setOfflineToast('📴 Offline — attendance queued to sync!');
+        setTimeout(() => setOfflineToast(null), 3500);
+        return;
+      }
+
+      // Background server action
+      try {
+        await markAttendance({
+          subjectId: existingLog.subject_id,
+          timetableSlotId: existingLog.timetable_slot_id || null,
+          logDate: existingLog.log_date,
+          status: newStatus,
+        });
+      } catch (e) {
+        if (e instanceof Error && (e.message.includes('fetch') || e.message.includes('network') || e.message.includes('Failed to fetch') || !navigator.onLine)) {
+          queueAttendanceAction({
+            subjectId: existingLog.subject_id,
+            timetableSlotId: existingLog.timetable_slot_id || null,
+            logDate: existingLog.log_date,
+            status: newStatus,
+          });
+          setOfflineToast('📴 Offline — attendance queued to sync!');
+          setTimeout(() => setOfflineToast(null), 3500);
+        } else {
+          console.log('Background markAttendance skipped/failed:', e);
+        }
+      }
+    }
   };
 
   const handleDeleteLog = (slotId: string, dateStr: string) => {
@@ -57,6 +111,20 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
       <Navbar />
+
+      {/* Floating Offline & Sync Toast Banners */}
+      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none">
+        {offlineToast && (
+          <div className="px-5 py-2.5 rounded-2xl bg-amber-500 text-slate-950 font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-amber-400 animate-bounce">
+            <span>{offlineToast}</span>
+          </div>
+        )}
+        {syncToast && (
+          <div className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-emerald-400 animate-bounce">
+            <span>{syncToast}</span>
+          </div>
+        )}
+      </div>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <HistoryView

@@ -47,16 +47,27 @@ CREATE TABLE IF NOT EXISTS timetable_slots (
 );
 
 -- 4. Academic Calendar & Holidays Table
-CREATE TABLE IF NOT EXISTS academic_holidays (
+CREATE TABLE IF NOT EXISTS holidays (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     holiday_date DATE NOT NULL,
-    description TEXT NOT NULL,
+    holiday_name TEXT NOT NULL,
     is_exam_day BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(user_id, holiday_date)
 );
+
+-- Backward compatibility if academic_holidays was created previously:
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'academic_holidays') THEN
+        ALTER TABLE IF EXISTS academic_holidays RENAME TO holidays;
+    END IF;
+    IF EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'holidays' AND column_name = 'description') THEN
+        ALTER TABLE IF EXISTS holidays RENAME COLUMN description TO holiday_name;
+    END IF;
+END $$;
 
 -- 5. Daily Attendance Logs Table
 CREATE TABLE IF NOT EXISTS attendance_logs (
@@ -78,7 +89,7 @@ CREATE TABLE IF NOT EXISTS attendance_logs (
 -- ==============================================================================
 CREATE INDEX IF NOT EXISTS idx_subjects_user ON subjects(user_id);
 CREATE INDEX IF NOT EXISTS idx_slots_user_day ON timetable_slots(user_id, day_of_week);
-CREATE INDEX IF NOT EXISTS idx_holidays_user_date ON academic_holidays(user_id, holiday_date);
+CREATE INDEX IF NOT EXISTS idx_holidays_user_date ON holidays(user_id, holiday_date);
 CREATE INDEX IF NOT EXISTS idx_attendance_user_subject_date ON attendance_logs(user_id, subject_id, log_date);
 CREATE INDEX IF NOT EXISTS idx_attendance_date ON attendance_logs(user_id, log_date);
 
@@ -96,7 +107,7 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 CREATE TRIGGER update_subjects_updated_at BEFORE UPDATE ON subjects FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 CREATE TRIGGER update_timetable_slots_updated_at BEFORE UPDATE ON timetable_slots FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
-CREATE TRIGGER update_academic_holidays_updated_at BEFORE UPDATE ON academic_holidays FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+CREATE TRIGGER update_holidays_updated_at BEFORE UPDATE ON holidays FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 CREATE TRIGGER update_attendance_logs_updated_at BEFORE UPDATE ON attendance_logs FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 -- ==============================================================================
@@ -105,7 +116,7 @@ CREATE TRIGGER update_attendance_logs_updated_at BEFORE UPDATE ON attendance_log
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE timetable_slots ENABLE ROW LEVEL SECURITY;
-ALTER TABLE academic_holidays ENABLE ROW LEVEL SECURITY;
+ALTER TABLE holidays ENABLE ROW LEVEL SECURITY;
 ALTER TABLE attendance_logs ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
@@ -126,16 +137,40 @@ CREATE POLICY "Users can update own timetable slots" ON timetable_slots FOR UPDA
 CREATE POLICY "Users can delete own timetable slots" ON timetable_slots FOR DELETE USING (auth.uid() = user_id);
 
 -- Academic Holidays Policies
-CREATE POLICY "Users can view own holidays" ON academic_holidays FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own holidays" ON academic_holidays FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own holidays" ON academic_holidays FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own holidays" ON academic_holidays FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Users can view own holidays" ON holidays FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own holidays" ON holidays FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own holidays" ON holidays FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own holidays" ON holidays FOR DELETE USING (auth.uid() = user_id);
 
 -- Attendance Logs Policies
 CREATE POLICY "Users can view own attendance logs" ON attendance_logs FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own attendance logs" ON attendance_logs FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own attendance logs" ON attendance_logs FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own attendance logs" ON attendance_logs FOR DELETE USING (auth.uid() = user_id);
+
+-- ==============================================================================
+-- AUTOMATIC PROFILE CREATION TRIGGER ON USER SIGNUP
+-- ==============================================================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, email)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Student'),
+    NEW.email
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    full_name = EXCLUDED.full_name,
+    email = EXCLUDED.email;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- ==============================================================================
 -- STORAGE BUCKET CONFIGURATION (For Timetable Images & Academic Calendars)

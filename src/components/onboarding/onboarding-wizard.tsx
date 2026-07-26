@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   UploadCloud, Sparkles, CheckCircle2, AlertTriangle, 
   Calendar, Clock, BookOpen, ArrowRight, ArrowLeft, 
-  Plus, Trash2, Edit3, Check, RefreshCw, Layers, FileText
+  Plus, Trash2, Edit3, Check, RefreshCw, Layers, FileText, Loader2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { 
@@ -14,12 +14,15 @@ import {
   Subject, TimetableSlot, AcademicHoliday 
 } from '@/types';
 import { saveConfirmedScheduleToDemo } from '@/lib/demo-store';
+import { saveOnboardingData } from '@/lib/db/actions';
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export default function OnboardingWizard() {
   const router = useRouter();
   const [step, setStep] = useState<'UPLOAD' | 'PROCESSING' | 'REVIEW' | 'SUCCESS'>('UPLOAD');
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   
   // Form State
   const [targetPercentage, setTargetPercentage] = useState<number>(75);
@@ -97,7 +100,10 @@ export default function OnboardingWizard() {
   };
 
   // Save Confirmed Schedule
-  const handleConfirmAndSave = () => {
+  const handleConfirmAndSave = async () => {
+    setIsSaving(true);
+    setToastMessage(null);
+
     // Map AI extracted items to permanent UI entities
     const finalSubjects: Subject[] = subjects.map(s => ({
       id: s.temp_id,
@@ -127,7 +133,7 @@ export default function OnboardingWizard() {
       is_exam_day: h.is_exam_day,
     }));
 
-    // Save to demo store
+    // Save to demo store as local fallback
     saveConfirmedScheduleToDemo(
       finalSubjects,
       finalSlots,
@@ -137,6 +143,43 @@ export default function OnboardingWizard() {
       endDate
     );
 
+    // Prepare payload for Supabase cloud DB
+    const payload = {
+      subjects: subjects.map(s => ({
+        code: s.subject_code,
+        name: s.subject_name,
+        is_lab: s.is_lab,
+      })),
+      slots: slots.map(sl => {
+        const subj = subjects.find(s => s.temp_id === sl.subject_temp_id);
+        return {
+          subject_code: subj ? subj.subject_code : '',
+          day_of_week: sl.day_of_week,
+          start_time: sl.start_time,
+          end_time: sl.end_time,
+          room: sl.room_number || '',
+        };
+      }).filter(sl => sl.subject_code),
+      holidays: holidays.map(h => ({
+        date: h.holiday_date,
+        name: h.description,
+      })),
+      startDate,
+      endDate,
+    };
+
+    try {
+      await saveOnboardingData(payload);
+    } catch (e: any) {
+      // If student is testing in Demo Mode without cloud auth, quietly proceed with local demo save
+      console.log('Cloud DB save skipped (Demo Mode or unauthenticated):', e);
+      if (e?.message && !e.message.includes('Not authenticated')) {
+        console.error('Supabase save error during AI onboarding:', e.message);
+      }
+    }
+
+    setIsSaving(false);
+    setToastMessage('Schedule saved successfully!');
     setStep('SUCCESS');
     
     // Celebrate with confetti!
@@ -168,6 +211,21 @@ export default function OnboardingWizard() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Floating Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl bg-emerald-500 text-white font-bold text-sm shadow-2xl flex items-center gap-2.5 border border-emerald-400"
+          >
+            <CheckCircle2 className="w-5 h-5 animate-bounce" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Wizard Header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-4">
@@ -676,10 +734,20 @@ export default function OnboardingWizard() {
 
               <button 
                 onClick={handleConfirmAndSave}
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 flex items-center gap-2 transition-all"
+                disabled={isSaving}
+                className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 flex items-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
-                <Check className="w-4 h-4" />
-                <span>Confirm & Build Schedule</span>
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving to Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Confirm & Build Schedule</span>
+                  </>
+                )}
               </button>
             </div>
           </motion.div>

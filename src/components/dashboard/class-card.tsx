@@ -42,13 +42,13 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
       transition={{ duration: 0.25 }}
       className={`glass-card rounded-2xl p-5 sm:p-6 transition-all border ${
         isMarked && currentStatus === 'PRESENT' 
-          ? 'border-emerald-500/50 bg-gradient-to-r from-emerald-950/30 to-slate-900 shadow-lg shadow-emerald-500/10' 
+          ? 'border-emerald-500 bg-gradient-to-r from-emerald-950/30 to-slate-900 shadow-lg shadow-emerald-500/10' 
           : isMarked && currentStatus === 'ABSENT' 
-          ? 'border-rose-500/50 bg-gradient-to-r from-rose-950/30 to-slate-900 shadow-lg shadow-rose-500/10'
+          ? 'border-rose-500 bg-gradient-to-r from-rose-950/30 to-slate-900 shadow-lg shadow-rose-500/10'
           : isMarked && currentStatus === 'CANCELLED' 
-          ? 'border-amber-500/50 bg-gradient-to-r from-amber-950/30 to-slate-900 shadow-lg shadow-amber-500/10'
+          ? 'border-slate-400 bg-gradient-to-r from-slate-900 to-slate-800/80 shadow-lg shadow-slate-500/10'
           : isMarked && currentStatus === 'SWAPPED' 
-          ? 'border-purple-500/50 bg-gradient-to-r from-purple-950/30 to-slate-900 shadow-lg shadow-purple-500/10'
+          ? 'border-purple-500 bg-gradient-to-r from-purple-950/30 to-slate-900 shadow-lg shadow-purple-500/10'
           : 'border-slate-800/80 hover:border-indigo-500/40'
       }`}
     >
