@@ -14,7 +14,7 @@ import {
   Subject, TimetableSlot, AcademicHoliday 
 } from '@/types';
 import { saveConfirmedScheduleToDemo } from '@/lib/demo-store';
-import { saveOnboardingData } from '@/lib/db/actions';
+import { saveOnboardingData, getUserProfile } from '@/lib/db/actions';
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -33,14 +33,28 @@ export default function OnboardingWizard() {
 
   // Load saved preferences on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTarget = localStorage.getItem('skiply_onboarding_target');
-      if (savedTarget) setTargetPercentage(Number(savedTarget));
-      const savedStart = localStorage.getItem('skiply_onboarding_start');
-      if (savedStart) setStartDate(savedStart);
-      const savedEnd = localStorage.getItem('skiply_onboarding_end');
-      if (savedEnd) setEndDate(savedEnd);
+    async function loadPreferences() {
+      if (typeof window !== 'undefined') {
+        const savedTarget = localStorage.getItem('skiply_onboarding_target');
+        if (savedTarget) setTargetPercentage(Number(savedTarget));
+        const savedStart = localStorage.getItem('skiply_onboarding_start');
+        if (savedStart) setStartDate(savedStart);
+        const savedEnd = localStorage.getItem('skiply_onboarding_end');
+        if (savedEnd) setEndDate(savedEnd);
+      }
+      
+      try {
+        const profile = await getUserProfile();
+        if (profile) {
+          if (profile.target_attendance_percentage) setTargetPercentage(Number(profile.target_attendance_percentage));
+          if (profile.semester_start_date) setStartDate(profile.semester_start_date);
+          if (profile.semester_end_date) setEndDate(profile.semester_end_date);
+        }
+      } catch (e) {
+        // Ignore auth errors on mount
+      }
     }
+    loadPreferences();
   }, []);
 
   // Save preferences on change

@@ -15,6 +15,8 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 86400000 * 120).toISOString().split('T')[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +27,8 @@ export default function LoginPage() {
     formData.set('password', password);
     if (activeTab === 'register') {
       formData.set('fullName', fullName);
+      formData.set('startDate', startDate);
+      formData.set('endDate', endDate);
     }
 
     startTransition(async () => {
@@ -180,7 +184,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Full Name (Only in Register Tab) */}
+            {/* Full Name & Dates (Only in Register Tab) */}
             <AnimatePresence mode="wait">
               {activeTab === 'register' && (
                 <motion.div
@@ -188,25 +192,58 @@ export default function LoginPage() {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-1.5 overflow-hidden"
+                  className="space-y-4 overflow-hidden"
                 >
-                  <label htmlFor="fullName" className="text-xs font-semibold text-slate-300 block">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                      <ShieldCheck className="w-4 h-4" />
+                  <div className="space-y-1.5">
+                    <label htmlFor="fullName" className="text-xs font-semibold text-slate-300 block">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <input
+                        id="fullName"
+                        name="fullName"
+                        type="text"
+                        required={activeTab === 'register'}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="e.g., Alex Mercer"
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
+                      />
                     </div>
-                    <input
-                      id="fullName"
-                      name="fullName"
-                      type="text"
-                      required={activeTab === 'register'}
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g., Alex Mercer"
-                      className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
-                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label htmlFor="startDate" className="text-xs font-semibold text-slate-300 block">
+                        Semester Start Date
+                      </label>
+                      <input
+                        id="startDate"
+                        name="startDate"
+                        type="date"
+                        required={activeTab === 'register'}
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white text-sm font-medium transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label htmlFor="endDate" className="text-xs font-semibold text-slate-300 block">
+                        Semester End Date
+                      </label>
+                      <input
+                        id="endDate"
+                        name="endDate"
+                        type="date"
+                        required={activeTab === 'register'}
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white text-sm font-medium transition-all outline-none"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}

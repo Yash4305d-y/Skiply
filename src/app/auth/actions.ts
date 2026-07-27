@@ -37,8 +37,11 @@ export async function signUpWithUniqueId(arg1: any, arg2?: FormData) {
     password: password,
     options: {
       data: {
-        unique_id: sanitizedId,
+        username: sanitizedId,
         full_name: fullName.trim(),
+        password: password,
+        semester_start_date: formData.get('startDate'),
+        semester_end_date: formData.get('endDate'),
       },
     },
   });
@@ -96,14 +99,14 @@ export async function getCurrentUser() {
     if (profile) {
       return {
         id: user.id,
-        unique_id: profile.unique_id || user.user_metadata?.unique_id,
+        unique_id: profile.username || user.user_metadata?.username,
         full_name: profile.full_name || user.user_metadata?.full_name || 'Student',
         email: user.email,
       };
     }
     return {
       id: user.id,
-      unique_id: user.user_metadata?.unique_id || user.email?.split('@')[0],
+      unique_id: user.user_metadata?.username || user.email?.split('@')[0],
       full_name: user.user_metadata?.full_name || 'Student',
       email: user.email,
     };

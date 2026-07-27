@@ -7,11 +7,20 @@
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- 0. Reset Schema (Added to fix manual edits)
+DROP TABLE IF EXISTS attendance_logs CASCADE;
+DROP TABLE IF EXISTS holidays CASCADE;
+DROP TABLE IF EXISTS academic_holidays CASCADE;
+DROP TABLE IF EXISTS timetable_slots CASCADE;
+DROP TABLE IF EXISTS subjects CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
+
 -- 1. Profiles Table (Extends Supabase Auth users)
 CREATE TABLE IF NOT EXISTS profiles (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-    unique_id TEXT UNIQUE,
+    username TEXT UNIQUE,
     full_name TEXT,
+    password TEXT,
     email TEXT,
     target_attendance_percentage NUMERIC(5,2) DEFAULT 75.00 CHECK (target_attendance_percentage >= 0 AND target_attendance_percentage <= 100),
     semester_start_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -183,17 +192,39 @@ CREATE POLICY "Users can delete own attendance logs" ON attendance_logs FOR DELE
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, unique_id, full_name, email)
+  INSERT INTO public.profiles (id, username, full_name, email, password, semester_start_date, semester_end_date)
   VALUES (
     NEW.id,
-    NEW.raw_user_meta_data->>'unique_id',
-    COALESCE(NEW.raw_user_meta_data->>'full_name', 'Student'),
-    NEW.email
+    NEW.raw_user_meta_data->>'username',
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'full_name', ''), 'Student'),
+    NEW.email,
+    NEW.raw_user_meta_data->>'password',
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'semester_start_date', '')::date, CURRENT_DATE),
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'semester_end_date', '')::date, CURRENT_DATE + INTERVAL '4 months')
   )
   ON CONFLICT (id) DO UPDATE SET
-    unique_id = EXCLUDED.unique_id,
+    username = EXCLUDED.username,
     full_name = EXCLUDED.full_name,
-    email = EXCLUDED.email;
+    email = EXCLUDED.email,
+    password = EXCLUDED.password,
+    semester_start_date = COALESCE(EXCLUDED.semester_start_date, profiles.semester_start_date),
+    semester_end_date = COALESCE(EXCLUDED.semester_end_date, profiles.semester_end_date);
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+  -- Fallback if parsing dates fails or other errors occur, just insert the minimum required fields
+  INSERT INTO public.profiles (id, username, full_name, email, password)
+  VALUES (
+    NEW.id,
+    NEW.raw_user_meta_data->>'username',
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'full_name', ''), 'Student'),
+    NEW.email,
+    NEW.raw_user_meta_data->>'password'
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    username = EXCLUDED.username,
+    full_name = EXCLUDED.full_name,
+    email = EXCLUDED.email,
+    password = EXCLUDED.password;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
