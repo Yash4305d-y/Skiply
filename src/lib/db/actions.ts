@@ -173,14 +173,45 @@ export async function markAttendance(payload: {
       log_date: payload.logDate,
       status: payload.status,
     }, {
-      onConflict: 'user_id,timetable_slot_id,log_date'
+      onConflict: 'user_id,subject_id,timetable_slot_id,log_date'
     })
 
   if (error) throw new Error(error.message)
   
   revalidatePath('/dashboard')
+  revalidatePath('/history')
   revalidatePath('/calendar')
   revalidatePath('/analytics')
+  return { success: true }
+}
+
+export async function removeAttendance(payload: {
+  subjectId: string
+  timetableSlotId: string | null
+  logDate: string
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  let query = supabase
+    .from('attendance_logs')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('subject_id', payload.subjectId)
+    .eq('log_date', payload.logDate)
+    
+  if (payload.timetableSlotId) {
+    query = query.eq('timetable_slot_id', payload.timetableSlotId)
+  } else {
+    query = query.is('timetable_slot_id', null)
+  }
+
+  const { error } = await query
+  if (error) throw new Error(error.message)
+  
+  revalidatePath('/dashboard')
+  revalidatePath('/history')
   return { success: true }
 }
 

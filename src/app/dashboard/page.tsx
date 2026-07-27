@@ -219,9 +219,23 @@ export default function DashboardPage() {
       swapped_subject_id: swappedSubjectId
     };
 
-    // 1. INSTANT OPTIMISTIC UI UPDATE (Zero network latency!)
-    const updatedLogs = saveDemoAttendanceLog(newLog);
-    setLogs([...updatedLogs]);
+    // 1. INSTANT OPTIMISTIC UI UPDATE
+    if (isDemoMode) {
+      const updatedLogs = saveDemoAttendanceLog(newLog);
+      setLogs([...updatedLogs]);
+    } else {
+      setLogs(prev => {
+        const existingIdx = prev.findIndex(
+          l => l.subject_id === subjectId && l.timetable_slot_id === slotId && l.log_date === selectedDate
+        );
+        if (existingIdx >= 0) {
+          const newArr = [...prev];
+          newArr[existingIdx] = newLog;
+          return newArr;
+        }
+        return [...prev, newLog];
+      });
+    }
 
     // Check if browser is offline
     if (typeof window !== 'undefined' && !navigator.onLine && (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED')) {
@@ -263,9 +277,25 @@ export default function DashboardPage() {
     }
   };
 
-  const handleUndoAttendance = (slotId: string) => {
-    const updatedLogs = removeDemoAttendanceLog(slotId, selectedDate);
-    setLogs([...updatedLogs]);
+  const handleUndoAttendance = async (slotId: string) => {
+    if (isDemoMode) {
+      const updatedLogs = removeDemoAttendanceLog(slotId, selectedDate);
+      setLogs([...updatedLogs]);
+    } else {
+      const slot = slots.find(s => s.id === slotId);
+      if (!slot) return;
+      setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === selectedDate)));
+      try {
+        const { removeAttendance } = await import('@/lib/db/actions');
+        await removeAttendance({
+          subjectId: slot.subject_id,
+          timetableSlotId: slotId,
+          logDate: selectedDate
+        });
+      } catch (e) {
+        console.log('Undo failed offline:', e);
+      }
+    }
   };
 
   return (
@@ -326,27 +356,17 @@ export default function DashboardPage() {
             </span>
           </div>
 
-          {dailyHoliday ? (
-            <div className="glass-card p-8 rounded-3xl bg-gradient-to-r from-amber-950/40 via-orange-950/30 to-slate-900 border-amber-500/40 flex flex-col items-center justify-center text-center shadow-xl my-4 space-y-3">
-              <div className="text-5xl animate-bounce">🏖️</div>
-              <h3 className="text-2xl font-extrabold text-amber-300 tracking-tight">
-                No classes today! It&apos;s {dailyHolidayName || 'a Holiday'}.
-              </h3>
-              <p className="text-sm text-slate-400 max-w-md">
-                Enjoy your time off or use today for exam preparation, lab reports, and assignment review.
-              </p>
-            </div>
-          ) : (
-            <DailyClassList
-              items={dailyItems}
-              allSubjects={subjects}
-              holidays={holidays}
-              selectedDate={selectedDate}
-              onDateChange={setSelectedDate}
-              onMarkAttendance={handleMarkAttendance}
-              onUndoAttendance={handleUndoAttendance}
-            />
-          )}
+          <DailyClassList
+            items={dailyItems}
+            allSubjects={subjects}
+            holidays={holidays}
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            onMarkAttendance={handleMarkAttendance}
+            onUndoAttendance={handleUndoAttendance}
+            isOutOfSemesterBounds={profile ? (selectedDate < profile.semester_start_date || selectedDate > profile.semester_end_date) : false}
+            cloudHolidayName={dailyHoliday ? dailyHolidayName : null}
+          />
         </div>
       </main>
 

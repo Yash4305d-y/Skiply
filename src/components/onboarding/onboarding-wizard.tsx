@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -30,6 +30,27 @@ export default function OnboardingWizard() {
   const [endDate, setEndDate] = useState<string>(
     new Date(new Date().getTime() + 86400000 * 120).toISOString().split('T')[0]
   );
+
+  // Load saved preferences on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTarget = localStorage.getItem('skiply_onboarding_target');
+      if (savedTarget) setTargetPercentage(Number(savedTarget));
+      const savedStart = localStorage.getItem('skiply_onboarding_start');
+      if (savedStart) setStartDate(savedStart);
+      const savedEnd = localStorage.getItem('skiply_onboarding_end');
+      if (savedEnd) setEndDate(savedEnd);
+    }
+  }, []);
+
+  // Save preferences on change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('skiply_onboarding_target', targetPercentage.toString());
+      localStorage.setItem('skiply_onboarding_start', startDate);
+      localStorage.setItem('skiply_onboarding_end', endDate);
+    }
+  }, [targetPercentage, startDate, endDate]);
   
   const [timetableFile, setTimetableFile] = useState<File | null>(null);
   const [calendarFile, setCalendarFile] = useState<File | null>(null);

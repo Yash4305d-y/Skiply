@@ -10,6 +10,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. Profiles Table (Extends Supabase Auth users)
 CREATE TABLE IF NOT EXISTS profiles (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+    unique_id TEXT UNIQUE,
     full_name TEXT,
     email TEXT,
     target_attendance_percentage NUMERIC(5,2) DEFAULT 75.00 CHECK (target_attendance_percentage >= 0 AND target_attendance_percentage <= 100),
@@ -47,17 +48,6 @@ CREATE TABLE IF NOT EXISTS timetable_slots (
 );
 
 -- 4. Academic Calendar & Holidays Table
-CREATE TABLE IF NOT EXISTS holidays (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-    holiday_date DATE NOT NULL,
-    holiday_name TEXT NOT NULL,
-    is_exam_day BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(user_id, holiday_date)
-);
-
 -- Backward compatibility if academic_holidays was created previously:
 DO $$
 BEGIN
@@ -68,6 +58,17 @@ BEGIN
         ALTER TABLE IF EXISTS holidays RENAME COLUMN description TO holiday_name;
     END IF;
 END $$;
+
+CREATE TABLE IF NOT EXISTS holidays (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+    holiday_date DATE NOT NULL,
+    holiday_name TEXT NOT NULL,
+    is_exam_day BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, holiday_date)
+);
 
 -- 5. Daily Attendance Logs Table
 CREATE TABLE IF NOT EXISTS attendance_logs (
@@ -104,10 +105,19 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_subjects_updated_at ON subjects;
 CREATE TRIGGER update_subjects_updated_at BEFORE UPDATE ON subjects FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_timetable_slots_updated_at ON timetable_slots;
 CREATE TRIGGER update_timetable_slots_updated_at BEFORE UPDATE ON timetable_slots FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_holidays_updated_at ON holidays;
 CREATE TRIGGER update_holidays_updated_at BEFORE UPDATE ON holidays FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_attendance_logs_updated_at ON attendance_logs;
 CREATE TRIGGER update_attendance_logs_updated_at BEFORE UPDATE ON attendance_logs FOR EACH ROW EXECUTE PROCEDURE update_updated_at_column();
 
 -- ==============================================================================
@@ -120,32 +130,51 @@ ALTER TABLE holidays ENABLE ROW LEVEL SECURITY;
 ALTER TABLE attendance_logs ENABLE ROW LEVEL SECURITY;
 
 -- Profiles Policies
+DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Subjects Policies
+DROP POLICY IF EXISTS "Users can view own subjects" ON subjects;
 CREATE POLICY "Users can view own subjects" ON subjects FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own subjects" ON subjects;
 CREATE POLICY "Users can insert own subjects" ON subjects FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own subjects" ON subjects;
 CREATE POLICY "Users can update own subjects" ON subjects FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own subjects" ON subjects;
 CREATE POLICY "Users can delete own subjects" ON subjects FOR DELETE USING (auth.uid() = user_id);
 
 -- Timetable Slots Policies
+DROP POLICY IF EXISTS "Users can view own timetable slots" ON timetable_slots;
 CREATE POLICY "Users can view own timetable slots" ON timetable_slots FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own timetable slots" ON timetable_slots;
 CREATE POLICY "Users can insert own timetable slots" ON timetable_slots FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own timetable slots" ON timetable_slots;
 CREATE POLICY "Users can update own timetable slots" ON timetable_slots FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own timetable slots" ON timetable_slots;
 CREATE POLICY "Users can delete own timetable slots" ON timetable_slots FOR DELETE USING (auth.uid() = user_id);
 
 -- Academic Holidays Policies
+DROP POLICY IF EXISTS "Users can view own holidays" ON holidays;
 CREATE POLICY "Users can view own holidays" ON holidays FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own holidays" ON holidays;
 CREATE POLICY "Users can insert own holidays" ON holidays FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own holidays" ON holidays;
 CREATE POLICY "Users can update own holidays" ON holidays FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own holidays" ON holidays;
 CREATE POLICY "Users can delete own holidays" ON holidays FOR DELETE USING (auth.uid() = user_id);
 
 -- Attendance Logs Policies
+DROP POLICY IF EXISTS "Users can view own attendance logs" ON attendance_logs;
 CREATE POLICY "Users can view own attendance logs" ON attendance_logs FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own attendance logs" ON attendance_logs;
 CREATE POLICY "Users can insert own attendance logs" ON attendance_logs FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own attendance logs" ON attendance_logs;
 CREATE POLICY "Users can update own attendance logs" ON attendance_logs FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can delete own attendance logs" ON attendance_logs;
 CREATE POLICY "Users can delete own attendance logs" ON attendance_logs FOR DELETE USING (auth.uid() = user_id);
 
 -- ==============================================================================
@@ -154,13 +183,15 @@ CREATE POLICY "Users can delete own attendance logs" ON attendance_logs FOR DELE
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, email)
+  INSERT INTO public.profiles (id, unique_id, full_name, email)
   VALUES (
     NEW.id,
+    NEW.raw_user_meta_data->>'unique_id',
     COALESCE(NEW.raw_user_meta_data->>'full_name', 'Student'),
     NEW.email
   )
   ON CONFLICT (id) DO UPDATE SET
+    unique_id = EXCLUDED.unique_id,
     full_name = EXCLUDED.full_name,
     email = EXCLUDED.email;
   RETURN NEW;

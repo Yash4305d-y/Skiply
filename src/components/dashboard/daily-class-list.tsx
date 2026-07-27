@@ -14,6 +14,8 @@ interface DailyClassListProps {
   onDateChange: (newDateStr: string) => void;
   onMarkAttendance: (slotId: string, subjectId: string, status: AttendanceStatus, swappedSubjectId?: string) => void;
   onUndoAttendance: (slotId: string) => void;
+  isOutOfSemesterBounds?: boolean;
+  cloudHolidayName?: string | null;
 }
 
 export default function DailyClassList({
@@ -24,9 +26,14 @@ export default function DailyClassList({
   onDateChange,
   onMarkAttendance,
   onUndoAttendance,
+  isOutOfSemesterBounds,
+  cloudHolidayName,
 }: DailyClassListProps) {
   // Check if selectedDate is a holiday
-  const activeHoliday = holidays.find(h => h.holiday_date === selectedDate);
+  const localHoliday = holidays.find(h => h.holiday_date === selectedDate);
+  const activeHolidayName = cloudHolidayName || (localHoliday ? localHoliday.description : null);
+  const activeHoliday = cloudHolidayName || localHoliday;
+
   const markedCount = items.filter(i => Boolean(i.current_log)).length;
   const totalCount = items.length;
 
@@ -155,9 +162,28 @@ export default function DailyClassList({
             <Sun className="w-8 h-8" />
           </div>
           <div>
-            <h4 className="text-lg font-bold text-white">{activeHoliday.description}</h4>
+            <h4 className="text-lg font-bold text-white">{activeHolidayName}</h4>
             <p className="text-xs text-amber-300/80">
-              {activeHoliday.is_exam_day ? '📝 Mid-Term / Assessment Day — No regular lectures scheduled.' : '🏖️ Academic holiday or break — All scheduled classes are suspended.'}
+              🏖️ Academic holiday or break — All scheduled classes are suspended.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Out of Semester Banner */}
+      {isOutOfSemesterBounds && !activeHoliday && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          className="glass-card p-6 rounded-2xl bg-gradient-to-r from-indigo-950/30 to-slate-900 border-indigo-500/40 flex items-center gap-4 text-indigo-200"
+        >
+          <div className="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+            <CalendarIcon className="w-8 h-8" />
+          </div>
+          <div>
+            <h4 className="text-lg font-bold text-white">Outside Semester Dates</h4>
+            <p className="text-xs text-indigo-300/80">
+              This date is outside your configured semester start and end dates. Attendance marking is disabled.
             </p>
           </div>
         </motion.div>
@@ -165,7 +191,7 @@ export default function DailyClassList({
 
       {/* Class List or Empty State */}
       <div className="space-y-4">
-        {items.length === 0 ? (
+        {activeHoliday || isOutOfSemesterBounds ? null : items.length === 0 ? (
           <div className="glass-card p-12 rounded-3xl text-center space-y-4 border-dashed border-slate-800">
             <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center mx-auto text-slate-500">
               <Sun className="w-8 h-8" />
