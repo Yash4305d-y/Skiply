@@ -446,7 +446,7 @@ export default function OnboardingWizard() {
                       <Calendar className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white text-sm">Upload Academic Calendar</h4>
+                      <h4 className="font-semibold text-white text-sm">Upload Holiday Lists</h4>
                       <p className="text-xs text-slate-500 mt-1">PNG, JPG, or PDF document of college calendar</p>
                     </div>
                   </div>
