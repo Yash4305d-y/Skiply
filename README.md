@@ -1,68 +1,164 @@
-# ⚡ Skiply — AI-Powered Attendance Planner & Safe-Skip Predictor
+<div align="center">
 
-> **Stop manually building timetables.** Skiply uses Vision AI to parse your college schedule and holiday list in seconds, then transitions into an offline-first, single-tap progressive web app that answers one critical question: *"How many classes can I safely miss without failing my attendance requirement?"*
+# <img src="logo.png" alt="Skiply Logo" width="65" align="center"/> Skiply
 
----
+### 📚 Plan Your Attendance. Skip Smarter.
 
-## 🌟 Overview
+A smart attendance planner that helps college students **track attendance, set goals, and know exactly how many classes they can safely skip** without falling below their target attendance.
 
-Most attendance trackers fail because of friction: students hate manually typing in course codes, room numbers, lecture hours, and academic calendars. 
+<br>
 
-**Skiply (Attendra)** eliminates this onboarding barrier. By uploading two simple screenshots—your weekly class timetable and your semester holiday list—our cloud AI extracts and builds your entire semester schedule automatically. Once configured, Skiply relies entirely on a **deterministic, on-device math engine** to track daily attendance, ensuring zero latency and 100% offline functionality in dead-zone lecture halls.
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel)
 
----
-
-## ✨ Key Features
-
-* **🤖 AI Vision Onboarding:** Powered by Google Gemini 1.5 Pro/Flash. Upload an image of your timetable and holiday list; the AI extracts subjects, merged multi-hour labs, timings, and dates into structured JSON.
-* **🎯 Subject-Wise Safe-Skip Math Engine:** Attendance is enforced per course. Skiply calculates your exact buffer for *each individual subject*, telling you precisely when you can sleep in—and when you are in the "Danger Zone."
-* **👆 One-Tap Daily Tracking:** Mark lectures as **Present**, **Absent**, or **Cancelled** with single-tap cards featuring instant optimistic UI updates.
-* **📅 Visual Calendar History:** Audit your semester through a monthly grid featuring color-coded badges (🟢 Present, 🔴 Absent, ⚪ Cancelled/Holiday, 🔵 Upcoming) and an interactive Day Drawer for retroactive edits.
-* **📊 Smart Analytics & AI Insights:** Dedicated subject cards display real-time progress bars, skip allowances, and a 2-sentence AI summary of your overall academic standing.
-* **📴 Offline-First PWA:** Built with Serwist. Works seamlessly without cell reception in college basements. Taps are queued locally in IndexedDB and automatically sync to the cloud the moment connectivity returns.
-* **🔐 Unique Student ID Auth:** Uses a custom Virtual Email Proxy (`studentid@skiply.internal`) with Supabase Auth, allowing students to log in natively using their Roll Number / Student ID and password.
+</div>
 
 ---
 
-## 🛠️ Tech Stack
+# 🌐 Live Demo
 
-| Component | Technologies Used |
-| :--- | :--- |
-| **Frontend Framework** | [Next.js 14+](https://nextjs.org/) (App Router), TypeScript, React |
-| **Styling & UI** | [Tailwind CSS](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/) (Radix UI primitives), Lucide Icons |
-| **Backend & Database** | [Supabase](https://supabase.com/) (PostgreSQL, Supabase Auth, Row Level Security, Server Actions) |
-| **AI Vision & Parsing** | [Google GenAI SDK](https://ai.google.dev/) (`gemini-1.5-pro` / `gemini-1.5-flash`) |
-| **PWA & Offline Sync** | [Serwist](https://serwist.pages.dev/) (`@serwist/next`), IndexedDB / LocalStorage Queueing |
-| **Deployment** | [Vercel](https://vercel.com/) (Serverless Edge Functions, Zero-Config PWA Hosting) |
+🚀 **Try Skiply here:**  
+### **https://skiply-kk.vercel.app/**
 
 ---
 
-## 📐 The Math Engine: Safe Skips & Recovery
+# 📖 About
 
-Skiply **never** uses AI to calculate attendance percentages. All daily tracking relies on a robust, deterministic TypeScript algorithm that dynamically evaluates remaining lectures:
+Every college student has asked this question:
 
-### 1. Safe Skips Available (S)
-To determine how many additional classes you can miss across the remainder of the semester while staying above your target percentage (`T_req`, typically 75%):
+> **"Can I skip today's lecture and still maintain my attendance?"**
 
-`S = floor(P + T_remaining - ((T_req / 100) * T_total_expected))`
+Most attendance apps only display your attendance percentage—they don't tell you whether it's actually safe to skip your next class.
 
-*(Where `P` is Present classes logged, `T_remaining` is scheduled future classes excluding holidays, and `T_total_expected` is conducted classes plus remaining classes).*
+**Skiply** solves that problem.
 
-### 2. Danger Zone Recovery Classes (N)
-If `S < 0`, the student has breached the threshold. Skiply calculates the exact number of **consecutive upcoming classes** (`N`) they must attend to recover:
+It intelligently analyzes your timetable, attendance records, and attendance goals to calculate **exactly how many lectures you can safely skip** while staying above your desired attendance percentage.
 
-`N = ceil(((T_req / 100 * T_conducted) - P) / (1 - (T_req / 100)))`
+No spreadsheets.
+
+No manual calculations.
+
+No guessing.
+
+Just **smart attendance planning**.
 
 ---
 
-## 🚀 Getting Started (Local Development)
+# ✨ Features
 
-### Prerequisites
-* **Node.js** (v18.17 or higher) & **npm** / **pnpm** / **bun**
-* A free [Supabase](https://supabase.com) account & project
-* A free [Google AI Studio](https://aistudio.google.com/) API key (Gemini)
+- 📅 Timetable-based attendance management
+- 📊 Real-time attendance tracking
+- 🎯 Custom attendance target (75%, 80%, 85%, etc.)
+- 😎 Smart Skip Calculator
+- ✅ Mark lectures as Present or Absent
+- 📈 Track conducted and attended lectures
+- ⚡ Fast & responsive interface
+- 📱 Mobile-friendly design
 
-### 1. Clone the Repository
+---
+
+# 🧠 How It Works
+
+Skiply goes beyond the basic attendance formula.
+
+```text
+Attendance = Attended Classes / Conducted Classes
+```
+
+It also considers:
+
+- 📅 Your timetable
+- 📚 Classes conducted till today
+- ✅ Present records
+- ❌ Absent records
+- 🎯 Your target attendance
+
+This allows Skiply to predict:
+
+- ✅ How many classes you can safely skip
+- ⚠️ When you should start attending regularly
+- 📊 Your real-time attendance status
+
+---
+
+# 🛠️ Tech Stack
+
+### Frontend
+- ⚛️ React
+- 🎨 Tailwind CSS
+
+### Deployment
+- ▲ Vercel
+
+---
+
+# 🚀 Running Locally
+
+Clone the repository
+
 ```bash
-git clone [https://github.com/yourusername/skiply.git](https://github.com/yourusername/skiply.git)
-cd skiply
+git clone https://github.com/Yash4305d-y/Skiply.git
+```
+
+Navigate to the project
+
+```bash
+cd Skiply
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Run the development server
+
+```bash
+npm run dev
+```
+
+---
+
+# 👥 Built By
+
+| Name | Responsibilities | GitHub |
+|------|------------------|--------|
+| **Kyush Kumar** | 💡 Original Idea, Product Vision, Database Design & Deployment | https://github.com/kyush02 |
+| **Yash Vinay Kalyani** | 👨‍💻 Frontend Development, Attendance Logic, UI/UX Design & Feature Implementation | https://github.com/Yash4305d-y |
+
+Skiply is a collaborative project built to help students make smarter attendance decisions through a simple and intuitive experience.
+
+---
+
+# 🤝 Contributing
+
+Contributions, feature suggestions, and bug reports are always welcome.
+
+1. Fork the repository.
+2. Create a new branch.
+3. Make your changes.
+4. Open a Pull Request.
+
+---
+
+<div align="center">
+
+## ⭐ Support the Project
+
+If you found **Skiply** useful, consider giving this repository a **⭐ Star**.
+
+It helps others discover the project and motivates us to keep improving it.
+
+---
+
+### ❤️ Built by **Kyush Kumar** & **Yash Vinay Kalyani**
+
+🌐 **Live Demo:** https://skiply-kk.vercel.app/
+
+👨‍💻 **Yash:** https://github.com/Yash4305d-y
+
+💡 **Kyush:** https://github.com/kyush02
+
+</div>
