@@ -82,7 +82,7 @@ export default function DailyClassList({
             </div>
             <p className="text-xs text-slate-400">
               {activeHoliday ? (
-                <span className="text-amber-400 font-medium">🏖️ Holiday: {activeHoliday.description}</span>
+                <span className="text-amber-400 font-medium">🏖️ Holiday: {activeHolidayName}</span>
               ) : totalCount > 0 ? (
                 <span>Marked {markedCount} of {totalCount} scheduled lecture{totalCount !== 1 ? 's' : ''}</span>
               ) : (
