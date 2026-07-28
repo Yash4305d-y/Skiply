@@ -1,6 +1,6 @@
 <div align="center">
 
-# <img src="logo.png" alt="Skiply Logo" width="45" align="center"/> Skiply
+# <img src="logo.png" alt="Skiply Logo" width="65" align="center"/> Skiply
 
 ### 📚 Plan Your Attendance. Skip Smarter.
 
