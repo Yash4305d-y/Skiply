@@ -11,7 +11,7 @@ import {
 } from '@/lib/demo-store';
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { Sparkles } from 'lucide-react';
-import { markAttendance } from '@/lib/db/actions';
+import { markAttendance, getSemesterData, removeAttendance } from '@/lib/db/actions';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 
 export default function HistoryPage() {
@@ -21,6 +21,7 @@ export default function HistoryPage() {
   const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const [offlineToast, setOfflineToast] = useState<string | null>(null);
   const [syncToast, setSyncToast] = useState<string | null>(null);
 
@@ -37,12 +38,32 @@ export default function HistoryPage() {
   }, []);
 
   useEffect(() => {
-    setSubjects(getDemoSubjects());
-    setSlots(getDemoTimetableSlots());
-    setLogs(getDemoAttendanceLogs());
-    setHolidays(getDemoHolidays());
-    setProfile(getDemoProfile());
-    setIsLoaded(true);
+    async function initData() {
+      try {
+        const cloudData = await getSemesterData();
+        if (cloudData && cloudData.profile) {
+          setProfile(cloudData.profile);
+          setSubjects(cloudData.subjects);
+          setSlots(cloudData.slots);
+          setHolidays(cloudData.holidays);
+          setLogs(cloudData.logs);
+          setIsLoaded(true);
+          setIsDemoMode(false);
+          return;
+        }
+      } catch (e) {
+        console.log('Cloud getSemesterData fallback to Demo Store:', e);
+      }
+
+      setSubjects(getDemoSubjects());
+      setSlots(getDemoTimetableSlots());
+      setLogs(getDemoAttendanceLogs());
+      setHolidays(getDemoHolidays());
+      setProfile(getDemoProfile());
+      setIsLoaded(true);
+      setIsDemoMode(true);
+    }
+    initData();
   }, []);
 
   if (!isLoaded) {
@@ -61,8 +82,12 @@ export default function HistoryPage() {
     if (!existingLog) return;
 
     const updatedLog: AttendanceLog = { ...existingLog, status: newStatus };
-    const updatedList = saveDemoAttendanceLog(updatedLog);
-    setLogs([...updatedList]);
+    if (isDemoMode) {
+      const updatedList = saveDemoAttendanceLog(updatedLog);
+      setLogs([...updatedList]);
+    } else {
+      setLogs(prev => prev.map(l => l.id === logId ? updatedLog : l));
+    }
 
     if (newStatus === 'PRESENT' || newStatus === 'ABSENT' || newStatus === 'CANCELLED') {
       // Check if browser is offline
@@ -103,9 +128,24 @@ export default function HistoryPage() {
     }
   };
 
-  const handleDeleteLog = (slotId: string, dateStr: string) => {
-    const updatedList = removeDemoAttendanceLog(slotId, dateStr);
-    setLogs([...updatedList]);
+  const handleDeleteLog = async (slotId: string, dateStr: string) => {
+    if (isDemoMode) {
+      const updatedList = removeDemoAttendanceLog(slotId, dateStr);
+      setLogs([...updatedList]);
+    } else {
+      const logToRemove = logs.find(l => l.timetable_slot_id === slotId && l.log_date === dateStr);
+      if (!logToRemove) return;
+      setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === dateStr)));
+      try {
+        await removeAttendance({
+          subjectId: logToRemove.subject_id,
+          timetableSlotId: slotId,
+          logDate: dateStr
+        });
+      } catch (e) {
+        console.log('Delete log failed:', e);
+      }
+    }
   };
 
   return (

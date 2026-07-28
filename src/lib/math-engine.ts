@@ -67,9 +67,14 @@ export function calculateSubjectStats(
     status = 'DANGER';
     classesToAttend = Math.max(1, neededMore > 0 ? neededMore : 1);
     
-    const futurePresent = present + classesToAttend;
-    const futurePct = totalAvailable > 0 ? (futurePresent / totalAvailable) * 100.0 : 100.0;
-    message = `You are currently below your ${targetPct}% target! Out of ${totalAvailable} total semester classes, you must attend ${classesToAttend} more class(es) to reach ${Number(futurePct.toFixed(1))}%.`;
+    // Check if it's mathematically impossible
+    if (classesToAttend > remaining) {
+      message = `Target cannot be achieved with the remaining lectures.`;
+    } else {
+      const futurePresent = present + classesToAttend;
+      const futurePct = totalAvailable > 0 ? (futurePresent / totalAvailable) * 100.0 : 100.0;
+      message = `You are currently below your ${targetPct}% target! Out of ${totalAvailable} total semester classes, you must attend ${classesToAttend} more class(es) to reach ${Number(futurePct.toFixed(1))}%.`;
+    }
   }
 
   return {
