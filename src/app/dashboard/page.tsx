@@ -19,6 +19,8 @@ import {
 } from '@/types';
 import NextLink from 'next/link';
 import { Sparkles, ArrowRight, ShieldAlert } from 'lucide-react';
+import { updateSemesterConfig } from '@/lib/db/actions';
+import { updateDemoSemesterConfig } from '@/lib/demo-store';
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -118,6 +120,25 @@ export default function DashboardPage() {
     checkDailySchedule();
   }, [selectedDate, holidays, isLoaded, isDemoMode]);
 
+  // Debounced save to backend for target percentage updates
+  useEffect(() => {
+    if (!profile || !isLoaded) return;
+    
+    const handler = setTimeout(async () => {
+      if (isDemoMode) {
+        updateDemoSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
+      } else {
+        try {
+          await updateSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
+        } catch (e) {
+          console.error('Failed to save target:', e);
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [profile?.target_attendance_percentage, isLoaded, isDemoMode]);
+
   if (!isLoaded || !profile) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
@@ -128,6 +149,17 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  // Handle instant target updates from Hero slider
+  const handleUpdateTarget = (newTarget: number) => {
+    if (!profile) return;
+    
+    // Instant local state update for instant recalculation
+    setProfile({ ...profile, target_attendance_percentage: newTarget });
+  };
+
+
+
 
   // Calculate live deterministic math stats across semester
   const { overall, subjectStats } = calculateOverallSemesterStats(
@@ -343,7 +375,7 @@ export default function DashboardPage() {
         )}
 
         {/* HERO CARD: SAFE SKIPS SUMMARY & MATH ENGINE */}
-        <HeroWidget stats={overall} />
+        <HeroWidget stats={overall} onUpdateTarget={handleUpdateTarget} />
 
         {/* DAILY SCHEDULE & SINGLE-TAP ACTION CARDS */}
         <div className="pt-2">

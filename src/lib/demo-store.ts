@@ -230,3 +230,13 @@ export function saveConfirmedScheduleToDemo(
   localStorage.setItem(DEMO_KEYS.LOGS, JSON.stringify([])); // Start with fresh attendance for newly uploaded schedule
   setOnboardedInDemo(true);
 }
+
+export function updateDemoSemesterConfig(targetPercentage: number, startDate: string, endDate: string): Profile | null {
+  if (typeof window === 'undefined') return null;
+  const prof = getDemoProfile();
+  prof.target_attendance_percentage = targetPercentage;
+  prof.semester_start_date = startDate;
+  prof.semester_end_date = endDate;
+  saveDemoProfile(prof);
+  return prof;
+}

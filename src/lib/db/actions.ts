@@ -42,6 +42,27 @@ export async function updateSemesterDates(startDate: string, endDate: string) {
   return { success: true }
 }
 
+export async function updateSemesterConfig(targetPct: number, startDate: string, endDate: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('profiles')
+    .upsert({ 
+      id: user.id,
+      full_name: user.user_metadata?.full_name || 'Student',
+      email: user.email,
+      target_attendance_percentage: targetPct,
+      semester_start_date: startDate, 
+      semester_end_date: endDate 
+    }, { onConflict: 'id' })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/dashboard')
+  return { success: true }
+}
+
 // ============================================================================
 // 2. ONBOARDING: BATCH SAVE TIMETABLE & HOLIDAYS
 // ============================================================================

@@ -7,9 +7,10 @@ import { OverallSemesterStats } from '@/types';
 
 interface HeroWidgetProps {
   stats: OverallSemesterStats;
+  onUpdateTarget?: (newTarget: number) => void;
 }
 
-export default function HeroWidget({ stats }: HeroWidgetProps) {
+export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
   const isSafe = stats.status === 'SAFE';
   const isWarning = stats.status === 'WARNING';
   const isDanger = stats.status === 'DANGER';
@@ -100,13 +101,29 @@ export default function HeroWidget({ stats }: HeroWidgetProps) {
         </div>
 
         <div className="flex justify-between items-center text-[11px] text-slate-500 font-medium pt-0.5">
-          <span>0%</span>
-          <span 
-            className="text-white font-bold bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700" 
-            style={{ marginLeft: `${Math.max(-20, Math.min(20, stats.target_percentage - 50))}%` }}
-          >
-            🎯 {stats.target_percentage}% Target
-          </span>
+          <span>50%</span>
+          {onUpdateTarget ? (
+            <div className="flex items-center gap-2 w-1/2 max-w-[200px] z-30">
+              <input 
+                type="range" 
+                min="50" max="100" step="1" 
+                value={stats.target_percentage} 
+                onChange={(e) => onUpdateTarget(Number(e.target.value))} 
+                className="w-full accent-white bg-slate-800 h-1 rounded-lg cursor-pointer"
+                title="Drag to change your target attendance instantly"
+              />
+              <span className="text-white font-bold bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 whitespace-nowrap">
+                🎯 {stats.target_percentage}% Target
+              </span>
+            </div>
+          ) : (
+            <span 
+              className="text-white font-bold bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700" 
+              style={{ marginLeft: `${Math.max(-20, Math.min(20, stats.target_percentage - 50))}%` }}
+            >
+              🎯 {stats.target_percentage}% Target
+            </span>
+          )}
           <span>100%</span>
         </div>
       </div>

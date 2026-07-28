@@ -13,8 +13,8 @@ import {
   AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday, 
   Subject, TimetableSlot, AcademicHoliday 
 } from '@/types';
-import { saveConfirmedScheduleToDemo } from '@/lib/demo-store';
-import { saveOnboardingData, getUserProfile } from '@/lib/db/actions';
+import { saveConfirmedScheduleToDemo, updateDemoSemesterConfig } from '@/lib/demo-store';
+import { saveOnboardingData, getUserProfile, updateSemesterConfig } from '@/lib/db/actions';
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -30,25 +30,46 @@ export default function OnboardingWizard() {
   const [endDate, setEndDate] = useState<string>(
     new Date(new Date().getTime() + 86400000 * 120).toISOString().split('T')[0]
   );
+  const [initialTarget, setInitialTarget] = useState<number>(75);
+  const [initialStart, setInitialStart] = useState<string>(startDate);
+  const [initialEnd, setInitialEnd] = useState<string>(endDate);
 
   // Load saved preferences on mount
   useEffect(() => {
     async function loadPreferences() {
       if (typeof window !== 'undefined') {
         const savedTarget = localStorage.getItem('skiply_onboarding_target');
-        if (savedTarget) setTargetPercentage(Number(savedTarget));
+        if (savedTarget) {
+          setTargetPercentage(Number(savedTarget));
+          setInitialTarget(Number(savedTarget));
+        }
         const savedStart = localStorage.getItem('skiply_onboarding_start');
-        if (savedStart) setStartDate(savedStart);
+        if (savedStart) {
+          setStartDate(savedStart);
+          setInitialStart(savedStart);
+        }
         const savedEnd = localStorage.getItem('skiply_onboarding_end');
-        if (savedEnd) setEndDate(savedEnd);
+        if (savedEnd) {
+          setEndDate(savedEnd);
+          setInitialEnd(savedEnd);
+        }
       }
       
       try {
         const profile = await getUserProfile();
         if (profile) {
-          if (profile.target_attendance_percentage) setTargetPercentage(Number(profile.target_attendance_percentage));
-          if (profile.semester_start_date) setStartDate(profile.semester_start_date);
-          if (profile.semester_end_date) setEndDate(profile.semester_end_date);
+          if (profile.target_attendance_percentage) {
+            setTargetPercentage(Number(profile.target_attendance_percentage));
+            setInitialTarget(Number(profile.target_attendance_percentage));
+          }
+          if (profile.semester_start_date) {
+            setStartDate(profile.semester_start_date);
+            setInitialStart(profile.semester_start_date);
+          }
+          if (profile.semester_end_date) {
+            setEndDate(profile.semester_end_date);
+            setInitialEnd(profile.semester_end_date);
+          }
         }
       } catch (e) {
         // Ignore auth errors on mount
@@ -65,7 +86,32 @@ export default function OnboardingWizard() {
       localStorage.setItem('skiply_onboarding_end', endDate);
     }
   }, [targetPercentage, startDate, endDate]);
-  
+
+  const [isUpdatingConfig, setIsUpdatingConfig] = useState(false);
+  const handleUpdateConfig = async () => {
+    setIsUpdatingConfig(true);
+    setToastMessage(null);
+    try {
+      const profile = await getUserProfile();
+      if (profile) {
+        await updateSemesterConfig(targetPercentage, startDate, endDate);
+      } else {
+        updateDemoSemesterConfig(targetPercentage, startDate, endDate);
+      }
+      setInitialTarget(targetPercentage);
+      setInitialStart(startDate);
+      setInitialEnd(endDate);
+      setToastMessage('Semester configuration updated successfully!');
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (e: any) {
+      alert(e.message || 'Failed to update configuration.');
+    } finally {
+      setIsUpdatingConfig(false);
+    }
+  };
+
+  const hasConfigChanges = targetPercentage !== initialTarget || startDate !== initialStart || endDate !== initialEnd;
+
   const [timetableFile, setTimetableFile] = useState<File | null>(null);
   const [calendarFile, setCalendarFile] = useState<File | null>(null);
   const [timetablePreview, setTimetablePreview] = useState<string | null>(null);
@@ -410,32 +456,38 @@ export default function OnboardingWizard() {
 
             {/* Semester Parameters Card */}
             <div className="glass-card p-6 rounded-2xl space-y-6">
-              <h3 className="font-semibold text-white text-sm flex items-center gap-2">
-                <Layers className="w-4 h-4 text-indigo-400" />
-                <span>Semester Configuration</span>
-              </h3>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h3 className="font-semibold text-white text-sm flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-indigo-400" />
+                  <span>Semester Configuration</span>
+                </h3>
+                <button
+                  onClick={handleUpdateConfig}
+                  disabled={!hasConfigChanges || isUpdatingConfig}
+                  className={`px-4 py-2 rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition-all
+                    ${(!hasConfigChanges && !isUpdatingConfig) 
+                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' 
+                      : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-indigo-500/25 border border-indigo-500/50 hover:-translate-y-0.5'
+                    }
+                  `}
+                >
+                  {isUpdatingConfig ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Updating...</span>
+                    </>
+                  ) : hasConfigChanges ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Update Config</span>
+                    </>
+                  ) : (
+                    <span>No Changes</span>
+                  )}
+                </button>
+              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {/* Target Attendance % Slider */}
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-xs font-medium text-slate-300">Target Attendance</label>
-                    <span className="text-xs font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">
-                      {targetPercentage}%
-                    </span>
-                  </div>
-                  <input 
-                    type="range" 
-                    min="50" 
-                    max="95" 
-                    step="5" 
-                    value={targetPercentage} 
-                    onChange={(e) => setTargetPercentage(Number(e.target.value))}
-                    className="w-full accent-indigo-500 bg-slate-800 h-2 rounded-lg cursor-pointer"
-                  />
-                  <p className="text-[11px] text-slate-500">Minimum threshold required by university</p>
-                </div>
-
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Start Date */}
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-slate-300">Semester Start Date</label>

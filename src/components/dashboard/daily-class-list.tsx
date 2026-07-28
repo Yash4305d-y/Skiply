@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Sun } from 'lucide-react';
 import { DailyClassItem, AttendanceStatus, Subject, AcademicHoliday } from '@/types';
@@ -29,6 +29,8 @@ export default function DailyClassList({
   isOutOfSemesterBounds,
   cloudHolidayName,
 }: DailyClassListProps) {
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
   // Check if selectedDate is a holiday
   const localHoliday = holidays.find(h => h.holiday_date === selectedDate);
   const activeHolidayName = cloudHolidayName || (localHoliday ? localHoliday.description : null);
@@ -104,6 +106,7 @@ export default function DailyClassList({
           {/* Direct Date Picker Button */}
           <div className="relative group">
             <input
+              ref={dateInputRef}
               type="date"
               value={selectedDate}
               onChange={(e) => {
@@ -111,12 +114,21 @@ export default function DailyClassList({
                   onDateChange(e.target.value);
                 }
               }}
-              className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
+              className="absolute w-0 h-0 opacity-0 overflow-hidden"
               title="Select specific date"
               aria-label="Select specific date"
             />
             <button
               type="button"
+              onClick={() => {
+                if (dateInputRef.current) {
+                  if (typeof dateInputRef.current.showPicker === 'function') {
+                    dateInputRef.current.showPicker();
+                  } else {
+                    dateInputRef.current.focus();
+                  }
+                }
+              }}
               className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-sm"
             >
               <CalendarIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
