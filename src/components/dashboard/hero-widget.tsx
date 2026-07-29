@@ -19,7 +19,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
     ? 'bg-gradient-to-r from-rose-600 to-red-500 shadow-rose-500/50' 
     : isWarning 
     ? 'bg-gradient-to-r from-amber-500 to-yellow-400 shadow-amber-500/50' 
-    : 'bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 shadow-emerald-500/50';
+    : 'bg-gradient-to-r from-teal-500 via-sky-500 to-emerald-400 shadow-emerald-500/50';
 
   const badgeColor = isDanger 
     ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' 
@@ -34,7 +34,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden border-indigo-500/30 shadow-2xl"
+      className="glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden border-teal-500/30 shadow-2xl"
     >
       {/* Subtle background glow depending on status */}
       <div className={`absolute -right-20 -top-20 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none ${
@@ -68,7 +68,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             {stats.overall_percentage}%
           </div>
           <div className="flex items-center gap-1 mt-1 text-[11px] font-bold text-slate-400">
-            <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
+            <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
             <span>{stats.total_conducted} lectures conducted</span>
           </div>
         </div>
@@ -151,7 +151,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
         </div>
 
         <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800/60 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
+          <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400">
             <Calendar className="w-4 h-4" />
           </div>
           <div>
@@ -161,7 +161,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
         </div>
 
         <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800/60 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+          <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400">
             <Flame className="w-4 h-4" />
           </div>
           <div>

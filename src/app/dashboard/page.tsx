@@ -143,7 +143,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
         <div className="animate-pulse flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-indigo-400 animate-spin" />
+          <Sparkles className="w-5 h-5 text-teal-400 animate-spin" />
           <span>Loading Skiply Attendance Engine...</span>
         </div>
       </div>
@@ -351,9 +351,9 @@ export default function DashboardPage() {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
         {/* Onboarding Banner if not onboarded yet */}
         {!isOnboardedInDemo() && (
-          <div className="glass-card p-5 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-purple-950/40 to-slate-900 border-indigo-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+          <div className="glass-card p-5 rounded-2xl bg-gradient-to-r from-teal-950/60 via-sky-950/40 to-slate-900 border-teal-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
             <div className="flex items-center gap-3.5">
-              <div className="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+              <div className="p-3 rounded-2xl bg-teal-500/20 text-teal-400">
                 <Sparkles className="w-6 h-6 animate-pulse" />
               </div>
               <div>
@@ -366,7 +366,7 @@ export default function DashboardPage() {
 
             <NextLink
               href="/onboarding"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-500/25 whitespace-nowrap transition-all"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-500 hover:to-sky-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/25 whitespace-nowrap transition-all"
             >
               <span>⚡ Start AI Setup</span>
               <ArrowRight className="w-4 h-4" />

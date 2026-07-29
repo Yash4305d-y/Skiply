@@ -9,16 +9,16 @@ import Footer from '@/components/layout/footer';
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-white overflow-hidden">
       <Navbar />
 
       <main className="flex-1">
         {/* HERO SECTION */}
         <section className="relative pt-12 pb-20 md:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
           {/* Subtle glowing orbs */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute top-1/3 right-10 w-72 h-72 bg-purple-600/15 rounded-full blur-3xl pointer-events-none hidden md:block" />
-          <div className="absolute bottom-10 left-10 w-72 h-72 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none hidden md:block" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/3 right-10 w-72 h-72 bg-sky-600/15 rounded-full blur-3xl pointer-events-none hidden md:block" />
+          <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none hidden md:block" />
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -27,8 +27,8 @@ export default function Home() {
             className="relative z-10 space-y-6 max-w-4xl mx-auto"
           >
             {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-cyan-500/10 border border-indigo-500/20 text-indigo-300 text-xs sm:text-sm font-bold shadow-lg shadow-indigo-500/5">
-              <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-teal-500/10 via-sky-500/10 to-emerald-500/10 border border-teal-500/20 text-teal-300 text-xs sm:text-sm font-bold shadow-lg shadow-teal-500/5">
+              <Sparkles className="w-4 h-4 text-teal-400 animate-pulse" />
               <span>Attendra AI — The Intelligent College Attendance Planner</span>
             </div>
 
@@ -46,7 +46,7 @@ export default function Home() {
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
               <NextLink
                 href="/dashboard"
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-extrabold text-base shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-teal-600 via-sky-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white font-extrabold text-base shadow-xl shadow-teal-500/30 flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 <Zap className="w-5 h-5 fill-white" />
                 <span>Try Interactive Demo Dashboard</span>
@@ -57,7 +57,7 @@ export default function Home() {
                 href="/onboarding"
                 className="w-full sm:w-auto px-8 py-4 rounded-2xl glass-card hover:bg-slate-800/80 text-white font-bold text-base border border-slate-700/80 flex items-center justify-center gap-2 transition-all shadow-lg"
               >
-                <UploadCloud className="w-5 h-5 text-indigo-400" />
+                <UploadCloud className="w-5 h-5 text-teal-400" />
                 <span>Start AI Schedule Setup</span>
               </NextLink>
             </div>
@@ -65,8 +65,8 @@ export default function Home() {
             {/* Trust Badges */}
             <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-semibold uppercase tracking-wider">
               <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> 100% Deterministic Math</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-purple-400" /> Vision AI OCR Parser</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-cyan-400" /> Works Offline (PWA)</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-sky-400" /> Vision AI OCR Parser</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Works Offline (PWA)</span>
               <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-rose-400" /> Zero Login Required</span>
             </div>
           </motion.div>
@@ -85,8 +85,8 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Feature 1: AI Onboarding */}
-            <div className="glass-card p-8 rounded-3xl space-y-4 border-indigo-500/20 hover:border-indigo-500/40 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="glass-card p-8 rounded-3xl space-y-4 border-teal-500/20 hover:border-teal-500/40 transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Sparkles className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-white">60-Second AI Setup</h3>
@@ -118,8 +118,8 @@ export default function Home() {
             </div>
 
             {/* Feature 4: One-Tap Daily Interaction */}
-            <div className="glass-card p-8 rounded-3xl space-y-4 border-purple-500/20 hover:border-purple-500/40 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="glass-card p-8 rounded-3xl space-y-4 border-sky-500/20 hover:border-sky-500/40 transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Clock className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-white">Single-Tap Daily Tracking</h3>
@@ -129,8 +129,8 @@ export default function Home() {
             </div>
 
             {/* Feature 5: Offline PWA */}
-            <div className="glass-card p-8 rounded-3xl space-y-4 border-cyan-500/20 hover:border-cyan-500/40 transition-all group">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="glass-card p-8 rounded-3xl space-y-4 border-emerald-500/20 hover:border-emerald-500/40 transition-all group">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Smartphone className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-white">Works Offline in Lecture Halls</h3>
@@ -154,7 +154,7 @@ export default function Home() {
 
         {/* BOTTOM BANNER CTA */}
         <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-          <div className="glass-card rounded-3xl p-8 sm:p-12 text-center bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-slate-900 border-indigo-500/30 relative overflow-hidden shadow-2xl">
+          <div className="glass-card rounded-3xl p-8 sm:p-12 text-center bg-gradient-to-r from-teal-950/80 via-sky-950/60 to-slate-900 border-teal-500/30 relative overflow-hidden shadow-2xl">
             <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
               <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
                 Ready to take control of your attendance?
@@ -167,12 +167,12 @@ export default function Home() {
                   href="/dashboard"
                   className="px-8 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-extrabold text-sm shadow-xl transition-all flex items-center justify-center gap-2"
                 >
-                  <Zap className="w-4 h-4 fill-indigo-600 text-indigo-600" />
+                  <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
                   <span>Launch Demo Dashboard</span>
                 </NextLink>
                 <NextLink
                   href="/onboarding"
-                  className="px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 transition-all flex items-center justify-center gap-2"
+                  className="px-8 py-3.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm shadow-xl shadow-teal-500/25 transition-all flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>AI Timetable Upload</span>

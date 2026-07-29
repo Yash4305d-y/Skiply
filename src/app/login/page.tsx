@@ -53,11 +53,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white relative overflow-hidden justify-center items-center p-4">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-white relative overflow-hidden justify-center items-center p-4">
       {/* Background Orbs */}
-      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-2/3 right-10 w-72 h-72 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none hidden md:block" />
+      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-sky-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-2/3 right-10 w-72 h-72 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none hidden md:block" />
 
       {/* Top Back Link */}
       <div className="absolute top-6 left-6 z-20">
@@ -78,7 +78,7 @@ export default function LoginPage() {
       >
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-cyan-500 text-white shadow-xl shadow-indigo-500/25 mb-2 animate-float">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 via-sky-600 to-emerald-500 text-white shadow-xl shadow-teal-500/25 mb-2 animate-float">
             <Sparkles className="w-7 h-7" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
@@ -110,7 +110,7 @@ export default function LoginPage() {
               {activeTab === 'login' && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl"
+                  className="absolute inset-0 bg-gradient-to-r from-teal-600 to-sky-600 rounded-xl"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                 />
               )}
@@ -132,7 +132,7 @@ export default function LoginPage() {
               {activeTab === 'register' && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl"
+                  className="absolute inset-0 bg-gradient-to-r from-teal-600 to-sky-600 rounded-xl"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                 />
               )}
@@ -161,7 +161,7 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <label htmlFor="username" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                 <span>Username / Student ID</span>
-                <span className="text-[10px] text-indigo-400 font-normal">Alphanumeric</span>
+                <span className="text-[10px] text-teal-400 font-normal">Alphanumeric</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
@@ -175,7 +175,7 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="e.g., alex_2026 or 2026cse01"
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
+                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
                 />
               </div>
               <p className="text-[11px] text-slate-400 flex items-center gap-1">
@@ -210,7 +210,7 @@ export default function LoginPage() {
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="e.g., Alex Mercer"
-                        className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
                       />
                     </div>
                   </div>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                         required={activeTab === 'register'}
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white text-sm font-medium transition-all outline-none"
+                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white text-sm font-medium transition-all outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -241,7 +241,7 @@ export default function LoginPage() {
                         required={activeTab === 'register'}
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white text-sm font-medium transition-all outline-none"
+                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white text-sm font-medium transition-all outline-none"
                       />
                     </div>
                   </div>
@@ -267,7 +267,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   minLength={6}
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
+                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
                 />
               </div>
             </div>
@@ -276,7 +276,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-extrabold text-sm shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none mt-2"
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-teal-600 via-sky-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white font-extrabold text-sm shadow-xl shadow-teal-500/25 flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none mt-2"
             >
               {isPending ? (
                 <>
@@ -297,10 +297,10 @@ export default function LoginPage() {
         <div className="text-center pt-2">
           <NextLink
             href="/dashboard?demo=true"
-            className="text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium inline-flex items-center gap-1.5 group"
+            className="text-xs text-slate-400 hover:text-teal-400 transition-colors font-medium inline-flex items-center gap-1.5 group"
           >
             <span>Want to test without an account?</span>
-            <span className="font-bold underline decoration-indigo-500/50 group-hover:decoration-indigo-400">Try Demo Dashboard</span>
+            <span className="font-bold underline decoration-teal-500/50 group-hover:decoration-teal-400">Try Demo Dashboard</span>
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
           </NextLink>
         </div>

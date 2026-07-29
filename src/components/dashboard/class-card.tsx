@@ -48,8 +48,8 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
           : isMarked && currentStatus === 'CANCELLED' 
           ? 'border-slate-400 bg-gradient-to-r from-slate-900 to-slate-800/80 shadow-lg shadow-slate-500/10'
           : isMarked && currentStatus === 'SWAPPED' 
-          ? 'border-purple-500 bg-gradient-to-r from-purple-950/30 to-slate-900 shadow-lg shadow-purple-500/10'
-          : 'border-slate-800/80 hover:border-indigo-500/40'
+          ? 'border-sky-500 bg-gradient-to-r from-sky-950/30 to-slate-900 shadow-lg shadow-sky-500/10'
+          : 'border-slate-800/80 hover:border-teal-500/40'
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -64,13 +64,13 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
             </span>
 
             {item.is_lab && (
-              <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-bold uppercase tracking-wider">
                 🧪 Lab Block
               </span>
             )}
 
             <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium ml-auto sm:ml-2">
-              <Clock className="w-3.5 h-3.5 text-indigo-400" />
+              <Clock className="w-3.5 h-3.5 text-teal-400" />
               <span>{item.start_time} - {item.end_time}</span>
               {item.room_number && (
                 <>
@@ -118,7 +118,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 currentStatus === 'PRESENT' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' :
                 currentStatus === 'ABSENT' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30' :
                 currentStatus === 'CANCELLED' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30' :
-                'bg-purple-500 text-white shadow-lg shadow-purple-500/30'
+                'bg-sky-500 text-white shadow-lg shadow-sky-500/30'
               }`}>
                 {currentStatus === 'PRESENT' && <Check className="w-4 h-4" />}
                 {currentStatus === 'ABSENT' && <X className="w-4 h-4" />}
@@ -192,7 +192,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
           >
             <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
-                <ArrowRightLeft className="w-4 h-4 text-indigo-400" />
+                <ArrowRightLeft className="w-4 h-4 text-teal-400" />
                 <span>Swapped Class / Proxy Lecture:</span>
               </div>
 
@@ -200,7 +200,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 <select
                   value={selectedSwapSubject}
                   onChange={(e) => setSelectedSwapSubject(e.target.value)}
-                  className="w-full bg-slate-950 px-3 py-2 rounded-xl border border-slate-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-950 px-3 py-2 rounded-xl border border-slate-700 text-white text-xs focus:outline-none focus:border-teal-500"
                 >
                   {allSubjects.map(sub => (
                     <option key={sub.id} value={sub.id}>
@@ -211,7 +211,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
 
                 <button
                   onClick={() => handleTap('SWAPPED')}
-                  className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs whitespace-nowrap shadow-md shadow-purple-600/25 transition-all"
+                  className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs whitespace-nowrap shadow-md shadow-sky-600/25 transition-all"
                 >
                   Confirm Swap
                 </button>

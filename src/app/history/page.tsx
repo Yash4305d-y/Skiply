@@ -70,7 +70,7 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
         <div className="animate-pulse flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-indigo-400 animate-spin" />
+          <Sparkles className="w-5 h-5 text-teal-400 animate-spin" />
           <span>Loading Attendance Audit Logs...</span>
         </div>
       </div>

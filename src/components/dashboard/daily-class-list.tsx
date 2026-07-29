@@ -68,21 +68,21 @@ export default function DailyClassList({
       {/* Header & Date Navigation Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+          <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
             <CalendarIcon className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-bold text-white">{formatDateDisplay(selectedDate)}</h3>
               {isToday() && (
-                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-teal-500/20 text-teal-400 border border-teal-500/30">
                   Today
                 </span>
               )}
             </div>
             <p className="text-xs text-slate-400">
               {activeHoliday ? (
-                <span className="text-amber-400 font-medium">🏖️ Holiday: {activeHoliday.description}</span>
+                <span className="text-amber-400 font-medium">🏖️ Holiday: {activeHolidayName}</span>
               ) : totalCount > 0 ? (
                 <span>Marked {markedCount} of {totalCount} scheduled lecture{totalCount !== 1 ? 's' : ''}</span>
               ) : (
@@ -131,7 +131,7 @@ export default function DailyClassList({
               }}
               className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-sm"
             >
-              <CalendarIcon className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <CalendarIcon className="w-3.5 h-3.5 text-teal-400 group-hover:scale-110 transition-transform" />
               <span className="hidden xs:inline">Jump to Date...</span>
               <span className="xs:hidden">Date...</span>
             </button>
@@ -146,7 +146,7 @@ export default function DailyClassList({
                 const d = String(now.getDate()).padStart(2, '0');
                 onDateChange(`${y}-${m}-${d}`);
               }}
-              className="px-3 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white text-xs font-bold transition-all shadow-sm"
+              className="px-3 py-1.5 rounded-xl bg-teal-600/20 text-teal-400 hover:bg-teal-600 hover:text-white text-xs font-bold transition-all shadow-sm"
             >
               Today
             </button>
@@ -187,14 +187,14 @@ export default function DailyClassList({
         <motion.div 
           initial={{ opacity: 0, y: -10 }} 
           animate={{ opacity: 1, y: 0 }} 
-          className="glass-card p-6 rounded-2xl bg-gradient-to-r from-indigo-950/30 to-slate-900 border-indigo-500/40 flex items-center gap-4 text-indigo-200"
+          className="glass-card p-6 rounded-2xl bg-gradient-to-r from-teal-950/30 to-slate-900 border-teal-500/40 flex items-center gap-4 text-teal-200"
         >
-          <div className="p-3 rounded-2xl bg-indigo-500/20 text-indigo-400">
+          <div className="p-3 rounded-2xl bg-teal-500/20 text-teal-400">
             <CalendarIcon className="w-8 h-8" />
           </div>
           <div>
             <h4 className="text-lg font-bold text-white">Outside Semester Dates</h4>
-            <p className="text-xs text-indigo-300/80">
+            <p className="text-xs text-teal-300/80">
               This date is outside your configured semester start and end dates. Attendance marking is disabled.
             </p>
           </div>
