@@ -54,16 +54,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-white relative overflow-hidden justify-center items-center p-4">
-      {/* Background Orbs */}
-      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-sky-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-2/3 right-10 w-72 h-72 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none hidden md:block" />
+      {/* Refined flat background without orbs */}
 
       {/* Top Back Link */}
       <div className="absolute top-6 left-6 z-20">
         <NextLink
           href="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl glass-card hover:bg-slate-800/80 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-all border border-slate-800"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-transform active:scale-95 border border-transparent hover:border-white/5"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
@@ -78,8 +75,8 @@ export default function LoginPage() {
       >
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 via-sky-600 to-emerald-500 text-white shadow-xl shadow-teal-500/25 mb-2 animate-float">
-            <Sparkles className="w-7 h-7" />
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 border border-white/5 text-teal-400 mb-2">
+            <Sparkles className="w-6 h-6" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
             {activeTab === 'login' ? 'Welcome back to Skiply' : 'Create your Skiply ID'}
@@ -92,7 +89,7 @@ export default function LoginPage() {
         </div>
 
         {/* Auth Card */}
-        <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-800/80 shadow-2xl backdrop-blur-2xl bg-slate-900/60 space-y-6">
+        <div className="glass-card rounded-2xl p-6 sm:p-8 border border-white/5 bg-slate-900 shadow-lg space-y-6">
           {/* Tab Switcher */}
           <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-slate-950/80 border border-slate-800/80">
             <button
@@ -110,8 +107,8 @@ export default function LoginPage() {
               {activeTab === 'login' && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className="absolute inset-0 bg-gradient-to-r from-teal-600 to-sky-600 rounded-xl"
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
+                  className="absolute inset-0 bg-slate-800 rounded-lg border border-white/5"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
               <span className="relative z-10">Log In</span>
@@ -132,8 +129,8 @@ export default function LoginPage() {
               {activeTab === 'register' && (
                 <motion.div
                   layoutId="activeTabIndicator"
-                  className="absolute inset-0 bg-gradient-to-r from-teal-600 to-sky-600 rounded-xl"
-                  transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
+                  className="absolute inset-0 bg-slate-800 rounded-lg border border-white/5"
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
               <span className="relative z-10">Register</span>
@@ -276,7 +273,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-teal-600 via-sky-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white font-extrabold text-sm shadow-xl shadow-teal-500/25 flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none mt-2"
+              className="w-full py-3 px-6 rounded-xl bg-slate-50 hover:bg-white text-slate-950 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none mt-2"
             >
               {isPending ? (
                 <>

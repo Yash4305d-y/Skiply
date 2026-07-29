@@ -141,11 +141,26 @@ export default function DashboardPage() {
 
   if (!isLoaded || !profile) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
-        <div className="animate-pulse flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-teal-400 animate-spin" />
-          <span>Loading Skiply Attendance Engine...</span>
-        </div>
+      <div className="min-h-screen flex flex-col bg-slate-950">
+        <Navbar />
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column Skeleton */}
+            <div className="lg:col-span-4 space-y-4">
+              <div className="h-64 bg-slate-900/50 rounded-2xl animate-pulse border border-white/5" />
+              <div className="h-32 bg-slate-900/50 rounded-2xl animate-pulse border border-white/5" />
+            </div>
+            {/* Right Column Skeleton */}
+            <div className="lg:col-span-8 space-y-4">
+              <div className="h-16 bg-slate-900/50 rounded-2xl animate-pulse border border-white/5" />
+              <div className="space-y-2">
+                <div className="h-20 bg-slate-900/50 rounded-xl animate-pulse border border-white/5" />
+                <div className="h-20 bg-slate-900/50 rounded-xl animate-pulse border border-white/5" />
+                <div className="h-20 bg-slate-900/50 rounded-xl animate-pulse border border-white/5" />
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
@@ -348,13 +363,13 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Onboarding Banner if not onboarded yet */}
         {!isOnboardedInDemo() && (
-          <div className="glass-card p-5 rounded-2xl bg-gradient-to-r from-teal-950/60 via-sky-950/40 to-slate-900 border-teal-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+          <div className="glass-card card-interactive premium-gradient-border p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm mb-8">
             <div className="flex items-center gap-3.5">
-              <div className="p-3 rounded-2xl bg-teal-500/20 text-teal-400">
-                <Sparkles className="w-6 h-6 animate-pulse" />
+              <div className="p-3 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                <Sparkles className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-bold text-white text-base">You are currently using sample demo data!</h3>
@@ -366,7 +381,7 @@ export default function DashboardPage() {
 
             <NextLink
               href="/onboarding"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-500 hover:to-sky-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-teal-500/25 whitespace-nowrap transition-all"
+              className="btn-interactive px-5 py-2.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-sm whitespace-nowrap"
             >
               <span>⚡ Start AI Setup</span>
               <ArrowRight className="w-4 h-4" />
@@ -374,31 +389,35 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* HERO CARD: SAFE SKIPS SUMMARY & MATH ENGINE */}
-        <HeroWidget stats={overall} onUpdateTarget={handleUpdateTarget} />
-
-        {/* DAILY SCHEDULE & SINGLE-TAP ACTION CARDS */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-extrabold text-white tracking-tight">
-              Daily Class Schedule
-            </h2>
-            <span className="text-xs text-slate-400 font-medium">
-              Single-tap Present / Absent / Cancelled
-            </span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* LEFT COLUMN: HERO STATS & GOALS */}
+          <div className="lg:col-span-4 space-y-6">
+            <HeroWidget stats={overall} onUpdateTarget={handleUpdateTarget} />
           </div>
 
-          <DailyClassList
-            items={dailyItems}
-            allSubjects={subjects}
-            holidays={holidays}
-            selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
-            onMarkAttendance={handleMarkAttendance}
-            onUndoAttendance={handleUndoAttendance}
-            isOutOfSemesterBounds={profile ? (selectedDate < profile.semester_start_date || selectedDate > profile.semester_end_date) : false}
-            cloudHolidayName={dailyHoliday ? dailyHolidayName : null}
-          />
+          {/* RIGHT COLUMN: DAILY SCHEDULE & FEED */}
+          <div className="lg:col-span-8 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+                Daily Schedule
+              </h2>
+              <span className="text-[11px] text-slate-400 font-medium">
+                Single-tap Present / Absent / Cancelled
+              </span>
+            </div>
+
+            <DailyClassList
+              items={dailyItems}
+              allSubjects={subjects}
+              holidays={holidays}
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+              onMarkAttendance={handleMarkAttendance}
+              onUndoAttendance={handleUndoAttendance}
+              isOutOfSemesterBounds={profile ? (selectedDate < profile.semester_start_date || selectedDate > profile.semester_end_date) : false}
+              cloudHolidayName={dailyHoliday ? dailyHolidayName : null}
+            />
+          </div>
         </div>
       </main>
 

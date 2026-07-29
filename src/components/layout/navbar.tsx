@@ -34,23 +34,28 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 glass-header border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-slate-950/60 backdrop-blur-2xl border-b border-white/[0.04] shadow-sm">
+      <div 
+        className="max-w-7xl mx-auto h-16 flex items-center justify-between gap-4"
+        style={{
+          paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+          paddingRight: 'max(1rem, env(safe-area-inset-right))'
+        }}
+      >
         {/* Logo */}
-        <NextLink href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg shadow-teal-500/25">
-            <Image src="/logo.png" alt="Skiply Logo" width={36} height={36} className="w-full h-full object-cover" />
+        <NextLink href="/" className="btn-interactive flex items-center gap-2 sm:gap-3 shrink min-w-0 p-1 -ml-1 rounded-xl">
+          <div className="w-8 h-8 shrink-0 rounded-lg overflow-hidden flex items-center justify-center border border-white/5 shadow-sm">
+            <Image src="/logo.png" alt="Skiply Logo" width={32} height={32} className="w-full h-full object-cover" />
           </div>
-          <div>
-            <span className="text-lg font-extrabold tracking-tight text-white flex items-center gap-1.5">
-              Skiply <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-400 border border-teal-500/30">Attendra AI</span>
+          <div className="truncate">
+            <span className="text-base sm:text-lg font-bold tracking-tight text-slate-50 flex items-center gap-1.5 sm:gap-2">
+              Skiply <span className="hidden sm:flex text-[10px] uppercase font-semibold text-teal-400/90 tracking-wider">Attendra AI</span>
             </span>
-            <p className="text-[10px] text-slate-400 -mt-0.5 font-medium hidden sm:block">Safe Skip Attendance Calculator</p>
           </div>
         </NextLink>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800">
+        <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800 shrink-0">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
@@ -58,60 +63,62 @@ export default function Navbar() {
               <NextLink
                 key={item.href}
                 href={item.href}
-                className={`px-4 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
-                  isActive 
-                    ? 'bg-teal-600 text-white shadow-md shadow-teal-600/30' 
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                className={`nav-item-interactive px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                  isActive ? 'active' : 'text-slate-400'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 <span>{item.name}</span>
               </NextLink>
             );
           })}
         </nav>
 
-        {/* Right Status Badge */}
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            <div className={`w-2 h-2 rounded-full ${isLoggedIn ? 'bg-teal-400 animate-pulse' : 'bg-emerald-400 animate-pulse'}`} />
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-transparent border border-slate-800 hover:bg-slate-800/50 transition-colors cursor-default text-xs text-slate-300">
+            <div className={`w-1.5 h-1.5 rounded-full ${isLoggedIn ? 'bg-teal-400' : 'bg-emerald-400'}`} />
             <span className="font-medium text-slate-400">{isLoggedIn ? 'ID:' : 'Student:'}</span>
-            <span className="font-bold text-white">{userName}</span>
+            <span className="font-semibold text-slate-100">{userName}</span>
           </div>
 
           {isLoggedIn ? (
             <button
               onClick={() => signOut()}
-              className="p-2 rounded-xl bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 flex items-center gap-1.5 text-xs font-bold transition-all"
+              className="btn-interactive px-2 py-1.5 sm:px-3 sm:py-1.5 rounded-lg bg-transparent text-slate-400 hover:text-rose-400 border border-transparent flex items-center gap-1.5 text-xs font-medium shrink-0"
               title="Sign Out"
             >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden lg:inline">Sign Out</span>
+              <LogOut className="w-4 h-4 shrink-0" />
+              <span className="whitespace-nowrap">Sign Out</span>
             </button>
           ) : (
             <NextLink
               href="/login"
-              className="px-3.5 py-1.5 rounded-xl bg-teal-600/20 text-teal-300 hover:bg-teal-600/30 border border-teal-500/30 flex items-center gap-1.5 text-xs font-bold transition-all"
+              className="btn-interactive px-2 py-1.5 sm:px-3 sm:py-1.5 rounded-lg bg-slate-800 text-slate-100 border border-slate-700 flex items-center gap-1.5 text-xs font-medium shadow-sm shrink-0"
               title="Sign In"
             >
-              <LogIn className="w-4 h-4" />
-              <span>Sign In</span>
+              <LogIn className="w-4 h-4 shrink-0" />
+              <span className="whitespace-nowrap">Sign In</span>
             </NextLink>
           )}
 
           <NextLink
             href="/onboarding"
-            className="md:hidden p-2 rounded-xl bg-teal-600/20 text-teal-400 border border-teal-500/30"
+            className="btn-interactive md:hidden p-1.5 sm:p-2 rounded-xl bg-teal-600/20 text-teal-400 border border-teal-500/30 shrink-0"
             aria-label="AI Setup"
           >
-            <Sparkles className="w-5 h-5" />
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
           </NextLink>
         </div>
       </div>
 
 
       {/* Mobile Bottom Navigation Bar (PWA Friendly) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-slate-800/80 bg-slate-950/90 backdrop-blur-2xl px-4 py-2.5 flex items-center justify-around">
+      <div 
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-2xl border-t border-white/[0.04] px-4 py-2.5 flex items-center justify-around"
+        style={{
+          paddingBottom: 'max(0.625rem, env(safe-area-inset-bottom))'
+        }}
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -119,11 +126,11 @@ export default function Navbar() {
             <NextLink
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
-                isActive ? 'text-teal-400 scale-105 font-bold' : 'text-slate-500 font-medium'
+              className={`nav-item-interactive flex flex-col items-center gap-1 px-3 py-1 rounded-lg ${
+                isActive ? 'text-teal-400 font-semibold' : 'text-slate-500 font-medium'
               }`}
             >
-              <div className={`p-1.5 rounded-xl ${isActive ? 'bg-teal-500/10' : ''}`}>
+              <div className={`p-1.5 rounded-lg transition-colors ${isActive ? 'bg-teal-500/10' : 'hover:bg-slate-800/50'}`}>
                 <Icon className="w-5 h-5" />
               </div>
               <span className="text-[10px]">{item.name}</span>

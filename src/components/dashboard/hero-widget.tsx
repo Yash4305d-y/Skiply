@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, AlertTriangle, Flame, TrendingUp, Calendar, CheckCircle2, XCircle, AlertOctagon } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Flame, Calendar, CheckCircle2, XCircle, AlertOctagon, Target } from 'lucide-react';
 import { OverallSemesterStats } from '@/types';
 
 interface HeroWidgetProps {
@@ -16,160 +16,132 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
   const isDanger = stats.status === 'DANGER';
 
   const progressColor = isDanger 
-    ? 'bg-gradient-to-r from-rose-600 to-red-500 shadow-rose-500/50' 
+    ? 'bg-rose-500' 
     : isWarning 
-    ? 'bg-gradient-to-r from-amber-500 to-yellow-400 shadow-amber-500/50' 
-    : 'bg-gradient-to-r from-teal-500 via-sky-500 to-emerald-400 shadow-emerald-500/50';
+    ? 'bg-amber-500' 
+    : 'bg-teal-500';
 
   const badgeColor = isDanger 
-    ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' 
+    ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
     : isWarning 
-    ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' 
-    : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
+    : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
 
   const Icon = isDanger ? AlertOctagon : isWarning ? AlertTriangle : ShieldCheck;
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden border-teal-500/30 shadow-2xl"
-    >
-      {/* Subtle background glow depending on status */}
-      <div className={`absolute -right-20 -top-20 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none ${
-        isDanger ? 'bg-rose-600' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'
-      }`} />
-      
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        {/* Left Content: Hero Text */}
-        <div className="space-y-3 max-w-xl">
-          <div className="flex items-center gap-2">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${badgeColor}`}>
-              <Icon className="w-3.5 h-3.5" />
-              <span>{isDanger ? 'Critical Recovery Mode' : isWarning ? 'Borderline Alert' : 'Safe Skip Buffer Active'}</span>
-            </span>
-            <span className="text-xs text-slate-400 font-medium">Target: {stats.target_percentage}%</span>
-          </div>
-
-          <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white leading-tight">
-            {stats.hero_message}
-          </h2>
-
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-            {stats.hero_subtext}
-          </p>
-        </div>
-
-        {/* Right Content: Big Percentage Gauge */}
-        <div className="flex flex-col items-center justify-center bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl min-w-[180px] shadow-inner text-center">
-          <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Overall Semester</span>
-          <div className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
-            {stats.overall_percentage}%
-          </div>
-          <div className="flex items-center gap-1 mt-1 text-[11px] font-bold text-slate-400">
-            <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
-            <span>{stats.total_conducted} lectures conducted</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Bar Container */}
-      <div className="mt-8 space-y-2 relative z-10">
-        <div className="flex justify-between items-center text-xs font-semibold">
-          <span className="text-slate-300">Attendance Progress</span>
-          <span className="text-slate-400">
-            {stats.total_present} Present / {stats.total_conducted} Conducted Till Date
+    <div className="space-y-4">
+      {/* CARD 1: Overall Progress & Target */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        className="glass-card card-interactive premium-gradient-border rounded-2xl p-5 bg-slate-900/40 shadow-sm"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wider ${badgeColor}`}>
+            <Icon className="w-3 h-3" />
+            <span>{isDanger ? 'Critical Recovery' : isWarning ? 'Borderline Alert' : 'Safe Buffer Active'}</span>
           </span>
         </div>
 
-        <div className="relative h-4 w-full bg-slate-900/90 rounded-full overflow-hidden border border-slate-800 p-0.5">
-          {/* Target Threshold Marker Line */}
+        <div className="flex items-end justify-between mb-3">
+          <div className="text-4xl font-black text-white tracking-tight leading-none">
+            {stats.overall_percentage}%
+          </div>
+          <div className="text-xs text-slate-400 font-medium">
+            {stats.total_present} / {stats.total_conducted} classes
+          </div>
+        </div>
+
+        {/* Thin progress bar */}
+        <div className="relative h-1.5 w-full bg-slate-800 rounded-full overflow-hidden mb-4">
           <div 
-            className="absolute top-0 bottom-0 w-0.5 bg-white z-20 shadow-[0_0_8px_2px_rgba(255,255,255,0.8)]"
+            className="absolute top-0 bottom-0 w-0.5 bg-slate-300 z-20"
             style={{ left: `${stats.target_percentage}%` }}
             title={`Required Minimum: ${stats.target_percentage}%`}
           />
-
-          {/* Animated Fill Bar */}
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(100, stats.overall_percentage)}%` }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className={`h-full rounded-full ${progressColor} shadow-md`}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className={`h-full rounded-full ${progressColor}`}
           />
         </div>
 
-        <div className="flex justify-between items-center text-[11px] text-slate-500 font-medium pt-0.5">
-          <span>50%</span>
-          {onUpdateTarget ? (
-            <div className="flex items-center gap-2 w-1/2 max-w-[200px] z-30">
-              <input 
-                type="range" 
-                min="50" max="100" step="1" 
-                value={stats.target_percentage} 
-                onChange={(e) => onUpdateTarget(Number(e.target.value))} 
-                className="w-full accent-white bg-slate-800 h-1 rounded-lg cursor-pointer"
-                title="Drag to change your target attendance instantly"
-              />
-              <span className="text-white font-bold bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700 whitespace-nowrap">
-                🎯 {stats.target_percentage}% Target
-              </span>
-            </div>
-          ) : (
-            <span 
-              className="text-white font-bold bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700" 
-              style={{ marginLeft: `${Math.max(-20, Math.min(20, stats.target_percentage - 50))}%` }}
-            >
-              🎯 {stats.target_percentage}% Target
+        {/* Target Slider */}
+        {onUpdateTarget && (
+          <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+            <Target className="w-4 h-4 text-slate-500" />
+            <input 
+              type="range" 
+              min="50" max="100" step="1" 
+              value={stats.target_percentage} 
+              onChange={(e) => onUpdateTarget(Number(e.target.value))} 
+              className="input-interactive flex-1 accent-slate-300 bg-slate-800 h-1 rounded-lg cursor-pointer border border-transparent hover:border-slate-600 focus:outline-none"
+              title="Drag to change your target attendance instantly"
+            />
+            <span className="text-xs font-bold text-slate-300 w-9 text-right">
+              {stats.target_percentage}%
             </span>
-          )}
-          <span>100%</span>
-        </div>
-      </div>
+          </div>
+        )}
+      </motion.div>
 
-      {/* Quick Stat Pills Footer */}
-      <div className="mt-6 pt-6 border-t border-slate-800/60 grid grid-cols-2 sm:grid-cols-4 gap-3 relative z-10">
-        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800/60 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+      {/* CARD 2: Hero Message block */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.05 }}
+        className="glass-card card-interactive rounded-2xl p-5 border border-white/5 bg-slate-900/40 shadow-sm"
+      >
+        <h3 className="text-lg font-bold text-white mb-1.5 leading-tight">
+          {stats.hero_message}
+        </h3>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          {stats.hero_subtext}
+        </p>
+      </motion.div>
+
+      {/* GRID 3: Mini Stat Cards (2x2 Grid) */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.1 }}
+        className="grid grid-cols-2 gap-3"
+      >
+        <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
+          <div className="flex items-center gap-2 text-emerald-400/80 mb-1">
             <CheckCircle2 className="w-4 h-4" />
+            <span className="text-[10px] uppercase font-bold tracking-wider">Present</span>
           </div>
-          <div>
-            <div className="text-sm font-bold text-white">{stats.total_present}</div>
-            <div className="text-[10px] text-slate-400 uppercase font-semibold">Total Present</div>
-          </div>
+          <div className="text-xl font-black text-slate-100">{stats.total_present}</div>
         </div>
 
-        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800/60 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-rose-500/10 text-rose-400">
+        <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
+          <div className="flex items-center gap-2 text-rose-400/80 mb-1">
             <XCircle className="w-4 h-4" />
+            <span className="text-[10px] uppercase font-bold tracking-wider">Absent</span>
           </div>
-          <div>
-            <div className="text-sm font-bold text-white">{stats.total_absent}</div>
-            <div className="text-[10px] text-slate-400 uppercase font-semibold">Total Absent</div>
-          </div>
+          <div className="text-xl font-black text-slate-100">{stats.total_absent}</div>
         </div>
 
-        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800/60 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400">
-            <Calendar className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-sm font-bold text-white">{stats.total_remaining}</div>
-            <div className="text-[10px] text-slate-400 uppercase font-semibold">Remaining Lectures</div>
-          </div>
-        </div>
-
-        <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800/60 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400">
+        <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
+          <div className="flex items-center gap-2 text-sky-400/80 mb-1">
             <Flame className="w-4 h-4" />
+            <span className="text-[10px] uppercase font-bold tracking-wider">Safe Skips</span>
           </div>
-          <div>
-            <div className="text-sm font-bold text-white">{stats.total_safe_skips}</div>
-            <div className="text-[10px] text-slate-400 uppercase font-semibold">Total Safe Skips</div>
-          </div>
+          <div className="text-xl font-black text-slate-100">{stats.total_safe_skips}</div>
         </div>
-      </div>
-    </motion.div>
+
+        <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
+          <div className="flex items-center gap-2 text-teal-400/80 mb-1">
+            <Calendar className="w-4 h-4" />
+            <span className="text-[10px] uppercase font-bold tracking-wider">Remaining</span>
+          </div>
+          <div className="text-xl font-black text-slate-100">{stats.total_remaining}</div>
+        </div>
+      </motion.div>
+    </div>
   );
 }

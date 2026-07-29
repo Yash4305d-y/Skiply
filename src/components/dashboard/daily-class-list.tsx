@@ -66,44 +66,54 @@ export default function DailyClassList({
   return (
     <div className="space-y-6">
       {/* Header & Date Navigation Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-            <CalendarIcon className="w-5 h-5" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="text-lg font-bold text-white">{formatDateDisplay(selectedDate)}</h3>
+            {isToday() && (
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-teal-500/20 text-teal-400 border border-teal-500/30">
+                Today
+              </span>
+            )}
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-white">{formatDateDisplay(selectedDate)}</h3>
-              {isToday() && (
-                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-teal-500/20 text-teal-400 border border-teal-500/30">
-                  Today
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-slate-400">
-              {activeHoliday ? (
-                <span className="text-amber-400 font-medium">🏖️ Holiday: {activeHolidayName}</span>
-              ) : totalCount > 0 ? (
-                <span>Marked {markedCount} of {totalCount} scheduled lecture{totalCount !== 1 ? 's' : ''}</span>
-              ) : (
-                <span>No lectures scheduled on this day of the week</span>
-              )}
-            </p>
-          </div>
+          <p className="text-xs text-slate-400">
+            {activeHoliday ? (
+              <span className="text-amber-400 font-medium">🏖️ Holiday: {activeHolidayName}</span>
+            ) : totalCount > 0 ? (
+              <span>Marked {markedCount} of {totalCount} scheduled lecture{totalCount !== 1 ? 's' : ''}</span>
+            ) : (
+              <span>No lectures scheduled on this day of the week</span>
+            )}
+          </p>
         </div>
 
-        {/* Date Stepper & Picker Buttons */}
-        <div className="flex items-center gap-1.5 self-end sm:self-auto flex-wrap justify-end">
+        {/* Date Segmented Control */}
+        <div className="flex items-center bg-slate-900/50 p-1 rounded-xl border border-white/5 shadow-sm self-start sm:self-auto">
           <button
             onClick={() => handleStepDate(-1)}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
             title="Previous Day"
-            aria-label="Previous Day"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
-          {/* Direct Date Picker Button */}
+          <button
+            onClick={() => {
+              const now = new Date();
+              const y = now.getFullYear();
+              const m = String(now.getMonth() + 1).padStart(2, '0');
+              const d = String(now.getDate()).padStart(2, '0');
+              onDateChange(`${y}-${m}-${d}`);
+            }}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 ${
+              isToday() ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            Today
+          </button>
+
+          <div className="w-px h-4 bg-white/10 mx-1" />
+
           <div className="relative group">
             <input
               ref={dateInputRef}
@@ -115,8 +125,6 @@ export default function DailyClassList({
                 }
               }}
               className="absolute w-0 h-0 opacity-0 overflow-hidden"
-              title="Select specific date"
-              aria-label="Select specific date"
             />
             <button
               type="button"
@@ -129,34 +137,17 @@ export default function DailyClassList({
                   }
                 }
               }}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 border border-slate-700 shadow-sm"
+              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-1.5 active:scale-95"
             >
-              <CalendarIcon className="w-3.5 h-3.5 text-teal-400 group-hover:scale-110 transition-transform" />
-              <span className="hidden xs:inline">Jump to Date...</span>
-              <span className="xs:hidden">Date...</span>
+              <CalendarIcon className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">Select Date</span>
             </button>
           </div>
 
-          {!isToday() && (
-            <button
-              onClick={() => {
-                const now = new Date();
-                const y = now.getFullYear();
-                const m = String(now.getMonth() + 1).padStart(2, '0');
-                const d = String(now.getDate()).padStart(2, '0');
-                onDateChange(`${y}-${m}-${d}`);
-              }}
-              className="px-3 py-1.5 rounded-xl bg-teal-600/20 text-teal-400 hover:bg-teal-600 hover:text-white text-xs font-bold transition-all shadow-sm"
-            >
-              Today
-            </button>
-          )}
-
           <button
             onClick={() => handleStepDate(1)}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
             title="Next Day"
-            aria-label="Next Day"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -168,9 +159,9 @@ export default function DailyClassList({
         <motion.div 
           initial={{ opacity: 0, y: -10 }} 
           animate={{ opacity: 1, y: 0 }} 
-          className="glass-card p-6 rounded-2xl bg-gradient-to-r from-amber-950/30 to-slate-900 border-amber-500/40 flex items-center gap-4 text-amber-200"
+          className="glass-card p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex items-center gap-4 text-amber-200"
         >
-          <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-400">
+          <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400">
             <Sun className="w-8 h-8" />
           </div>
           <div>
@@ -187,9 +178,9 @@ export default function DailyClassList({
         <motion.div 
           initial={{ opacity: 0, y: -10 }} 
           animate={{ opacity: 1, y: 0 }} 
-          className="glass-card p-6 rounded-2xl bg-gradient-to-r from-teal-950/30 to-slate-900 border-teal-500/40 flex items-center gap-4 text-teal-200"
+          className="glass-card p-6 rounded-2xl bg-teal-500/5 border border-teal-500/20 flex items-center gap-4 text-teal-200"
         >
-          <div className="p-3 rounded-2xl bg-teal-500/20 text-teal-400">
+          <div className="p-3 rounded-xl bg-teal-500/10 text-teal-400">
             <CalendarIcon className="w-8 h-8" />
           </div>
           <div>
@@ -204,14 +195,14 @@ export default function DailyClassList({
       {/* Class List or Empty State */}
       <div className="space-y-4">
         {activeHoliday || isOutOfSemesterBounds ? null : items.length === 0 ? (
-          <div className="glass-card p-12 rounded-3xl text-center space-y-4 border-dashed border-slate-800">
-            <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center mx-auto text-slate-500">
-              <Sun className="w-8 h-8" />
+          <div className="glass-card p-12 rounded-2xl text-center space-y-4 border border-white/5 bg-slate-900/20">
+            <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto text-slate-500 border border-white/5 shadow-inner">
+              <Sparkles className="w-8 h-8" />
             </div>
             <div className="space-y-1">
-              <h4 className="text-base font-bold text-white">No Lectures Today</h4>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                You have a free day! Use the date switcher above to check your upcoming schedule or review past attendance.
+              <h4 className="text-base font-bold text-white">No Lectures Scheduled</h4>
+              <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                You have a free day! Use the date switcher above to check your upcoming schedule.
               </p>
             </div>
           </div>
