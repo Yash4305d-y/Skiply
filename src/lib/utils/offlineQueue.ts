@@ -1,6 +1,6 @@
 'use client';
 
-import { markAttendance } from '@/lib/db/actions';
+import { markAttendance } from '@/actions/db';
 
 const QUEUE_KEY = 'skiply_offline_queue_v2';
 

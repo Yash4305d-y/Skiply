@@ -14,7 +14,7 @@ import {
   Subject, TimetableSlot, AcademicHoliday 
 } from '@/types';
 import { saveConfirmedScheduleToDemo, updateDemoSemesterConfig } from '@/lib/demo-store';
-import { saveOnboardingData, getUserProfile, updateSemesterConfig } from '@/lib/db/actions';
+import { saveOnboardingData, getUserProfile, updateSemesterConfig } from '@/actions/db';
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -309,11 +309,11 @@ export default function OnboardingWizard() {
 
       {/* Wizard Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-4">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
           <span>AI Onboarding Wizard</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-3">
           Set Up Your Semester in 60 Seconds
         </h1>
         <p className="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
@@ -336,8 +336,8 @@ export default function OnboardingWizard() {
           return (
             <div key={item.id} className="flex items-center gap-2">
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' :
-                isDone ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                isActive ? 'bg-slate-100 text-slate-900 shadow-sm' :
+                isDone ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' :
                 'bg-slate-800 text-slate-500'
               }`}>
                 {isDone && <Check className="w-3 h-3" />}
@@ -360,10 +360,10 @@ export default function OnboardingWizard() {
             className="space-y-6"
           >
             {/* Quick Demo Button */}
-            <div className="glass-card p-4 rounded-2xl border-indigo-500/30 bg-gradient-to-r from-indigo-900/20 to-purple-900/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="glass-card premium-gradient-border p-4 rounded-2xl bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400">
-                  <Sparkles className="w-6 h-6" />
+                <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                  <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-white">Want to test instantly without uploading?</h3>
@@ -372,7 +372,7 @@ export default function OnboardingWizard() {
               </div>
               <button 
                 onClick={() => startAIProcessing(true)}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center gap-2"
+                className="btn-interactive w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm shadow-sm flex items-center justify-center gap-2"
               >
                 <span>⚡ Auto-Fill Demo Schedule</span>
                 <ArrowRight className="w-4 h-4" />
@@ -382,7 +382,7 @@ export default function OnboardingWizard() {
             {/* Upload Grids */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Timetable Upload Zone */}
-              <div className="glass-card p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-indigo-500/50 transition-all flex flex-col items-center justify-center text-center relative overflow-hidden group">
+              <div className="glass-card card-interactive p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-teal-500/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <input 
                   type="file" 
                   accept="image/*,.pdf,application/pdf"
@@ -392,10 +392,10 @@ export default function OnboardingWizard() {
                 {timetablePreview ? (
                   <div className="space-y-3 w-full">
                     {timetablePreview.startsWith('data:application/pdf') || timetableFile?.type === 'application/pdf' ? (
-                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-indigo-300">
-                        <FileText className="w-10 h-10 text-indigo-400" />
+                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-teal-300">
+                        <FileText className="w-10 h-10 text-teal-400" />
                         <span className="text-xs font-semibold truncate max-w-full text-white">{timetableFile?.name || 'Timetable PDF'}</span>
-                        <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
+                        <span className="px-2 py-0.5 rounded bg-teal-500/20 text-teal-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
                       </div>
                     ) : (
                       <img src={timetablePreview} alt="Timetable preview" className="h-40 w-full object-cover rounded-xl border border-slate-700" />
@@ -406,7 +406,7 @@ export default function OnboardingWizard() {
                   </div>
                 ) : (
                   <div className="py-8 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-indigo-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-teal-400 group-hover:scale-110 transition-transform">
                       <UploadCloud className="w-6 h-6" />
                     </div>
                     <div>
@@ -418,7 +418,7 @@ export default function OnboardingWizard() {
               </div>
 
               {/* Academic Calendar Upload Zone */}
-              <div className="glass-card p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-indigo-500/50 transition-all flex flex-col items-center justify-center text-center relative overflow-hidden group">
+              <div className="glass-card card-interactive p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-teal-500/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <input 
                   type="file" 
                   accept="image/*,.pdf,application/pdf"
@@ -428,10 +428,10 @@ export default function OnboardingWizard() {
                 {calendarPreview ? (
                   <div className="space-y-3 w-full">
                     {calendarPreview.startsWith('data:application/pdf') || calendarFile?.type === 'application/pdf' ? (
-                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-purple-300">
-                        <FileText className="w-10 h-10 text-purple-400" />
+                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-sky-300">
+                        <FileText className="w-10 h-10 text-sky-400" />
                         <span className="text-xs font-semibold truncate max-w-full text-white">{calendarFile?.name || 'Calendar PDF'}</span>
-                        <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
+                        <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
                       </div>
                     ) : (
                       <img src={calendarPreview} alt="Calendar preview" className="h-40 w-full object-cover rounded-xl border border-slate-700" />
@@ -442,7 +442,7 @@ export default function OnboardingWizard() {
                   </div>
                 ) : (
                   <div className="py-8 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-purple-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-sky-400 group-hover:scale-110 transition-transform">
                       <Calendar className="w-6 h-6" />
                     </div>
                     <div>
@@ -458,16 +458,16 @@ export default function OnboardingWizard() {
             <div className="glass-card p-6 rounded-2xl space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h3 className="font-semibold text-white text-sm flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-indigo-400" />
+                  <Layers className="w-4 h-4 text-teal-400" />
                   <span>Semester Configuration</span>
                 </h3>
                 <button
                   onClick={handleUpdateConfig}
                   disabled={!hasConfigChanges || isUpdatingConfig}
-                  className={`px-4 py-2 rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition-all
+                  className={`btn-interactive px-4 py-2 rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-2
                     ${(!hasConfigChanges && !isUpdatingConfig) 
-                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' 
-                      : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-indigo-500/25 border border-indigo-500/50 hover:-translate-y-0.5'
+                      ? 'bg-slate-800 text-slate-500 border border-slate-700' 
+                      : 'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700'
                     }
                   `}
                 >
@@ -495,7 +495,7 @@ export default function OnboardingWizard() {
                     type="date" 
                     value={startDate} 
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                    className="input-interactive w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs"
                   />
                 </div>
 
@@ -506,7 +506,7 @@ export default function OnboardingWizard() {
                     type="date" 
                     value={endDate} 
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                    className="input-interactive w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs"
                   />
                 </div>
               </div>
@@ -517,10 +517,10 @@ export default function OnboardingWizard() {
               <button 
                 onClick={() => startAIProcessing(false)}
                 disabled={!timetablePreview && !calendarPreview}
-                className={`px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-xl transition-all ${
+                className={`btn-interactive px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm ${
                   (!timetablePreview && !calendarPreview) 
-                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-indigo-500/25'
+                    ? 'bg-slate-800 text-slate-500 border border-slate-700' 
+                    : 'bg-slate-50 text-slate-950'
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
@@ -537,11 +537,11 @@ export default function OnboardingWizard() {
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.95 }}
-            className="glass-card p-12 rounded-3xl text-center space-y-6 max-w-md mx-auto my-12 border-indigo-500/30"
+            className="glass-card p-12 rounded-2xl text-center space-y-6 max-w-md mx-auto my-12 border-white/5"
           >
             <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 animate-ping" />
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/40">
+              <div className="absolute inset-0 rounded-full border border-teal-500/20 animate-ping" />
+              <div className="w-16 h-16 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400">
                 <RefreshCw className="w-8 h-8 animate-spin" />
               </div>
             </div>
@@ -564,14 +564,14 @@ export default function OnboardingWizard() {
             className="space-y-6"
           >
             {/* Banner */}
-            <div className="glass-card p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 to-slate-900 border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="glass-card p-4 rounded-2xl bg-teal-500/5 border-teal-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-white text-sm">{extractionResult?.summary_message}</h4>
-                  <p className="text-xs text-slate-400">Please review and edit any cells below before finalizing your semester.</p>
+                  <h4 className="font-semibold text-teal-300 text-sm">{extractionResult?.summary_message}</h4>
+                  <p className="text-xs text-teal-500/70">Please review and edit any cells below before finalizing your semester.</p>
                 </div>
               </div>
             </div>
@@ -581,7 +581,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={() => setActiveTab('SUBJECTS')}
                 className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'SUBJECTS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'SUBJECTS' ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -591,7 +591,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={() => setActiveTab('SLOTS')}
                 className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'SLOTS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'SLOTS' ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
                 }`}
               >
                 <Clock className="w-4 h-4" />
@@ -601,7 +601,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={() => setActiveTab('HOLIDAYS')}
                 className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'HOLIDAYS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'HOLIDAYS' ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
                 }`}
               >
                 <Calendar className="w-4 h-4" />
@@ -631,7 +631,7 @@ export default function OnboardingWizard() {
                               type="text" 
                               value={s.subject_code} 
                               onChange={(e) => updateSubject(s.temp_id, 'subject_code', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
@@ -639,7 +639,7 @@ export default function OnboardingWizard() {
                               type="text" 
                               value={s.subject_name} 
                               onChange={(e) => updateSubject(s.temp_id, 'subject_name', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-indigo-500 focus:outline-none"
+                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-teal-500 focus:outline-none"
                             />
                             {s.warning && (
                               <p className="text-[11px] text-amber-400 mt-1 flex items-center gap-1 font-medium">
@@ -651,7 +651,7 @@ export default function OnboardingWizard() {
                             <button 
                               onClick={() => updateSubject(s.temp_id, 'is_lab', !s.is_lab)}
                               className={`px-2.5 py-1 rounded font-semibold transition-all ${
-                                s.is_lab ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'
+                                s.is_lab ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'
                               }`}
                             >
                               {s.is_lab ? '🧪 Lab / Practical' : '📖 Theory Lecture'}
@@ -662,7 +662,7 @@ export default function OnboardingWizard() {
                               type="number" 
                               value={s.credit_hours} 
                               onChange={(e) => updateSubject(s.temp_id, 'credit_hours', Number(e.target.value))}
-                              className="w-16 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white text-center focus:border-indigo-500 focus:outline-none"
+                              className="w-16 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white text-center focus:border-teal-500 focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
@@ -703,7 +703,7 @@ export default function OnboardingWizard() {
                               <select 
                                 value={sl.day_of_week}
                                 onChange={(e) => updateSlot(sl.temp_id, 'day_of_week', Number(e.target.value))}
-                                className="bg-slate-900 px-2 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-indigo-500"
+                                className="bg-slate-900 px-2 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-teal-500"
                               >
                                 {DAYS_OF_WEEK.map((day, idx) => (
                                   <option key={idx} value={idx}>{day}</option>
@@ -714,7 +714,7 @@ export default function OnboardingWizard() {
                               <select 
                                 value={sl.subject_temp_id}
                                 onChange={(e) => updateSlot(sl.temp_id, 'subject_temp_id', e.target.value)}
-                                className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-indigo-500"
+                                className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-teal-500"
                               >
                                 {subjects.map(s => (
                                   <option key={s.temp_id} value={s.temp_id}>{s.subject_code} — {s.subject_name}</option>
@@ -731,7 +731,7 @@ export default function OnboardingWizard() {
                                 type="text" 
                                 value={sl.start_time} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'start_time', e.target.value)}
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
                               />
                             </td>
                             <td className="p-4">
@@ -739,7 +739,7 @@ export default function OnboardingWizard() {
                                 type="text" 
                                 value={sl.end_time} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'end_time', e.target.value)}
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
                               />
                             </td>
                             <td className="p-4">
@@ -748,7 +748,7 @@ export default function OnboardingWizard() {
                                 value={sl.room_number || ''} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'room_number', e.target.value)}
                                 placeholder="LT-101"
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-indigo-500 focus:outline-none"
+                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-teal-500 focus:outline-none"
                               />
                             </td>
                           </tr>
@@ -780,7 +780,7 @@ export default function OnboardingWizard() {
                               type="date" 
                               value={h.holiday_date} 
                               onChange={(e) => updateHoliday(h.temp_id, 'holiday_date', e.target.value)}
-                              className="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                              className="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
@@ -788,7 +788,7 @@ export default function OnboardingWizard() {
                               type="text" 
                               value={h.description} 
                               onChange={(e) => updateHoliday(h.temp_id, 'description', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-indigo-500 focus:outline-none"
+                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-teal-500 focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
@@ -822,7 +822,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={handleConfirmAndSave}
                 disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 flex items-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none"
+                className="px-8 py-3 rounded-xl bg-slate-50 hover:bg-white text-slate-950 font-bold text-sm shadow-sm flex items-center gap-2 transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
               >
                 {isSaving ? (
                   <>
@@ -846,13 +846,13 @@ export default function OnboardingWizard() {
             key="step-success"
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
-            className="glass-card p-12 rounded-3xl text-center space-y-6 max-w-md mx-auto my-12 border-emerald-500/30 bg-gradient-to-b from-emerald-950/20 to-slate-900"
+            className="glass-card p-12 rounded-2xl text-center space-y-6 max-w-md mx-auto my-12 border-white/5 bg-slate-900"
           >
-            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-white mx-auto shadow-lg shadow-emerald-500/40">
+            <div className="w-20 h-20 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400 mx-auto">
               <Check className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-extrabold text-white">Semester Schedule Ready!</h3>
+              <h3 className="text-2xl font-bold text-white">Semester Schedule Ready!</h3>
               <p className="text-sm text-slate-300">
                 Redirecting you to your daily dashboard and safe skip calculator...
               </p>

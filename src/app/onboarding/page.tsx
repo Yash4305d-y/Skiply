@@ -1,5 +1,5 @@
 import React from 'react';
-import OnboardingWizard from '@/components/onboarding/onboarding-wizard';
+import OnboardingWizard from '@/features/onboarding/components/onboarding-wizard';
 import Navbar from '@/components/layout/navbar';
 
 export default function OnboardingPage() {
