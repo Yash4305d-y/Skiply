@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
-import HistoryView from '@/components/history/history-view';
+import HistoryView from '@/features/history/components/history-view';
 import { 
   getDemoSubjects, getDemoTimetableSlots, getDemoAttendanceLogs, 
   getDemoHolidays, getDemoProfile,
@@ -11,7 +11,7 @@ import {
 } from '@/lib/demo-store';
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { Sparkles } from 'lucide-react';
-import { markAttendance, getSemesterData, removeAttendance } from '@/lib/db/actions';
+import { markAttendance, getSemesterData, removeAttendance } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 
 export default function HistoryPage() {
@@ -155,12 +155,12 @@ export default function HistoryPage() {
       {/* Floating Offline & Sync Toast Banners */}
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none">
         {offlineToast && (
-          <div className="px-5 py-2.5 rounded-2xl bg-amber-500 text-slate-950 font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-amber-400 animate-bounce">
+          <div className="px-5 py-2.5 rounded-2xl bg-amber-500 text-slate-950 font-bold text-xs shadow-2xl flex items-center gap-2 border border-amber-400 animate-bounce">
             <span>{offlineToast}</span>
           </div>
         )}
         {syncToast && (
-          <div className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-emerald-400 animate-bounce">
+          <div className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-bold text-xs shadow-2xl flex items-center gap-2 border border-emerald-400 animate-bounce">
             <span>{syncToast}</span>
           </div>
         )}

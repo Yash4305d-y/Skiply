@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react';
 import NextLink from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, User, Lock, ArrowRight, AlertCircle, Loader2, ArrowLeft, ShieldCheck, HelpCircle } from 'lucide-react';
-import { signInWithUniqueId, signUpWithUniqueId } from '@/app/auth/actions';
+import { signInWithUniqueId, signUpWithUniqueId } from '@/actions/auth';
 
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -78,7 +78,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 border border-white/5 text-teal-400 mb-2">
             <Sparkles className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             {activeTab === 'login' ? 'Welcome back to Skiply' : 'Create your Skiply ID'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400">
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 setActiveTab('login');
                 setErrorMsg(null);
               }}
-              className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
+              className={`btn-interactive py-2.5 rounded-xl text-xs sm:text-sm font-bold relative ${
                 activeTab === 'login'
                   ? 'text-white shadow-lg'
                   : 'text-slate-400 hover:text-slate-200'
@@ -120,7 +120,7 @@ export default function LoginPage() {
                 setActiveTab('register');
                 setErrorMsg(null);
               }}
-              className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
+              className={`btn-interactive py-2.5 rounded-xl text-xs sm:text-sm font-bold relative ${
                 activeTab === 'register'
                   ? 'text-white shadow-lg'
                   : 'text-slate-400 hover:text-slate-200'
@@ -172,7 +172,7 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="e.g., alex_2026 or 2026cse01"
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
+                  className="input-interactive w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 text-white placeholder-slate-500 text-sm font-medium"
                 />
               </div>
               <p className="text-[11px] text-slate-400 flex items-center gap-1">
@@ -207,7 +207,7 @@ export default function LoginPage() {
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="e.g., Alex Mercer"
-                        className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
+                        className="input-interactive w-full pl-10 pr-4 py-3 rounded-xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 text-white placeholder-slate-500 text-sm font-medium"
                       />
                     </div>
                   </div>
@@ -224,7 +224,7 @@ export default function LoginPage() {
                         required={activeTab === 'register'}
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white text-sm font-medium transition-all outline-none"
+                        className="input-interactive w-full px-3 py-3 rounded-xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 text-white text-sm font-medium"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -238,7 +238,7 @@ export default function LoginPage() {
                         required={activeTab === 'register'}
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-3 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white text-sm font-medium transition-all outline-none"
+                        className="input-interactive w-full px-3 py-3 rounded-xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 text-white text-sm font-medium"
                       />
                     </div>
                   </div>
@@ -264,7 +264,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   minLength={6}
-                  className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-white placeholder-slate-500 text-sm font-medium transition-all outline-none"
+                  className="input-interactive w-full pl-10 pr-12 py-3 rounded-xl bg-slate-950/80 border border-slate-800 focus:border-teal-500 text-white placeholder-slate-500 text-sm font-medium"
                 />
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-3 px-6 rounded-xl bg-slate-50 hover:bg-white text-slate-950 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none mt-2"
+              className="btn-interactive w-full py-3 px-6 rounded-xl bg-slate-50 hover:bg-white text-slate-950 font-bold text-sm flex items-center justify-center gap-2 mt-2"
             >
               {isPending ? (
                 <>

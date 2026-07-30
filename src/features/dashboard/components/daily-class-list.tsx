@@ -71,7 +71,7 @@ export default function DailyClassList({
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-lg font-bold text-white">{formatDateDisplay(selectedDate)}</h3>
             {isToday() && (
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-teal-500/20 text-teal-400 border border-teal-500/30">
+              <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-teal-500/20 text-teal-400 border border-teal-500/30">
                 Today
               </span>
             )}
@@ -91,7 +91,7 @@ export default function DailyClassList({
         <div className="flex items-center bg-slate-900/50 p-1 rounded-xl border border-white/5 shadow-sm self-start sm:self-auto">
           <button
             onClick={() => handleStepDate(-1)}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
+            className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
             title="Previous Day"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -105,7 +105,7 @@ export default function DailyClassList({
               const d = String(now.getDate()).padStart(2, '0');
               onDateChange(`${y}-${m}-${d}`);
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
               isToday() ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >
@@ -137,7 +137,7 @@ export default function DailyClassList({
                   }
                 }
               }}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-1.5 active:scale-95"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-1.5 active:scale-95"
             >
               <CalendarIcon className="w-3.5 h-3.5" />
               <span className="hidden xs:inline">Select Date</span>
@@ -146,7 +146,7 @@ export default function DailyClassList({
 
           <button
             onClick={() => handleStepDate(1)}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
+            className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
             title="Next Day"
           >
             <ChevronRight className="w-4 h-4" />

@@ -35,10 +35,11 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
   return (
     <motion.div 
       layout
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      className={`group relative glass-card glass-card-hover rounded-xl p-3 sm:px-4 sm:py-3 transition-colors border ${
+      variants={{
+        hidden: { opacity: 0, y: 12 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+      }}
+      className={`group relative glass-card glass-card-hover rounded-2xl p-3 sm:px-4 sm:py-3 transition-colors border ${
         isMarked && currentStatus === 'PRESENT' 
           ? 'border-emerald-500/30 bg-emerald-500/5' 
           : isMarked && currentStatus === 'ABSENT' 
@@ -72,11 +73,11 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 <h3 className="text-sm font-bold text-white tracking-tight leading-none">
                   {item.subject_name}
                 </h3>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                <span className="px-1.5 py-0.5 rounded-lg text-[9px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
                   {item.subject_code}
                 </span>
                 {item.is_lab && (
-                  <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[9px] font-bold">
+                  <span className="px-1.5 py-0.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[9px] font-bold">
                     LAB
                   </span>
                 )}
@@ -113,7 +114,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
         <div className="flex items-center justify-end gap-1.5 sm:opacity-50 group-hover:opacity-100 transition-opacity ml-[3.25rem] sm:ml-0">
           {isMarked ? (
             <div className="flex items-center gap-1">
-              <div className={`px-2 py-1 rounded-md font-bold text-[10px] flex items-center gap-1 uppercase tracking-wider ${
+              <div className={`px-2 py-1 rounded-lg font-semibold text-xs flex items-center gap-1 uppercase tracking-wider ${
                 currentStatus === 'PRESENT' ? 'bg-emerald-500/20 text-emerald-400' :
                 currentStatus === 'ABSENT' ? 'bg-rose-500/20 text-rose-400' :
                 currentStatus === 'CANCELLED' ? 'bg-amber-500/20 text-amber-400' :
@@ -127,7 +128,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
               </div>
               <button 
                 onClick={() => onUndoAttendance(item.slot_id)}
-                className="icon-interactive p-1.5 rounded-md hover:bg-slate-800 text-slate-400 hover:text-slate-100"
+                className="icon-interactive p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-100"
                 title="Undo"
               >
                 <RefreshCw className="w-4 h-4" />
@@ -137,7 +138,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
             <div className="flex items-center gap-1.5 w-full sm:w-auto">
               <button
                 onClick={() => handleTap('PRESENT')}
-                className="btn-interactive flex-1 sm:flex-initial px-3 py-1.5 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 font-bold text-[10px] flex items-center justify-center gap-1.5"
+                className="btn-interactive flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 font-semibold text-xs flex items-center justify-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
                 <span className="sm:hidden lg:inline">Present</span>
@@ -145,7 +146,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
               
               <button
                 onClick={() => handleTap('ABSENT')}
-                className="btn-interactive flex-1 sm:flex-initial px-3 py-1.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-bold text-[10px] flex items-center justify-center gap-1.5"
+                className="btn-interactive flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-semibold text-xs flex items-center justify-center gap-1.5"
               >
                 <X className="w-4 h-4" />
                 <span className="sm:hidden lg:inline">Absent</span>
@@ -154,14 +155,14 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
               <div className="flex items-center gap-1 border-l border-white/10 pl-1.5">
                 <button
                   onClick={() => handleTap('CANCELLED')}
-                  className="icon-interactive p-1.5 rounded-md bg-amber-500/5 hover:bg-amber-500/20 text-amber-400"
+                  className="icon-interactive p-1.5 rounded-xl bg-amber-500/5 hover:bg-amber-500/20 text-amber-400"
                   title="Cancelled"
                 >
                   <Ban className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsSwapping(!isSwapping)}
-                  className="icon-interactive p-1.5 rounded-md bg-slate-800/50 hover:bg-slate-700 text-slate-400 hover:text-white"
+                  className="icon-interactive p-1.5 rounded-xl bg-slate-800/50 hover:bg-slate-700 text-slate-400 hover:text-white"
                   title="Swap Class"
                 >
                   <ArrowRightLeft className="w-4 h-4" />
@@ -187,7 +188,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 <select
                   value={selectedSwapSubject}
                   onChange={(e) => setSelectedSwapSubject(e.target.value)}
-                  className="input-interactive w-full bg-slate-900 px-2 py-1.5 rounded-md border border-slate-700 text-slate-300 text-xs"
+                  className="input-interactive w-full bg-slate-900 px-2 py-1.5 rounded-xl border border-slate-700 text-slate-300 text-xs"
                 >
                   {allSubjects.map(sub => (
                     <option key={sub.id} value={sub.id}>
@@ -197,7 +198,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 </select>
                 <button
                   onClick={() => handleTap('SWAPPED')}
-                  className="btn-interactive px-3 py-1.5 rounded-md bg-sky-600 text-white font-bold text-[10px] uppercase shadow-sm"
+                  className="btn-interactive px-3 py-1.5 rounded-xl bg-sky-600 text-white font-semibold text-xs uppercase shadow-sm"
                 >
                   Confirm
                 </button>

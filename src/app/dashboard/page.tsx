@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
-import HeroWidget from '@/components/dashboard/hero-widget';
-import DailyClassList from '@/components/dashboard/daily-class-list';
+import HeroWidget from '@/features/dashboard/components/hero-widget';
+import DailyClassList from '@/features/dashboard/components/daily-class-list';
 import { 
   getDemoProfile, getDemoSubjects, getDemoTimetableSlots, 
   getDemoHolidays, getDemoAttendanceLogs, saveDemoAttendanceLog, 
   removeDemoAttendanceLog, isOnboardedInDemo 
 } from '@/lib/demo-store';
-import { getSemesterData, getDailySchedule, markAttendance } from '@/lib/db/actions';
+import { getSemesterData, getDailySchedule, markAttendance } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 import { calculateOverallSemesterStats } from '@/lib/math-engine';
 import { 
@@ -18,8 +18,9 @@ import {
   AttendanceLog, AttendanceStatus, DailyClassItem 
 } from '@/types';
 import NextLink from 'next/link';
-import { Sparkles, ArrowRight, ShieldAlert } from 'lucide-react';
-import { updateSemesterConfig } from '@/lib/db/actions';
+import { Sparkles, ArrowRight, Calendar as CalendarIcon, Check, Settings, LogOut, Loader2, Link2, Database, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { updateSemesterConfig } from '@/actions/db';
 import { updateDemoSemesterConfig } from '@/lib/demo-store';
 
 export default function DashboardPage() {
@@ -143,7 +144,12 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex flex-col bg-slate-950">
         <Navbar />
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <motion.main 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ duration: 0.5 }}
+          className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column Skeleton */}
             <div className="lg:col-span-4 space-y-4">
@@ -160,8 +166,8 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </main>
-      </div>
+      </motion.main>
+    </div>
     );
   }
 
@@ -333,7 +339,7 @@ export default function DashboardPage() {
       if (!slot) return;
       setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === selectedDate)));
       try {
-        const { removeAttendance } = await import('@/lib/db/actions');
+        const { removeAttendance } = await import('@/actions/db');
         await removeAttendance({
           subjectId: slot.subject_id,
           timetableSlotId: slotId,
@@ -352,21 +358,39 @@ export default function DashboardPage() {
       {/* Floating Offline & Sync Toast Banners */}
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none">
         {offlineToast && (
-          <div className="px-5 py-2.5 rounded-2xl bg-amber-500 text-slate-950 font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-amber-400 animate-bounce">
+          <div className="px-5 py-2.5 rounded-2xl bg-amber-500 text-slate-950 font-bold text-xs shadow-2xl flex items-center gap-2 border border-amber-400 animate-bounce">
             <span>{offlineToast}</span>
           </div>
         )}
         {syncToast && (
-          <div className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-extrabold text-xs shadow-2xl flex items-center gap-2 border border-emerald-400 animate-bounce">
+          <div className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-bold text-xs shadow-2xl flex items-center gap-2 border border-emerald-400 animate-bounce">
             <span>{syncToast}</span>
           </div>
         )}
       </div>
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <motion.main 
+        className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full"
+        initial="hidden"
+        animate="show"
+        variants={{
+          hidden: { opacity: 0 },
+          show: {
+            opacity: 1,
+            transition: { staggerChildren: 0.06 }
+          }
+        }}
+      >
         {/* Onboarding Banner if not onboarded yet */}
+        <AnimatePresence>
         {!isOnboardedInDemo() && (
-          <div className="glass-card card-interactive premium-gradient-border p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm mb-8">
+          <motion.div 
+            variants={{
+              hidden: { opacity: 0, y: 12 },
+              show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+            }}
+            className="glass-card card-interactive premium-gradient-border p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm mb-8"
+          >
             <div className="flex items-center gap-3.5">
               <div className="p-3 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
                 <Sparkles className="w-5 h-5" />
@@ -381,13 +405,14 @@ export default function DashboardPage() {
 
             <NextLink
               href="/onboarding"
-              className="btn-interactive px-5 py-2.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-sm whitespace-nowrap"
+              className="btn-interactive px-5 py-2.5 rounded-xl bg-slate-50 text-slate-950 font-semibold text-base flex items-center gap-2 shadow-sm whitespace-nowrap"
             >
               <span>⚡ Start AI Setup</span>
               <ArrowRight className="w-4 h-4" />
             </NextLink>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT COLUMN: HERO STATS & GOALS */}
@@ -398,7 +423,7 @@ export default function DashboardPage() {
           {/* RIGHT COLUMN: DAILY SCHEDULE & FEED */}
           <div className="lg:col-span-8 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+              <h2 className="text-[30px] sm:text-[32px] font-bold text-white tracking-[-0.02em]">
                 Daily Schedule
               </h2>
               <span className="text-[11px] text-slate-400 font-medium">
@@ -419,7 +444,7 @@ export default function DashboardPage() {
             />
           </div>
         </div>
-      </main>
+      </motion.main>
 
       <Footer />
     </div>

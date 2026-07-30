@@ -106,7 +106,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-white flex items-center gap-2">
+          <h2 className="text-[40px] font-bold text-white tracking-[-0.02em] flex items-center gap-2 leading-tight">
             <HistoryIcon className="w-6 h-6 text-teal-400" />
             <span>Attendance Audit & Visual Calendar</span>
           </h2>
@@ -120,7 +120,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
           <div className="flex items-center p-1 rounded-xl bg-slate-900 border border-slate-800">
             <button
               onClick={() => setViewMode('CALENDAR')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                 viewMode === 'CALENDAR' ? 'bg-teal-600 text-white shadow' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -129,7 +129,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
             </button>
             <button
               onClick={() => setViewMode('TABLE')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
                 viewMode === 'TABLE' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -189,13 +189,13 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                   <div className="flex items-center gap-1.5 truncate">
                     <span className="text-base">📘</span>
                     <span 
-                      className="px-2 py-0.5 rounded text-[10px] font-black text-white truncate max-w-[85px]" 
+                      className="px-2 py-0.5 rounded-lg text-[10px] font-bold text-white truncate max-w-[85px]" 
                       style={{ backgroundColor: s.color_hex || '#6366f1' }}
                     >
                       {s.subject_code}
                     </span>
                   </div>
-                  <span className={`text-base font-extrabold font-mono ${
+                  <span className={`text-base font-bold font-mono ${
                     stats.current_percentage >= targetPct ? 'text-emerald-400' : stats.current_percentage >= (targetPct - 10) ? 'text-amber-400' : 'text-rose-400'
                   }`}>
                     {stats.current_percentage}%
@@ -370,7 +370,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       return (
                         <div 
                           key={l.id} 
-                          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-extrabold text-white bg-slate-800/90 border border-slate-700 truncate max-w-full"
+                          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold text-white bg-slate-800/90 border border-slate-700 truncate max-w-full"
                           title={`${sub?.subject_code}: ${l.status}`}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full ${bg} flex-shrink-0`} />
@@ -505,7 +505,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
             >
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/20">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/20">
                     Day Audit Sheet
                   </span>
                   <h3 className="text-lg font-bold text-white mt-1">
@@ -623,12 +623,12 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                         <div>
                           <div className="flex items-center gap-2">
                             <span 
-                              className="px-2.5 py-0.5 rounded text-xs font-black text-white"
+                              className="px-2.5 py-0.5 rounded text-xs font-bold text-white"
                               style={{ backgroundColor: sub.color_hex || '#6366f1' }}
                             >
                               {sub.subject_code}
                             </span>
-                            <h3 className="text-lg font-extrabold text-white">{sub.subject_name}</h3>
+                            <h3 className="text-lg font-bold text-white">{sub.subject_name}</h3>
                           </div>
                           <p className="text-xs text-slate-400 mt-0.5">Detailed Attendance Standing & AI Predictions</p>
                         </div>
@@ -645,22 +645,22 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Attended</span>
-                        <p className="text-xl font-black text-emerald-400 font-mono">{stats.present}</p>
+                        <p className="text-xl font-bold text-emerald-400 font-mono">{stats.present}</p>
                         <span className="text-[9px] text-slate-500">Present</span>
                       </div>
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Missed</span>
-                        <p className="text-xl font-black text-rose-400 font-mono">{stats.absent}</p>
+                        <p className="text-xl font-bold text-rose-400 font-mono">{stats.absent}</p>
                         <span className="text-[9px] text-slate-500">Absent</span>
                       </div>
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Till Date</span>
-                        <p className="text-xl font-black text-teal-400 font-mono">{stats.conducted}</p>
+                        <p className="text-xl font-bold text-teal-400 font-mono">{stats.conducted}</p>
                         <span className="text-[9px] text-slate-500">Conducted</span>
                       </div>
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sem Total</span>
-                        <p className="text-xl font-black text-white font-mono">{stats.total_available}</p>
+                        <p className="text-xl font-bold text-white font-mono">{stats.total_available}</p>
                         <span className="text-[9px] text-slate-500">Total Available</span>
                       </div>
                     </div>
@@ -670,7 +670,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-xs text-slate-400">Current Attendance % (Till Date)</span>
-                          <div className="text-2xl font-black text-white font-mono flex items-baseline gap-2">
+                          <div className="text-2xl font-bold text-white font-mono flex items-baseline gap-2">
                             <span>{stats.current_percentage}%</span>
                             <span className="text-xs font-normal text-slate-400">
                               ({stats.present} / {stats.conducted} classes till date)
@@ -698,7 +698,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       stats.status === 'WARNING' ? 'bg-amber-500/10 border-amber-500/30 text-amber-300' :
                       'bg-rose-500/10 border-rose-500/30 text-rose-300'
                     }`}>
-                      <div className="flex items-center gap-2 font-extrabold text-sm">
+                      <div className="flex items-center gap-2 font-bold text-sm">
                         <span>{stats.status === 'SAFE' ? '🟢 Skip Prediction' : stats.status === 'WARNING' ? '🟡 Borderline Warning' : '🔴 Recovery Prediction'}</span>
                       </div>
                       <p className="text-xs leading-relaxed font-medium">

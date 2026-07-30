@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldCheck, AlertTriangle, Flame, Calendar, CheckCircle2, XCircle, AlertOctagon, Target } from 'lucide-react';
 import { OverallSemesterStats } from '@/types';
+import { AnimatedNumber } from '@/components/ui/animated-number';
 
 interface HeroWidgetProps {
   stats: OverallSemesterStats;
@@ -33,24 +34,25 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
     <div className="space-y-4">
       {/* CARD 1: Overall Progress & Target */}
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+        }}
         className="glass-card card-interactive premium-gradient-border rounded-2xl p-5 bg-slate-900/40 shadow-sm"
       >
         <div className="flex items-center justify-between mb-4">
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wider ${badgeColor}`}>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border uppercase tracking-wider ${badgeColor}`}>
             <Icon className="w-3 h-3" />
             <span>{isDanger ? 'Critical Recovery' : isWarning ? 'Borderline Alert' : 'Safe Buffer Active'}</span>
           </span>
         </div>
 
         <div className="flex items-end justify-between mb-3">
-          <div className="text-4xl font-black text-white tracking-tight leading-none">
-            {stats.overall_percentage}%
+          <div className="text-[40px] font-bold text-white tracking-tight leading-none flex items-center">
+            <AnimatedNumber value={stats.overall_percentage} duration={1000} />%
           </div>
           <div className="text-xs text-slate-400 font-medium">
-            {stats.total_present} / {stats.total_conducted} classes
+            <AnimatedNumber value={stats.total_present} duration={800} /> / <AnimatedNumber value={stats.total_conducted} duration={800} /> classes
           </div>
         </div>
 
@@ -64,7 +66,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(100, stats.overall_percentage)}%` }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{ duration: 1, ease: "easeOut" }}
             className={`h-full rounded-full ${progressColor}`}
           />
         </div>
@@ -90,9 +92,10 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
 
       {/* CARD 2: Hero Message block */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.05 }}
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+        }}
         className="glass-card card-interactive rounded-2xl p-5 border border-white/5 bg-slate-900/40 shadow-sm"
       >
         <h3 className="text-lg font-bold text-white mb-1.5 leading-tight">
@@ -105,9 +108,10 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
 
       {/* GRID 3: Mini Stat Cards (2x2 Grid) */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30, delay: 0.1 }}
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+        }}
         className="grid grid-cols-2 gap-3"
       >
         <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
@@ -115,7 +119,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             <CheckCircle2 className="w-4 h-4" />
             <span className="text-[10px] uppercase font-bold tracking-wider">Present</span>
           </div>
-          <div className="text-xl font-black text-slate-100">{stats.total_present}</div>
+          <div className="text-xl font-bold text-slate-100"><AnimatedNumber value={stats.total_present} duration={800} /></div>
         </div>
 
         <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
@@ -123,7 +127,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             <XCircle className="w-4 h-4" />
             <span className="text-[10px] uppercase font-bold tracking-wider">Absent</span>
           </div>
-          <div className="text-xl font-black text-slate-100">{stats.total_absent}</div>
+          <div className="text-xl font-bold text-slate-100"><AnimatedNumber value={stats.total_absent} duration={800} /></div>
         </div>
 
         <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
@@ -131,7 +135,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             <Flame className="w-4 h-4" />
             <span className="text-[10px] uppercase font-bold tracking-wider">Safe Skips</span>
           </div>
-          <div className="text-xl font-black text-slate-100">{stats.total_safe_skips}</div>
+          <div className="text-xl font-bold text-slate-100"><AnimatedNumber value={stats.total_safe_skips} duration={800} /></div>
         </div>
 
         <div className="bg-slate-900/40 card-interactive p-4 rounded-2xl border border-white/5 flex flex-col gap-1 shadow-sm">
@@ -139,7 +143,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             <Calendar className="w-4 h-4" />
             <span className="text-[10px] uppercase font-bold tracking-wider">Remaining</span>
           </div>
-          <div className="text-xl font-black text-slate-100">{stats.total_remaining}</div>
+          <div className="text-xl font-bold text-slate-100"><AnimatedNumber value={stats.total_remaining} duration={800} /></div>
         </div>
       </motion.div>
     </div>

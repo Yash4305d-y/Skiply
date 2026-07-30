@@ -14,7 +14,7 @@ import {
   Subject, TimetableSlot, AcademicHoliday 
 } from '@/types';
 import { saveConfirmedScheduleToDemo, updateDemoSemesterConfig } from '@/lib/demo-store';
-import { saveOnboardingData, getUserProfile, updateSemesterConfig } from '@/lib/db/actions';
+import { saveOnboardingData, getUserProfile, updateSemesterConfig } from '@/actions/db';
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -313,7 +313,7 @@ export default function OnboardingWizard() {
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
           <span>AI Onboarding Wizard</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-3">
           Set Up Your Semester in 60 Seconds
         </h1>
         <p className="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
@@ -852,7 +852,7 @@ export default function OnboardingWizard() {
               <Check className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-extrabold text-white">Semester Schedule Ready!</h3>
+              <h3 className="text-2xl font-bold text-white">Semester Schedule Ready!</h3>
               <p className="text-sm text-slate-300">
                 Redirecting you to your daily dashboard and safe skip calculator...
               </p>
