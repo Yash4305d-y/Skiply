@@ -299,7 +299,7 @@ export default function OnboardingWizard() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl bg-emerald-500 text-white font-bold text-sm shadow-2xl flex items-center gap-2.5 border border-emerald-400"
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl bg-success text-white font-bold text-sm shadow-2xl flex items-center gap-2.5 border border-emerald-400"
           >
             <CheckCircle2 className="w-5 h-5 animate-bounce" />
             <span>{toastMessage}</span>
@@ -309,7 +309,7 @@ export default function OnboardingWizard() {
 
       {/* Wizard Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-4">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
           <span>AI Onboarding Wizard</span>
         </div>
@@ -336,14 +336,14 @@ export default function OnboardingWizard() {
           return (
             <div key={item.id} className="flex items-center gap-2">
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' :
-                isDone ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                'bg-slate-800 text-slate-500'
+                isActive ? 'bg-primary text-white shadow-lg shadow-indigo-600/30' :
+                isDone ? 'bg-success/10 text-success border border-success/20' :
+                'bg-surface-secondary text-slate-400'
               }`}>
                 {isDone && <Check className="w-3 h-3" />}
                 <span>{item.label}</span>
               </div>
-              {idx < 3 && <div className="w-4 h-0.5 bg-slate-800" />}
+              {idx < 3 && <div className="w-4 h-0.5 bg-surface-secondary" />}
             </div>
           );
         })}
@@ -360,9 +360,9 @@ export default function OnboardingWizard() {
             className="space-y-6"
           >
             {/* Quick Demo Button */}
-            <div className="glass-card p-4 rounded-2xl border-indigo-500/30 bg-gradient-to-r from-indigo-900/20 to-purple-900/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="card bg-surface shadow-sm p-4 rounded-2xl border-primary/30 bg-surface-secondary flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-indigo-500/20 text-indigo-400">
+                <div className="p-2.5 rounded-xl bg-primary/20 text-primary">
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div>
@@ -372,7 +372,7 @@ export default function OnboardingWizard() {
               </div>
               <button 
                 onClick={() => startAIProcessing(true)}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary hover:bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/25 transition-all flex items-center justify-center gap-2"
               >
                 <span>⚡ Auto-Fill Demo Schedule</span>
                 <ArrowRight className="w-4 h-4" />
@@ -382,7 +382,7 @@ export default function OnboardingWizard() {
             {/* Upload Grids */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Timetable Upload Zone */}
-              <div className="glass-card p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-indigo-500/50 transition-all flex flex-col items-center justify-center text-center relative overflow-hidden group">
+              <div className="card bg-surface shadow-sm p-6 rounded-2xl border-dashed border-2 border-border hover:border-primary/50 transition-all flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <input 
                   type="file" 
                   accept="image/*,.pdf,application/pdf"
@@ -392,33 +392,33 @@ export default function OnboardingWizard() {
                 {timetablePreview ? (
                   <div className="space-y-3 w-full">
                     {timetablePreview.startsWith('data:application/pdf') || timetableFile?.type === 'application/pdf' ? (
-                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-indigo-300">
-                        <FileText className="w-10 h-10 text-indigo-400" />
+                      <div className="h-40 w-full rounded-xl border border-border bg-surface/80 flex flex-col items-center justify-center gap-2 p-4 text-primary">
+                        <FileText className="w-10 h-10 text-primary" />
                         <span className="text-xs font-semibold truncate max-w-full text-white">{timetableFile?.name || 'Timetable PDF'}</span>
-                        <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
+                        <span className="px-2 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold uppercase">PDF Ready for AI</span>
                       </div>
                     ) : (
-                      <img src={timetablePreview} alt="Timetable preview" className="h-40 w-full object-cover rounded-xl border border-slate-700" />
+                      <img src={timetablePreview} alt="Timetable preview" className="h-40 w-full object-cover rounded-xl border border-border" />
                     )}
-                    <p className="text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1">
+                    <p className="text-xs font-semibold text-success flex items-center justify-center gap-1">
                       <CheckCircle2 className="w-4 h-4" /> Timetable document ready
                     </p>
                   </div>
                 ) : (
                   <div className="py-8 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-indigo-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-full bg-surface-secondary/80 flex items-center justify-center mx-auto text-primary group-hover:scale-110 transition-transform">
                       <UploadCloud className="w-6 h-6" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">Upload Class Timetable</h4>
-                      <p className="text-xs text-slate-500 mt-1">PNG, JPG, or PDF document of notice board</p>
+                      <p className="text-xs text-slate-400 mt-1">PNG, JPG, or PDF document of notice board</p>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Academic Calendar Upload Zone */}
-              <div className="glass-card p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-indigo-500/50 transition-all flex flex-col items-center justify-center text-center relative overflow-hidden group">
+              <div className="card bg-surface shadow-sm p-6 rounded-2xl border-dashed border-2 border-border hover:border-primary/50 transition-all flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <input 
                   type="file" 
                   accept="image/*,.pdf,application/pdf"
@@ -428,26 +428,26 @@ export default function OnboardingWizard() {
                 {calendarPreview ? (
                   <div className="space-y-3 w-full">
                     {calendarPreview.startsWith('data:application/pdf') || calendarFile?.type === 'application/pdf' ? (
-                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-purple-300">
-                        <FileText className="w-10 h-10 text-purple-400" />
+                      <div className="h-40 w-full rounded-xl border border-border bg-surface/80 flex flex-col items-center justify-center gap-2 p-4 text-secondary">
+                        <FileText className="w-10 h-10 text-secondary" />
                         <span className="text-xs font-semibold truncate max-w-full text-white">{calendarFile?.name || 'Calendar PDF'}</span>
-                        <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
+                        <span className="px-2 py-0.5 rounded bg-secondary/20 text-secondary text-[10px] font-bold uppercase">PDF Ready for AI</span>
                       </div>
                     ) : (
-                      <img src={calendarPreview} alt="Calendar preview" className="h-40 w-full object-cover rounded-xl border border-slate-700" />
+                      <img src={calendarPreview} alt="Calendar preview" className="h-40 w-full object-cover rounded-xl border border-border" />
                     )}
-                    <p className="text-xs font-semibold text-emerald-400 flex items-center justify-center gap-1">
+                    <p className="text-xs font-semibold text-success flex items-center justify-center gap-1">
                       <CheckCircle2 className="w-4 h-4" /> Academic calendar ready
                     </p>
                   </div>
                 ) : (
                   <div className="py-8 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-purple-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-full bg-surface-secondary/80 flex items-center justify-center mx-auto text-secondary group-hover:scale-110 transition-transform">
                       <Calendar className="w-6 h-6" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">Upload Holiday Lists</h4>
-                      <p className="text-xs text-slate-500 mt-1">PNG, JPG, or PDF document of college calendar</p>
+                      <p className="text-xs text-slate-400 mt-1">PNG, JPG, or PDF document of college calendar</p>
                     </div>
                   </div>
                 )}
@@ -455,10 +455,10 @@ export default function OnboardingWizard() {
             </div>
 
             {/* Semester Parameters Card */}
-            <div className="glass-card p-6 rounded-2xl space-y-6">
+            <div className="card bg-surface shadow-sm p-6 rounded-2xl space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h3 className="font-semibold text-white text-sm flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-indigo-400" />
+                  <Layers className="w-4 h-4 text-primary" />
                   <span>Semester Configuration</span>
                 </h3>
                 <button
@@ -466,8 +466,8 @@ export default function OnboardingWizard() {
                   disabled={!hasConfigChanges || isUpdatingConfig}
                   className={`px-4 py-2 rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition-all
                     ${(!hasConfigChanges && !isUpdatingConfig) 
-                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700' 
-                      : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-indigo-500/25 border border-indigo-500/50 hover:-translate-y-0.5'
+                      ? 'bg-surface-secondary text-slate-400 cursor-not-allowed border border-border' 
+                      : 'bg-primary text-white hover:from-primary hover:to-secondary shadow-primary/25 border border-primary/50 hover:-translate-y-0.5'
                     }
                   `}
                 >
@@ -490,23 +490,23 @@ export default function OnboardingWizard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Start Date */}
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-300">Semester Start Date</label>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Semester Start Date</label>
                   <input 
                     type="date" 
                     value={startDate} 
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-secondary/80 border border-border text-white text-xs focus:outline-none focus:border-primary"
                   />
                 </div>
 
                 {/* End Date */}
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-300">Semester End Date</label>
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-300">Semester End Date</label>
                   <input 
                     type="date" 
                     value={endDate} 
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 rounded-xl bg-surface-secondary/80 border border-border text-white text-xs focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
@@ -519,8 +519,8 @@ export default function OnboardingWizard() {
                 disabled={!timetablePreview && !calendarPreview}
                 className={`px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-xl transition-all ${
                   (!timetablePreview && !calendarPreview) 
-                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 shadow-indigo-500/25'
+                    ? 'bg-surface-secondary text-slate-400 cursor-not-allowed' 
+                    : 'bg-primary text-white hover:from-primary hover:to-secondary shadow-primary/25'
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
@@ -537,11 +537,11 @@ export default function OnboardingWizard() {
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
             exit={{ opacity: 0, scale: 0.95 }}
-            className="glass-card p-12 rounded-3xl text-center space-y-6 max-w-md mx-auto my-12 border-indigo-500/30"
+            className="card bg-surface shadow-sm p-12 rounded-3xl text-center space-y-6 max-w-md mx-auto my-12 border-primary/30"
           >
             <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 animate-ping" />
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/40">
+              <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping" />
+              <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/40">
                 <RefreshCw className="w-8 h-8 animate-spin" />
               </div>
             </div>
@@ -564,9 +564,9 @@ export default function OnboardingWizard() {
             className="space-y-6"
           >
             {/* Banner */}
-            <div className="glass-card p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 to-slate-900 border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="card bg-surface shadow-sm p-4 rounded-2xl bg-gradient-to-r from-success/40 to-slate-900 border-success/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+                <div className="p-2 rounded-xl bg-success/20 text-success">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
@@ -577,11 +577,11 @@ export default function OnboardingWizard() {
             </div>
 
             {/* Tab Navigators */}
-            <div className="flex border-b border-slate-800 gap-2">
+            <div className="flex border-b border-border gap-2">
               <button 
                 onClick={() => setActiveTab('SUBJECTS')}
                 className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'SUBJECTS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'SUBJECTS' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -591,7 +591,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={() => setActiveTab('SLOTS')}
                 className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'SLOTS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'SLOTS' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'
                 }`}
               >
                 <Clock className="w-4 h-4" />
@@ -601,7 +601,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={() => setActiveTab('HOLIDAYS')}
                 className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'HOLIDAYS' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-white'
+                  activeTab === 'HOLIDAYS' ? 'border-primary text-primary' : 'border-transparent text-slate-400 hover:text-white'
                 }`}
               >
                 <Calendar className="w-4 h-4" />
@@ -611,11 +611,11 @@ export default function OnboardingWizard() {
 
             {/* TAB CONTENT: SUBJECTS */}
             {activeTab === 'SUBJECTS' && (
-              <div className="glass-card rounded-2xl overflow-hidden border border-slate-800">
+              <div className="card bg-surface shadow-sm rounded-2xl overflow-hidden border border-border">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                      <tr className="bg-surface/60 text-slate-400 text-xs uppercase tracking-wider border-b border-border">
                         <th className="p-4 font-semibold">Subject Code</th>
                         <th className="p-4 font-semibold">Subject Name</th>
                         <th className="p-4 font-semibold">Type</th>
@@ -625,13 +625,13 @@ export default function OnboardingWizard() {
                     </thead>
                     <tbody className="divide-y divide-slate-800 text-xs">
                       {subjects.map(s => (
-                        <tr key={s.temp_id} className="hover:bg-slate-800/40 transition-colors">
+                        <tr key={s.temp_id} className="hover:bg-surface-secondary/40 transition-colors">
                           <td className="p-4">
                             <input 
                               type="text" 
                               value={s.subject_code} 
                               onChange={(e) => updateSubject(s.temp_id, 'subject_code', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                              className="w-full bg-surface px-2.5 py-1.5 rounded border border-border text-white font-mono focus:border-primary focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
@@ -639,10 +639,10 @@ export default function OnboardingWizard() {
                               type="text" 
                               value={s.subject_name} 
                               onChange={(e) => updateSubject(s.temp_id, 'subject_name', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-indigo-500 focus:outline-none"
+                              className="w-full bg-surface px-2.5 py-1.5 rounded border border-border text-white focus:border-primary focus:outline-none"
                             />
                             {s.warning && (
-                              <p className="text-[11px] text-amber-400 mt-1 flex items-center gap-1 font-medium">
+                              <p className="text-[11px] text-warning mt-1 flex items-center gap-1 font-medium">
                                 <AlertTriangle className="w-3.5 h-3.5" /> {s.warning}
                               </p>
                             )}
@@ -651,7 +651,7 @@ export default function OnboardingWizard() {
                             <button 
                               onClick={() => updateSubject(s.temp_id, 'is_lab', !s.is_lab)}
                               className={`px-2.5 py-1 rounded font-semibold transition-all ${
-                                s.is_lab ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'
+                                s.is_lab ? 'bg-secondary/20 text-secondary border border-secondary/30' : 'bg-surface-secondary text-slate-700 dark:text-slate-300 border border-border'
                               }`}
                             >
                               {s.is_lab ? '🧪 Lab / Practical' : '📖 Theory Lecture'}
@@ -662,12 +662,12 @@ export default function OnboardingWizard() {
                               type="number" 
                               value={s.credit_hours} 
                               onChange={(e) => updateSubject(s.temp_id, 'credit_hours', Number(e.target.value))}
-                              className="w-16 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white text-center focus:border-indigo-500 focus:outline-none"
+                              className="w-16 bg-surface px-2.5 py-1.5 rounded border border-border text-white text-center focus:border-primary focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
                             <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                              s.confidence_score > 90 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                              s.confidence_score > 90 ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
                             }`}>
                               {s.confidence_score}%
                             </span>
@@ -682,11 +682,11 @@ export default function OnboardingWizard() {
 
             {/* TAB CONTENT: SLOTS */}
             {activeTab === 'SLOTS' && (
-              <div className="glass-card rounded-2xl overflow-hidden border border-slate-800">
+              <div className="card bg-surface shadow-sm rounded-2xl overflow-hidden border border-border">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                      <tr className="bg-surface/60 text-slate-400 text-xs uppercase tracking-wider border-b border-border">
                         <th className="p-4 font-semibold">Day</th>
                         <th className="p-4 font-semibold">Subject</th>
                         <th className="p-4 font-semibold">Start Time</th>
@@ -698,12 +698,12 @@ export default function OnboardingWizard() {
                       {slots.map(sl => {
                         const subj = subjects.find(s => s.temp_id === sl.subject_temp_id);
                         return (
-                          <tr key={sl.temp_id} className="hover:bg-slate-800/40 transition-colors">
-                            <td className="p-4 font-semibold text-slate-300">
+                          <tr key={sl.temp_id} className="hover:bg-surface-secondary/40 transition-colors">
+                            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
                               <select 
                                 value={sl.day_of_week}
                                 onChange={(e) => updateSlot(sl.temp_id, 'day_of_week', Number(e.target.value))}
-                                className="bg-slate-900 px-2 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-indigo-500"
+                                className="bg-surface px-2 py-1.5 rounded border border-border text-white focus:outline-none focus:border-primary"
                               >
                                 {DAYS_OF_WEEK.map((day, idx) => (
                                   <option key={idx} value={idx}>{day}</option>
@@ -714,14 +714,14 @@ export default function OnboardingWizard() {
                               <select 
                                 value={sl.subject_temp_id}
                                 onChange={(e) => updateSlot(sl.temp_id, 'subject_temp_id', e.target.value)}
-                                className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-indigo-500"
+                                className="w-full bg-surface px-2.5 py-1.5 rounded border border-border text-white focus:outline-none focus:border-primary"
                               >
                                 {subjects.map(s => (
                                   <option key={s.temp_id} value={s.temp_id}>{s.subject_code} — {s.subject_name}</option>
                                 ))}
                               </select>
                               {sl.warning && (
-                                <p className="text-[11px] text-amber-400 mt-1 flex items-center gap-1 font-medium">
+                                <p className="text-[11px] text-warning mt-1 flex items-center gap-1 font-medium">
                                   <AlertTriangle className="w-3.5 h-3.5" /> {sl.warning}
                                 </p>
                               )}
@@ -731,7 +731,7 @@ export default function OnboardingWizard() {
                                 type="text" 
                                 value={sl.start_time} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'start_time', e.target.value)}
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                                className="w-24 bg-surface px-2.5 py-1.5 rounded border border-border text-white font-mono focus:border-primary focus:outline-none"
                               />
                             </td>
                             <td className="p-4">
@@ -739,7 +739,7 @@ export default function OnboardingWizard() {
                                 type="text" 
                                 value={sl.end_time} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'end_time', e.target.value)}
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                                className="w-24 bg-surface px-2.5 py-1.5 rounded border border-border text-white font-mono focus:border-primary focus:outline-none"
                               />
                             </td>
                             <td className="p-4">
@@ -748,7 +748,7 @@ export default function OnboardingWizard() {
                                 value={sl.room_number || ''} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'room_number', e.target.value)}
                                 placeholder="LT-101"
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-indigo-500 focus:outline-none"
+                                className="w-24 bg-surface px-2.5 py-1.5 rounded border border-border text-white focus:border-primary focus:outline-none"
                               />
                             </td>
                           </tr>
@@ -762,11 +762,11 @@ export default function OnboardingWizard() {
 
             {/* TAB CONTENT: HOLIDAYS */}
             {activeTab === 'HOLIDAYS' && (
-              <div className="glass-card rounded-2xl overflow-hidden border border-slate-800">
+              <div className="card bg-surface shadow-sm rounded-2xl overflow-hidden border border-border">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-900/60 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                      <tr className="bg-surface/60 text-slate-400 text-xs uppercase tracking-wider border-b border-border">
                         <th className="p-4 font-semibold">Date</th>
                         <th className="p-4 font-semibold">Description</th>
                         <th className="p-4 font-semibold">Exam / Assessment Day?</th>
@@ -774,13 +774,13 @@ export default function OnboardingWizard() {
                     </thead>
                     <tbody className="divide-y divide-slate-800 text-xs">
                       {holidays.map(h => (
-                        <tr key={h.temp_id} className="hover:bg-slate-800/40 transition-colors">
+                        <tr key={h.temp_id} className="hover:bg-surface-secondary/40 transition-colors">
                           <td className="p-4">
                             <input 
                               type="date" 
                               value={h.holiday_date} 
                               onChange={(e) => updateHoliday(h.temp_id, 'holiday_date', e.target.value)}
-                              className="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-indigo-500 focus:outline-none"
+                              className="bg-surface px-2.5 py-1.5 rounded border border-border text-white font-mono focus:border-primary focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
@@ -788,14 +788,14 @@ export default function OnboardingWizard() {
                               type="text" 
                               value={h.description} 
                               onChange={(e) => updateHoliday(h.temp_id, 'description', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-indigo-500 focus:outline-none"
+                              className="w-full bg-surface px-2.5 py-1.5 rounded border border-border text-white focus:border-primary focus:outline-none"
                             />
                           </td>
                           <td className="p-4">
                             <button 
                               onClick={() => updateHoliday(h.temp_id, 'is_exam_day', !h.is_exam_day)}
                               className={`px-2.5 py-1 rounded font-semibold transition-all ${
-                                h.is_exam_day ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'
+                                h.is_exam_day ? 'bg-warning/20 text-warning border border-warning/30' : 'bg-surface-secondary text-slate-700 dark:text-slate-300 border border-border'
                               }`}
                             >
                               {h.is_exam_day ? '📝 Yes (Exam Prep)' : '🏖️ No (Holiday)'}
@@ -813,7 +813,7 @@ export default function OnboardingWizard() {
             <div className="flex items-center justify-between pt-4">
               <button 
                 onClick={() => setStep('UPLOAD')}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs flex items-center gap-2 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-surface-secondary hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs flex items-center gap-2 transition-all"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back to Upload</span>
@@ -822,7 +822,7 @@ export default function OnboardingWizard() {
               <button 
                 onClick={handleConfirmAndSave}
                 disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 flex items-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none"
+                className="px-8 py-3 rounded-xl bg-gradient-to-r from-success to-accent hover:bg-success hover:to-accent text-white font-bold text-sm shadow-xl shadow-success/25 flex items-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
                 {isSaving ? (
                   <>
@@ -846,14 +846,14 @@ export default function OnboardingWizard() {
             key="step-success"
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
-            className="glass-card p-12 rounded-3xl text-center space-y-6 max-w-md mx-auto my-12 border-emerald-500/30 bg-gradient-to-b from-emerald-950/20 to-slate-900"
+            className="card bg-surface shadow-sm p-12 rounded-3xl text-center space-y-6 max-w-md mx-auto my-12 border-success/30 bg-gradient-to-b from-success/20 to-slate-900"
           >
-            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-white mx-auto shadow-lg shadow-emerald-500/40">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-emerald-500 to-accent flex items-center justify-center text-white mx-auto shadow-lg shadow-emerald-500/40">
               <Check className="w-10 h-10" />
             </div>
             <div className="space-y-2">
               <h3 className="text-2xl font-extrabold text-white">Semester Schedule Ready!</h3>
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-slate-700 dark:text-slate-300">
                 Redirecting you to your daily dashboard and safe skip calculator...
               </p>
             </div>
