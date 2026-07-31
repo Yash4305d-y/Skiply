@@ -423,7 +423,7 @@ export default function DashboardPage() {
           {/* RIGHT COLUMN: DAILY SCHEDULE & FEED */}
           <div className="lg:col-span-8 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-[30px] sm:text-[32px] font-bold text-white tracking-[-0.02em]">
+              <h2 className="text-2xl sm:text-[28px] md:text-[32px] font-bold text-white tracking-[-0.02em]">
                 Daily Schedule
               </h2>
               <span className="text-[11px] text-slate-400 font-medium">

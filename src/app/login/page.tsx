@@ -78,7 +78,7 @@ export default function LoginPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 border border-white/5 text-teal-400 mb-2">
             <Sparkles className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">
             {activeTab === 'login' ? 'Welcome back to Skiply' : 'Create your Skiply ID'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400">
@@ -161,7 +161,7 @@ export default function LoginPage() {
                 <span className="text-[10px] text-teal-400 font-normal">Alphanumeric</span>
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <User className="w-4 h-4" />
                 </div>
                 <input
@@ -176,7 +176,7 @@ export default function LoginPage() {
                 />
               </div>
               <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                <HelpCircle className="w-3 h-3 text-slate-500" />
+                <HelpCircle className="w-3 h-3 text-slate-400" />
                 <span>We map this to your secure internal virtual identifier automatically.</span>
               </p>
             </div>
@@ -196,7 +196,7 @@ export default function LoginPage() {
                       Full Name
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <ShieldCheck className="w-4 h-4" />
                       </div>
                       <input
@@ -252,7 +252,7 @@ export default function LoginPage() {
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
