@@ -3,7 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
-import HistoryView from '@/features/history/components/history-view';
+import dynamic from 'next/dynamic';
+const HistoryView = dynamic(() => import('@/features/history/components/history-view'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse h-96 bg-slate-900 rounded-2xl border border-slate-800" />
+});
 import { 
   getDemoSubjects, getDemoTimetableSlots, getDemoAttendanceLogs, 
   getDemoHolidays, getDemoProfile,
