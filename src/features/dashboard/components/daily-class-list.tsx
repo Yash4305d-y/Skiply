@@ -92,6 +92,7 @@ export default function DailyClassList({
           <button
             onClick={() => handleStepDate(-1)}
             className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
+            aria-label="Previous Day"
             title="Previous Day"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -118,6 +119,7 @@ export default function DailyClassList({
             <input
               ref={dateInputRef}
               type="date"
+              aria-label="Select date"
               value={selectedDate}
               onChange={(e) => {
                 if (e.target.value) {
@@ -147,6 +149,7 @@ export default function DailyClassList({
           <button
             onClick={() => handleStepDate(1)}
             className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors active:scale-95"
+            aria-label="Next Day"
             title="Next Day"
           >
             <ChevronRight className="w-4 h-4" />
@@ -196,7 +199,7 @@ export default function DailyClassList({
       <div className="space-y-4">
         {activeHoliday || isOutOfSemesterBounds ? null : items.length === 0 ? (
           <div className="glass-card p-12 rounded-2xl text-center space-y-4 border border-white/5 bg-slate-900/20">
-            <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto text-slate-500 border border-white/5 shadow-inner">
+            <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto text-slate-400 border border-white/5 shadow-inner">
               <Sparkles className="w-8 h-8" />
             </div>
             <div className="space-y-1">

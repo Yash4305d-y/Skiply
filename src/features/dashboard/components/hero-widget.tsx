@@ -48,7 +48,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
         </div>
 
         <div className="flex items-end justify-between mb-3">
-          <div className="text-[40px] font-bold text-white tracking-tight leading-none flex items-center">
+          <div className="text-3xl sm:text-[36px] md:text-[40px] font-bold text-white tracking-tight leading-none flex items-center">
             <AnimatedNumber value={stats.overall_percentage} duration={1000} />%
           </div>
           <div className="text-xs text-slate-400 font-medium">
@@ -74,9 +74,10 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
         {/* Target Slider */}
         {onUpdateTarget && (
           <div className="flex items-center gap-3 pt-4 border-t border-white/5">
-            <Target className="w-4 h-4 text-slate-500" />
+            <Target className="w-4 h-4 text-slate-400" />
             <input 
               type="range" 
+              aria-label="Target attendance percentage"
               min="50" max="100" step="1" 
               value={stats.target_percentage} 
               onChange={(e) => onUpdateTarget(Number(e.target.value))} 

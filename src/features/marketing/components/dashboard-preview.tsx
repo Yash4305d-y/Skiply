@@ -108,7 +108,8 @@ export function DashboardPreview() {
       variants={containerVariants}
       initial="hidden"
       animate={isInView ? "show" : "hidden"}
-      className="w-full max-w-5xl mx-auto mt-16 rounded-2xl overflow-hidden glass-card border border-white/10 shadow-2xl shadow-teal-500/10 bg-slate-950/80 backdrop-blur-xl flex flex-col relative group"
+      tabIndex={-1}
+      className="w-full max-w-5xl mx-auto mt-16 rounded-2xl overflow-hidden glass-card border border-white/10 shadow-2xl shadow-teal-500/10 bg-slate-950/80 backdrop-blur-xl flex flex-col relative group focus:outline-none"
     >
       {/* 3D Tilt effect container (desktop only) */}
       <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -157,7 +158,7 @@ export function DashboardPreview() {
                 </defs>
               </svg>
               <div className="absolute flex flex-col items-center justify-center mt-2">
-                <span className="text-2xl font-bold text-white">
+                <span className="text-xl sm:text-2xl font-bold text-white">
                   {isInView ? <AnimatedNumber value={attendance} suffix="%" /> : '0%'}
                 </span>
                 <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Overall</span>
@@ -174,7 +175,7 @@ export function DashboardPreview() {
                 </span>
               </div>
               <div className="space-y-1 mt-4">
-                <span className={`text-3xl font-bold transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-white'}`}>
+                <span className={`text-2xl sm:text-3xl font-bold transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-white'}`}>
                   {isInView ? <AnimatedNumber value={safeSkips} /> : 0}
                 </span>
                 <p className="text-xs text-slate-400 font-medium">{isWarning ? 'Classes to attend' : 'Safe skips remaining'}</p>
@@ -265,7 +266,7 @@ export function DashboardPreview() {
           <motion.div variants={itemVariants} className="flex-1 p-5 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-slate-100">Today's Schedule</h3>
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Click to Toggle</span>
+              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Click to Toggle</span>
             </div>
             <div className="space-y-3">
               {schedule.map((cls, i) => (
@@ -306,7 +307,7 @@ export function DashboardPreview() {
                     </div>
                   )}
                   {cls.status === "PENDING" && (
-                    <div className="w-7 h-7 rounded-md bg-slate-800/50 text-slate-500 border border-slate-700 flex items-center justify-center transition-colors group-hover:text-slate-400">
+                    <div className="w-7 h-7 rounded-md bg-slate-800/50 text-slate-400 border border-slate-700 flex items-center justify-center transition-colors group-hover:text-slate-400">
                       <CircleDashed className="w-4 h-4" />
                     </div>
                   )}

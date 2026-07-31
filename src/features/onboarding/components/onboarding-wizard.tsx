@@ -313,7 +313,7 @@ export default function OnboardingWizard() {
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
           <span>AI Onboarding Wizard</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-3">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
           Set Up Your Semester in 60 Seconds
         </h1>
         <p className="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
@@ -338,7 +338,7 @@ export default function OnboardingWizard() {
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 isActive ? 'bg-slate-100 text-slate-900 shadow-sm' :
                 isDone ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' :
-                'bg-slate-800 text-slate-500'
+                'bg-slate-800 text-slate-400'
               }`}>
                 {isDone && <Check className="w-3 h-3" />}
                 <span>{item.label}</span>
@@ -385,6 +385,7 @@ export default function OnboardingWizard() {
               <div className="glass-card card-interactive p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-teal-500/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <input 
                   type="file" 
+                  aria-label="Upload class timetable"
                   accept="image/*,.pdf,application/pdf"
                   onChange={(e) => handleFileChange(e, 'TIMETABLE')} 
                   className="absolute inset-0 opacity-0 cursor-pointer z-10"
@@ -411,7 +412,7 @@ export default function OnboardingWizard() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">Upload Class Timetable</h4>
-                      <p className="text-xs text-slate-500 mt-1">PNG, JPG, or PDF document of notice board</p>
+                      <p className="text-xs text-slate-400 mt-1">PNG, JPG, or PDF document of notice board</p>
                     </div>
                   </div>
                 )}
@@ -421,6 +422,7 @@ export default function OnboardingWizard() {
               <div className="glass-card card-interactive p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-teal-500/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <input 
                   type="file" 
+                  aria-label="Upload academic calendar"
                   accept="image/*,.pdf,application/pdf"
                   onChange={(e) => handleFileChange(e, 'CALENDAR')} 
                   className="absolute inset-0 opacity-0 cursor-pointer z-10"
@@ -447,7 +449,7 @@ export default function OnboardingWizard() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">Upload Academic Calendar</h4>
-                      <p className="text-xs text-slate-500 mt-1">PNG, JPG, or PDF document of college calendar</p>
+                      <p className="text-xs text-slate-400 mt-1">PNG, JPG, or PDF document of college calendar</p>
                     </div>
                   </div>
                 )}
@@ -466,7 +468,7 @@ export default function OnboardingWizard() {
                   disabled={!hasConfigChanges || isUpdatingConfig}
                   className={`btn-interactive px-4 py-2 rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-2
                     ${(!hasConfigChanges && !isUpdatingConfig) 
-                      ? 'bg-slate-800 text-slate-500 border border-slate-700' 
+                      ? 'bg-slate-800 text-slate-400 border border-slate-700' 
                       : 'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700'
                     }
                   `}
@@ -490,8 +492,9 @@ export default function OnboardingWizard() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Start Date */}
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-300">Semester Start Date</label>
+                  <label htmlFor="onboardingStartDate" className="text-xs font-medium text-slate-300">Semester Start Date</label>
                   <input 
+                    id="onboardingStartDate"
                     type="date" 
                     value={startDate} 
                     onChange={(e) => setStartDate(e.target.value)}
@@ -501,8 +504,9 @@ export default function OnboardingWizard() {
 
                 {/* End Date */}
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-slate-300">Semester End Date</label>
+                  <label htmlFor="onboardingEndDate" className="text-xs font-medium text-slate-300">Semester End Date</label>
                   <input 
+                    id="onboardingEndDate"
                     type="date" 
                     value={endDate} 
                     onChange={(e) => setEndDate(e.target.value)}
@@ -519,7 +523,7 @@ export default function OnboardingWizard() {
                 disabled={!timetablePreview && !calendarPreview}
                 className={`btn-interactive px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm ${
                   (!timetablePreview && !calendarPreview) 
-                    ? 'bg-slate-800 text-slate-500 border border-slate-700' 
+                    ? 'bg-slate-800 text-slate-400 border border-slate-700' 
                     : 'bg-slate-50 text-slate-950'
                 }`}
               >
@@ -629,6 +633,7 @@ export default function OnboardingWizard() {
                           <td className="p-4">
                             <input 
                               type="text" 
+                              aria-label="Subject code"
                               value={s.subject_code} 
                               onChange={(e) => updateSubject(s.temp_id, 'subject_code', e.target.value)}
                               className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
@@ -637,6 +642,7 @@ export default function OnboardingWizard() {
                           <td className="p-4">
                             <input 
                               type="text" 
+                              aria-label="Subject name"
                               value={s.subject_name} 
                               onChange={(e) => updateSubject(s.temp_id, 'subject_name', e.target.value)}
                               className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-teal-500 focus:outline-none"
@@ -660,6 +666,7 @@ export default function OnboardingWizard() {
                           <td className="p-4">
                             <input 
                               type="number" 
+                              aria-label="Credit hours"
                               value={s.credit_hours} 
                               onChange={(e) => updateSubject(s.temp_id, 'credit_hours', Number(e.target.value))}
                               className="w-16 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white text-center focus:border-teal-500 focus:outline-none"
@@ -701,6 +708,7 @@ export default function OnboardingWizard() {
                           <tr key={sl.temp_id} className="hover:bg-slate-800/40 transition-colors">
                             <td className="p-4 font-semibold text-slate-300">
                               <select 
+                                aria-label="Day of week"
                                 value={sl.day_of_week}
                                 onChange={(e) => updateSlot(sl.temp_id, 'day_of_week', Number(e.target.value))}
                                 className="bg-slate-900 px-2 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-teal-500"
@@ -712,6 +720,7 @@ export default function OnboardingWizard() {
                             </td>
                             <td className="p-4">
                               <select 
+                                aria-label="Select subject"
                                 value={sl.subject_temp_id}
                                 onChange={(e) => updateSlot(sl.temp_id, 'subject_temp_id', e.target.value)}
                                 className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-teal-500"
@@ -729,6 +738,7 @@ export default function OnboardingWizard() {
                             <td className="p-4">
                               <input 
                                 type="text" 
+                                aria-label="Start time"
                                 value={sl.start_time} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'start_time', e.target.value)}
                                 className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
@@ -737,6 +747,7 @@ export default function OnboardingWizard() {
                             <td className="p-4">
                               <input 
                                 type="text" 
+                                aria-label="End time"
                                 value={sl.end_time} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'end_time', e.target.value)}
                                 className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
@@ -745,6 +756,7 @@ export default function OnboardingWizard() {
                             <td className="p-4">
                               <input 
                                 type="text" 
+                                aria-label="Room number"
                                 value={sl.room_number || ''} 
                                 onChange={(e) => updateSlot(sl.temp_id, 'room_number', e.target.value)}
                                 placeholder="LT-101"
@@ -852,7 +864,7 @@ export default function OnboardingWizard() {
               <Check className="w-10 h-10" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-white">Semester Schedule Ready!</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-white">Semester Schedule Ready!</h3>
               <p className="text-sm text-slate-300">
                 Redirecting you to your daily dashboard and safe skip calculator...
               </p>

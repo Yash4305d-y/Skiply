@@ -186,6 +186,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
               <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Select Swapped Class</span>
               <div className="flex items-center gap-2 flex-1 sm:max-w-xs">
                 <select
+                  aria-label="Select class to swap"
                   value={selectedSwapSubject}
                   onChange={(e) => setSelectedSwapSubject(e.target.value)}
                   className="input-interactive w-full bg-slate-900 px-2 py-1.5 rounded-xl border border-slate-700 text-slate-300 text-xs"

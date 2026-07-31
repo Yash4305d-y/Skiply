@@ -7,7 +7,12 @@ import { Sparkles, ShieldCheck, Zap, UploadCloud, Calendar, Clock, ArrowRight, C
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import AmbientBackground from '@/components/layout/ambient-background';
-import { DashboardPreview } from '@/features/marketing/components/dashboard-preview';
+import dynamic from 'next/dynamic';
+
+const DashboardPreview = dynamic(
+  () => import('@/features/marketing/components/dashboard-preview').then(mod => mod.DashboardPreview),
+  { ssr: false, loading: () => <div className="w-full max-w-5xl mx-auto mt-16 h-[600px] rounded-2xl glass-card animate-pulse" /> }
+);
 
 export default function Home() {
   const { scrollYProgress } = useScroll();
@@ -113,12 +118,12 @@ export default function Home() {
             </motion.div>
 
             {/* Headline */}
-            <motion.h1 variants={fadeUpVariant} className="text-[64px] lg:text-[72px] font-bold tracking-[-0.03em] text-white leading-[1.1] max-w-3xl">
+            <motion.h1 variants={fadeUpVariant} className="text-[40px] sm:text-[56px] md:text-[64px] lg:text-[72px] font-bold tracking-[-0.03em] text-white leading-[1.1] max-w-3xl">
               How many classes can you <span className="text-[#5EEAD4]">safely skip</span> without ruining your attendance?
             </motion.h1>
 
             {/* Subtitle */}
-            <motion.p variants={fadeUpVariant} className="text-[22px] sm:text-[24px] text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
+            <motion.p variants={fadeUpVariant} className="text-[18px] sm:text-[20px] md:text-[24px] text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
               Stop manually calculating attendance percentages or creating Excel spreadsheets. Upload your class timetable and academic calendar once — Vision AI sets up your entire semester automatically.
             </motion.p>
 
@@ -174,7 +179,7 @@ export default function Home() {
               initial={{ y: 0 }}
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="flex flex-col items-center justify-center text-slate-500 gap-2 mt-4 opacity-60"
+              className="flex flex-col items-center justify-center text-slate-400 gap-2 mt-4 opacity-60"
             >
               <span className="text-[9px] uppercase tracking-[0.2em] font-bold">Scroll to explore</span>
               <ChevronDown className="w-4 h-4" />
@@ -197,7 +202,7 @@ export default function Home() {
             viewport={{ once: true, margin: "-100px" }}
             className="text-center max-w-2xl mx-auto mb-16 space-y-4 relative z-10"
           >
-            <h2 className="text-[30px] sm:text-[32px] font-bold text-white tracking-[-0.02em]">
+            <h2 className="text-2xl sm:text-[28px] md:text-[32px] font-bold text-white tracking-[-0.02em]">
               Built Specifically for University Life
             </h2>
             <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
@@ -289,7 +294,7 @@ export default function Home() {
             className="glass-card premium-gradient-border rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
           >
             <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-[-0.02em]">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-[-0.02em]">
                 Ready to take control of your attendance?
               </h2>
               <p className="text-slate-400 text-sm sm:text-base max-w-lg mx-auto">

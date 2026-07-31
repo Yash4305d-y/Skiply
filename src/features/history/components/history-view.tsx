@@ -106,7 +106,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-[40px] font-bold text-white tracking-[-0.02em] flex items-center gap-2 leading-tight">
+          <h2 className="text-3xl sm:text-[36px] md:text-[40px] font-bold text-white tracking-[-0.02em] flex items-center gap-2 leading-tight">
             <HistoryIcon className="w-6 h-6 text-teal-400" />
             <span>Attendance Audit & Visual Calendar</span>
           </h2>
@@ -245,9 +245,10 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
       <div className="glass-card p-4 rounded-2xl border-slate-800 flex flex-col md:flex-row gap-3">
         {viewMode === 'TABLE' && (
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text"
+              aria-label="Search history"
               placeholder="Search by subject code, title, or date (YYYY-MM-DD)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -260,6 +261,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
         <div className="flex items-center gap-2 flex-1 justify-end">
           <Filter className="w-4 h-4 text-slate-400 hidden sm:block" />
           <select 
+            aria-label="Filter by subject"
             value={filterSubject}
             onChange={(e) => setFilterSubject(e.target.value)}
             className="bg-slate-900 px-3 py-2 rounded-lg border border-white/5 text-slate-100 text-xs focus:outline-none focus:border-teal-500/50 w-full sm:w-auto"
@@ -272,6 +274,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
 
           {viewMode === 'TABLE' && (
             <select 
+              aria-label="Filter by status"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="bg-slate-900/90 px-3 py-2 rounded-xl border border-slate-700 text-white text-xs focus:outline-none focus:border-teal-500"
@@ -296,6 +299,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
               <button 
                 onClick={() => handleStepMonth(-1)}
                 className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-slate-100 transition-colors"
+                aria-label="Previous month"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -312,6 +316,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
               <button 
                 onClick={() => handleStepMonth(1)}
                 className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-slate-100 transition-colors"
+                aria-label="Next month"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -356,7 +361,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       {cell.dayNum}
                     </span>
                     {dayLogs.length > 0 && (
-                      <span className="text-[10px] text-slate-500 font-mono">{dayLogs.length} log{dayLogs.length > 1 ? 's' : ''}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">{dayLogs.length} log{dayLogs.length > 1 ? 's' : ''}</span>
                     )}
                   </div>
 
@@ -393,7 +398,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
         /* VIEW MODE: TABLE AUDIT */
         <div className="glass-card rounded-2xl overflow-hidden border border-slate-800">
           {filteredLogs.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 space-y-2">
+            <div className="p-12 text-center text-slate-400 space-y-2">
               <CalendarIcon className="w-10 h-10 mx-auto opacity-40" />
               <p className="text-sm font-semibold text-slate-400">No matching attendance records found</p>
               <p className="text-xs">Try adjusting your filters or searching for a different keyword.</p>
@@ -433,7 +438,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                               <span className="font-semibold text-white">{sub.subject_name}</span>
                             </div>
                           ) : (
-                            <span className="text-slate-500 italic">Unknown Subject</span>
+                            <span className="text-slate-400 italic">Unknown Subject</span>
                           )}
                         </td>
                         <td className="p-4 text-slate-400">
@@ -466,6 +471,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                             <button
                               onClick={() => setEditingLogId(isEditing ? null : log.id)}
                               className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                              aria-label="Edit status"
                               title="Edit status"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -477,6 +483,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                                 }
                               }}
                               className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/50 text-slate-400 hover:text-rose-400 transition-colors"
+                              aria-label="Delete log"
                               title="Delete log"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -521,7 +528,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
               </div>
 
               {modalLogs.length === 0 ? (
-                <div className="py-8 text-center text-slate-500 space-y-2">
+                <div className="py-8 text-center text-slate-400 space-y-2">
                   <CalendarIcon className="w-8 h-8 mx-auto opacity-40" />
                   <p className="text-xs font-semibold">No attendance logged on this date for the selected filter.</p>
                 </div>
@@ -563,7 +570,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                                 onDeleteLog(log.timetable_slot_id || '', log.log_date);
                                 if (modalLogs.length === 1) setSelectedDayModal(null);
                               }}
-                              className="p-1 rounded bg-slate-900 text-slate-500 hover:text-rose-400 ml-1 transition-colors"
+                              className="p-1 rounded bg-slate-900 text-slate-400 hover:text-rose-400 ml-1 transition-colors"
                               title="Delete log"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -646,22 +653,22 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Attended</span>
                         <p className="text-xl font-bold text-emerald-400 font-mono">{stats.present}</p>
-                        <span className="text-[9px] text-slate-500">Present</span>
+                        <span className="text-[9px] text-slate-400">Present</span>
                       </div>
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Missed</span>
                         <p className="text-xl font-bold text-rose-400 font-mono">{stats.absent}</p>
-                        <span className="text-[9px] text-slate-500">Absent</span>
+                        <span className="text-[9px] text-slate-400">Absent</span>
                       </div>
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Till Date</span>
                         <p className="text-xl font-bold text-teal-400 font-mono">{stats.conducted}</p>
-                        <span className="text-[9px] text-slate-500">Conducted</span>
+                        <span className="text-[9px] text-slate-400">Conducted</span>
                       </div>
                       <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-center space-y-1">
                         <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sem Total</span>
                         <p className="text-xl font-bold text-white font-mono">{stats.total_available}</p>
-                        <span className="text-[9px] text-slate-500">Total Available</span>
+                        <span className="text-[9px] text-slate-400">Total Available</span>
                       </div>
                     </div>
 
@@ -670,7 +677,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-xs text-slate-400">Current Attendance % (Till Date)</span>
-                          <div className="text-2xl font-bold text-white font-mono flex items-baseline gap-2">
+                          <div className="text-xl sm:text-2xl font-bold text-white font-mono flex items-baseline gap-2">
                             <span>{stats.current_percentage}%</span>
                             <span className="text-xs font-normal text-slate-400">
                               ({stats.present} / {stats.conducted} classes till date)
