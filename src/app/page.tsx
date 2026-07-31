@@ -2,7 +2,7 @@
 
 import React from 'react';
 import NextLink from 'next/link';
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, useScroll, useTransform, useReducedMotion, Variants } from 'framer-motion';
 import { Sparkles, ShieldCheck, Zap, UploadCloud, Calendar, Clock, ArrowRight, CheckCircle2, Flame, Smartphone, ChevronDown } from 'lucide-react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
@@ -24,7 +24,7 @@ export default function Home() {
   const yCtaAurora = useTransform(scrollYProgress, [0, 1], [0, 150]);
 
   // Shared animation variants
-  const heroContainerVariants = {
+  const heroContainerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -35,7 +35,7 @@ export default function Home() {
     }
   };
 
-  const fadeUpVariant = {
+  const fadeUpVariant: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
     show: { 
       opacity: 1, 
@@ -44,7 +44,7 @@ export default function Home() {
     }
   };
 
-  const featureContainerVariants = {
+  const featureContainerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -54,7 +54,7 @@ export default function Home() {
     }
   };
 
-  const featureCardVariant = {
+  const featureCardVariant: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 25 },
     show: { 
       opacity: 1, 
@@ -63,7 +63,7 @@ export default function Home() {
     }
   };
 
-  const sectionRevealVariant = {
+  const sectionRevealVariant: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 30 },
     show: { 
       opacity: 1, 

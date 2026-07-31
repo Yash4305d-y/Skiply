@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView, useReducedMotion, Variants } from 'framer-motion';
 import { TrendingUp, Sparkles, CheckCircle2, AlertCircle, XCircle, CircleDashed } from 'lucide-react';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { AnimatedRing } from '@/components/ui/animated-ring';
@@ -59,7 +59,7 @@ export function DashboardPreview() {
   };
 
   // Entrance variants
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 40, scale: shouldReduceMotion ? 1 : 0.98 },
     show: {
       opacity: 1,
@@ -74,7 +74,7 @@ export function DashboardPreview() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };

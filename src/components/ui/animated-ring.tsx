@@ -8,6 +8,7 @@ interface AnimatedRingProps {
   size?: number;
   strokeWidth?: number;
   colorClass?: string;
+  color?: string;
   trackColorClass?: string;
   duration?: number;
 }
@@ -17,6 +18,7 @@ export function AnimatedRing({
   size = 64,
   strokeWidth = 6,
   colorClass = "text-teal-500",
+  color,
   trackColorClass = "text-slate-800",
   duration = 1000
 }: AnimatedRingProps) {
@@ -43,7 +45,7 @@ export function AnimatedRing({
         />
         <motion.circle
           className={colorClass}
-          stroke="currentColor"
+          stroke={color || "currentColor"}
           fill="transparent"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
