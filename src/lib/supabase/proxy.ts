@@ -46,11 +46,17 @@ export async function updateSession(request: NextRequest) {
     supabaseResponse.cookies.set('demo_mode', 'true', { path: '/', maxAge: 60 * 60 * 24 });
   }
 
+  const isProtectedRoute = 
+    pathname.startsWith('/dashboard') || 
+    pathname.startsWith('/calendar') || 
+    pathname.startsWith('/history') || 
+    pathname.startsWith('/onboarding');
+
   // Redirect unauthenticated users away from protected routes back to /login
-  if (!user && !isDemo && (pathname.startsWith('/dashboard') || pathname.startsWith('/calendar'))) {
+  if (!user && !isDemo && isProtectedRoute) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
-    loginUrl.searchParams.set('redirect_to', pathname);
+    loginUrl.searchParams.set('redirect', pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 

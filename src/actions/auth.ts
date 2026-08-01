@@ -53,7 +53,8 @@ export async function signUpWithUniqueId(arg1: any, arg2?: FormData) {
     return { error: error.message };
   }
 
-  redirect('/dashboard');
+  const redirectTo = (formData.get('redirectTo') as string) || '/dashboard';
+  redirect(redirectTo);
 }
 
 export async function signInWithUniqueId(arg1: any, arg2?: FormData) {
@@ -79,7 +80,8 @@ export async function signInWithUniqueId(arg1: any, arg2?: FormData) {
     return { error: 'Invalid Username / Student ID or password. Please verify your credentials and try again.' };
   }
 
-  redirect('/dashboard');
+  const redirectTo = (formData.get('redirectTo') as string) || '/dashboard';
+  redirect(redirectTo);
 }
 
 export async function signOut() {
