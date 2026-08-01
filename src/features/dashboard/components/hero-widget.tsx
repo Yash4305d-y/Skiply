@@ -16,19 +16,24 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
   const isWarning = stats.status === 'WARNING';
   const isDanger = stats.status === 'DANGER';
 
-  const progressColor = isDanger 
-    ? 'bg-rose-500' 
-    : isWarning 
-    ? 'bg-amber-500' 
-    : 'bg-teal-500';
+  const isAboveTarget = stats.overall_percentage > stats.target_percentage;
 
-  const badgeColor = isDanger 
+  let badgeColor = isDanger 
     ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' 
     : isWarning 
     ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
     : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
 
-  const Icon = isDanger ? AlertOctagon : isWarning ? AlertTriangle : ShieldCheck;
+  let Icon = isDanger ? AlertOctagon : isWarning ? AlertTriangle : ShieldCheck;
+  let badgeText = isDanger ? 'Critical Recovery' : isWarning ? 'Borderline Alert' : 'Safe Buffer Active';
+
+  if (isAboveTarget) {
+    badgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+    Icon = ShieldCheck;
+    if (isDanger || isWarning) {
+      badgeText = 'Recovered';
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -43,7 +48,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
         <div className="flex items-center justify-between mb-4">
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border uppercase tracking-wider ${badgeColor}`}>
             <Icon className="w-3 h-3" />
-            <span>{isDanger ? 'Critical Recovery' : isWarning ? 'Borderline Alert' : 'Safe Buffer Active'}</span>
+            <span>{badgeText}</span>
           </span>
         </div>
 
@@ -67,7 +72,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(100, stats.overall_percentage)}%` }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className={`h-full rounded-full ${progressColor}`}
+            className={`absolute top-0 bottom-0 left-0 h-full rounded-full z-10 ${isAboveTarget ? 'bg-emerald-500' : 'bg-rose-500'}`}
           />
         </div>
 
