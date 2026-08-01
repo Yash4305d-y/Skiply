@@ -381,7 +381,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                 <motion.div
                   key={cell.dateStr}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => openDayModal(cell.dateStr)}
+                  onClick={() => openDayModal(cell.dateStr!)}
                   className={`min-h-[90px] p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                     isToday ? 'bg-slate-800/40 border-teal-500/30 ring-1 ring-teal-500/20' :
                     dayLogs.length > 0 ? 'bg-slate-900 border-white/5 hover:border-white/10' :
