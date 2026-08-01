@@ -4,9 +4,13 @@ import React, { useState, useTransition } from 'react';
 import NextLink from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, User, Lock, ArrowRight, AlertCircle, Loader2, ArrowLeft, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { signInWithUniqueId, signUpWithUniqueId } from '@/actions/auth';
 
-export default function LoginPage() {
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect') || '/dashboard';
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -30,6 +34,7 @@ export default function LoginPage() {
       formData.set('startDate', startDate);
       formData.set('endDate', endDate);
     }
+    formData.set('redirectTo', redirectParam);
 
     startTransition(async () => {
       try {
@@ -303,5 +308,13 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+      <LoginContent />
+    </Suspense>
   );
 }

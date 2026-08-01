@@ -3,10 +3,11 @@
 import React from 'react';
 import NextLink from 'next/link';
 import { motion, useScroll, useTransform, useReducedMotion, Variants } from 'framer-motion';
-import { Sparkles, ShieldCheck, Zap, UploadCloud, Calendar, Clock, ArrowRight, CheckCircle2, Flame, Smartphone, ChevronDown } from 'lucide-react';
+import { Sparkles, ShieldCheck, Zap, UploadCloud, Calendar, Clock, ArrowRight, CheckCircle2, Flame, Smartphone, ChevronDown, LogIn } from 'lucide-react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import AmbientBackground from '@/components/layout/ambient-background';
+import { getCurrentUser } from '@/actions/auth';
 import dynamic from 'next/dynamic';
 
 const DashboardPreview = dynamic(
@@ -17,6 +18,15 @@ const DashboardPreview = dynamic(
 export default function Home() {
   const { scrollYProgress } = useScroll();
   const shouldReduceMotion = useReducedMotion();
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    getCurrentUser().then((user) => {
+      if (user && user.full_name) {
+        setIsLoggedIn(true);
+      }
+    });
+  }, []);
 
   // Parallax effects for background elements
   const yHeroAurora = useTransform(scrollYProgress, [0, 1], [0, 250]);
@@ -129,7 +139,9 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <motion.div variants={fadeUpVariant} className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-              <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
+              
+              {/* DESKTOP ONLY: Interactive Demo */}
+              <NextLink href="/dashboard" className="hidden sm:block outline-none w-full sm:w-auto rounded-xl">
                 <motion.div
                   whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
                   whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
@@ -146,6 +158,27 @@ export default function Home() {
                   </motion.div>
                 </motion.div>
               </NextLink>
+
+              {/* MOBILE ONLY: Sign In (Only if not logged in) */}
+              {!isLoggedIn && (
+                <NextLink href="/login" className="sm:hidden outline-none block w-full rounded-xl">
+                  <motion.div
+                    whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
+                    whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
+                    transition={{ duration: 0.2 }}
+                    className="btn-interactive w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25 group"
+                  >
+                    <LogIn className="w-4 h-4 text-teal-600" />
+                    <span>Sign In</span>
+                    <motion.div
+                      transition={{ duration: 0.2 }}
+                      className="group-hover:translate-x-1"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.div>
+                  </motion.div>
+                </NextLink>
+              )}
 
               <NextLink href="/onboarding" className="outline-none block w-full sm:w-auto rounded-xl">
                 <motion.div
