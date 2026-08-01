@@ -20,14 +20,21 @@ export default function NavigationHandler() {
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
       if (historyStack.current.length > 1) {
-        // The browser already popped the native history state.
-        // We update our manual stack.
+        const currentPath = window.location.pathname;
+        const topOfStack = historyStack.current[historyStack.current.length - 1];
+        
+        if (currentPath === topOfStack) {
+          // Pathname didn't change (this was a modal closing or dummy state pop)
+          // We do not pop our history stack.
+          return;
+        }
+
+        // It was a real page back navigation
         historyStack.current.pop();
         const intendedPath = historyStack.current[historyStack.current.length - 1];
         
-        // If the browser natively went to home instead of the intended previous page,
-        // we forcefully replace the state back to what our stack expects.
-        if (window.location.pathname === '/' && intendedPath !== '/') {
+        // Android PWA bug workaround: it went to '/' instead of intended previous page
+        if (currentPath === '/' && intendedPath !== '/') {
           router.replace(intendedPath);
         }
       } else {

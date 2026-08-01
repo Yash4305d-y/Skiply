@@ -37,6 +37,38 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
   const [selectedDayModal, setSelectedDayModal] = useState<string | null>(null);
   const [selectedSubjectModal, setSelectedSubjectModal] = useState<string | null>(null);
 
+  // Native Mobile Back Button Support for Modals
+  const openSubjectModal = (id: string) => {
+    setSelectedSubjectModal(id);
+    window.history.pushState({ modal: 'subject' }, '', window.location.href);
+  };
+
+  const closeSubjectModal = () => {
+    setSelectedSubjectModal(null);
+    window.history.back();
+  };
+
+  const openDayModal = (dateStr: string) => {
+    setSelectedDayModal(dateStr);
+    window.history.pushState({ modal: 'day' }, '', window.location.href);
+  };
+
+  const closeDayModal = () => {
+    setSelectedDayModal(null);
+    window.history.back();
+  };
+
+  React.useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      // If hardware back button is pressed, the browser natively pops the state.
+      // We check if a modal was open. If so, we just close it in React state.
+      if (selectedSubjectModal) setSelectedSubjectModal(null);
+      if (selectedDayModal) setSelectedDayModal(null);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedSubjectModal, selectedDayModal]);
+
   // Sort logs by date descending (most recent first)
   const sortedLogs = [...logs].sort((a, b) => b.log_date.localeCompare(a.log_date));
 
@@ -177,7 +209,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
               <motion.div
                 key={s.id}
                 whileHover={{ scale: 1.02 }}
-                onClick={() => setSelectedSubjectModal(s.id)}
+                onClick={() => openSubjectModal(s.id)}
                 className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                   isSelected 
                     ? 'bg-slate-800 border-teal-500/50 ring-1 ring-teal-500/50 shadow-sm' 
@@ -349,7 +381,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                 <motion.div
                   key={cell.dateStr}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => setSelectedDayModal(cell.dateStr)}
+                  onClick={() => openDayModal(cell.dateStr)}
                   className={`min-h-[90px] p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
                     isToday ? 'bg-slate-800/40 border-teal-500/30 ring-1 ring-teal-500/20' :
                     dayLogs.length > 0 ? 'bg-slate-900 border-white/5 hover:border-white/10' :
@@ -520,7 +552,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                   </h3>
                 </div>
                 <button
-                  onClick={() => setSelectedDayModal(null)}
+                  onClick={closeDayModal}
                   className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -568,7 +600,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                             <button
                               onClick={() => {
                                 onDeleteLog(log.timetable_slot_id || '', log.log_date);
-                                if (modalLogs.length === 1) setSelectedDayModal(null);
+                                if (modalLogs.length === 1) closeDayModal();
                               }}
                               className="p-1 rounded bg-slate-900 text-slate-400 hover:text-rose-400 ml-1 transition-colors"
                               title="Delete log"
@@ -585,7 +617,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
 
               <div className="pt-2 flex justify-end">
                 <button
-                  onClick={() => setSelectedDayModal(null)}
+                  onClick={closeDayModal}
                   className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors"
                 >
                   Done
@@ -641,7 +673,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                         </div>
                       </div>
                       <button
-                        onClick={() => setSelectedSubjectModal(null)}
+                        onClick={closeSubjectModal}
                         className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
                       >
                         <X className="w-5 h-5" />
@@ -742,7 +774,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       <button
                         onClick={() => {
                           setFilterSubject(sub.id);
-                          setSelectedSubjectModal(null);
+                          closeSubjectModal();
                         }}
                         className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2"
                       >
@@ -751,7 +783,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       </button>
 
                       <button
-                        onClick={() => setSelectedSubjectModal(null)}
+                        onClick={closeSubjectModal}
                         className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all"
                       >
                         Close
