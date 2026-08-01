@@ -3,14 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, LayoutDashboard, History, LogOut, LogIn, Menu, X } from 'lucide-react';
 import { getDemoProfile } from '@/lib/demo-store';
 import { getCurrentUser, signOut } from '@/actions/auth';
 
+// Paths that require authentication
+const PROTECTED_PATHS = ['/dashboard', '/history', '/onboarding'];
+
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [userName, setUserName] = useState('Demo Student');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -102,10 +106,17 @@ export default function Navbar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
+            const isProtected = PROTECTED_PATHS.includes(item.href);
             return (
               <NextLink
                 key={item.href}
                 href={item.href}
+                onClick={(e) => {
+                  if (isProtected && !isLoggedIn) {
+                    e.preventDefault();
+                    router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
+                  }
+                }}
                 className={`relative px-3 py-1.5 rounded-xl text-base font-semibold flex items-center gap-2 transition-colors duration-200 ${
                   isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
                 }`}
@@ -180,11 +191,18 @@ export default function Navbar() {
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
+                const isProtected = PROTECTED_PATHS.includes(item.href);
                 return (
                   <NextLink
                     key={item.href}
                     href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={(e) => {
+                      setIsMobileMenuOpen(false);
+                      if (isProtected && !isLoggedIn) {
+                        e.preventDefault();
+                        router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
+                      }
+                    }}
                     className={`flex items-center gap-3 p-3.5 rounded-xl transition-colors ${
                       isActive ? 'bg-slate-800/80 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
                     }`}
