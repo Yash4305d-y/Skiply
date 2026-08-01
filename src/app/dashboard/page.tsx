@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import HeroWidget from '@/features/dashboard/components/hero-widget';
 import DailyClassList from '@/features/dashboard/components/daily-class-list';
+import AttendanceReminder from '@/features/dashboard/components/attendance-reminder';
 import { 
   getDemoProfile, getDemoSubjects, getDemoTimetableSlots, 
   getDemoHolidays, getDemoAttendanceLogs, saveDemoAttendanceLog, 
@@ -444,6 +445,8 @@ export default function DashboardPage() {
             />
           </div>
         </div>
+        
+        <AttendanceReminder slots={slots} logs={logs} />
       </motion.main>
 
       <Footer />
