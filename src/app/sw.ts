@@ -23,13 +23,13 @@ const serwist = new Serwist({
 
 serwist.addEventListeners();
 
-self.addEventListener('notificationclick', (event: any) => {
+(self as any).addEventListener('notificationclick', (event: any) => {
   event.notification.close();
   
   const targetUrl = event.notification.data?.url || '/dashboard';
-  const urlToOpen = new URL(targetUrl, self.location.origin).href;
+  const urlToOpen = new URL(targetUrl, (self as any).location.origin).href;
   
-  const promiseChain = self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients: any[]) => {
+  const promiseChain = (self as any).clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients: any[]) => {
     let matchingClient = null;
     for (let i = 0; i < windowClients.length; i++) {
       const windowClient = windowClients[i];
@@ -41,7 +41,7 @@ self.addEventListener('notificationclick', (event: any) => {
     if (matchingClient) {
       return matchingClient.focus();
     } else {
-      return self.clients.openWindow(urlToOpen);
+      return (self as any).clients.openWindow(urlToOpen);
     }
   });
   
