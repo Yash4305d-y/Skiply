@@ -64,7 +64,7 @@ function generateSampleLogs(): AttendanceLog[] {
   const today = new Date();
   const startDate = new Date(DEFAULT_PROFILE.semester_start_date);
   
-  let curr = new Date(startDate);
+  const curr = new Date(startDate);
   while (curr < today) {
     const dayOfWeek = curr.getDay();
     const dateStr = curr.toISOString().split('T')[0];

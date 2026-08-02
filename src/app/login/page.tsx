@@ -53,9 +53,12 @@ function LoginContent() {
         if (res && res.error) {
           setErrorMsg(res.error);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // NEXT_REDIRECT throws an error when redirecting, which is expected behavior
-        if (err?.message?.includes('NEXT_REDIRECT') || err?.digest?.includes('NEXT_REDIRECT')) {
+        const errObj = err as Record<string, unknown>;
+        const errMsg = typeof errObj?.message === 'string' ? errObj.message : '';
+        const errDigest = typeof errObj?.digest === 'string' ? errObj.digest : '';
+        if (errMsg.includes('NEXT_REDIRECT') || errDigest.includes('NEXT_REDIRECT')) {
           return;
         }
         setErrorMsg('An unexpected error occurred. Please try again.');
@@ -64,7 +67,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-white relative overflow-hidden justify-center items-center p-4">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-white relative overflow-x-hidden overflow-y-auto pt-24 pb-12 px-4 items-center">
       {/* Refined flat background without orbs */}
 
       {/* Top Back Link */}
@@ -82,7 +85,7 @@ function LoginContent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md z-10 space-y-6"
+        className="w-full max-w-md z-10 space-y-6 m-auto"
       >
         {/* Brand Header */}
         <div className="text-center space-y-2">

@@ -245,12 +245,15 @@ export async function getDailySchedule(dayOfWeek: number, dateStr: string) {
   if (!user) return { isHoliday: false, holidayName: null, slots: [] }
 
   // Check if today is a holiday
-  let { data: holiday, error: holErr } = await supabase
+  const holidayRes = await supabase
     .from('holidays')
     .select('*')
     .eq('user_id', user.id)
     .eq('holiday_date', dateStr)
     .maybeSingle()
+
+  let holiday = holidayRes.data;
+  const holErr = holidayRes.error;
 
   if (holErr && holErr.message?.includes('does not exist')) {
     const oldRes = await supabase
@@ -337,7 +340,7 @@ export async function getSemesterData() {
   let holidaysData = holidaysRes.data || [];
   if (holidaysRes.error && holidaysRes.error.message?.includes('does not exist')) {
     const oldRes = await supabase.from('academic_holidays').select('*').eq('user_id', user.id);
-    holidaysData = oldRes.data ? oldRes.data.map((h: any) => ({ ...h, holiday_name: h.description })) : [];
+    holidaysData = oldRes.data ? oldRes.data.map((h: Record<string, unknown>) => ({ ...h, holiday_name: h.description })) : [];
   }
 
   // If profile doesn't exist yet, or if there are no subjects/slots in the cloud DB, return null so frontend cleanly falls back to Demo Store

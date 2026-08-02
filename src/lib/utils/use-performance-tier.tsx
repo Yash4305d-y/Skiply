@@ -48,7 +48,7 @@ function getReducedMotionServerSnapshot(): boolean {
 function detectTier(): PerformanceTier {
   if (typeof navigator === 'undefined') return 'high';
 
-  const mem = (navigator as any).deviceMemory as number | undefined;
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const cores = navigator.hardwareConcurrency;
 
   // If deviceMemory is available and low, classify as low-end
@@ -70,7 +70,7 @@ const PerformanceTierContext = createContext<PerformanceProfile>({
 
 export function PerformanceTierProvider({ children }: { children: React.ReactNode }) {
   // Detect tier once at mount (stable across renders)
-  const tier = useMemo(detectTier, []);
+  const tier = useMemo(() => detectTier(), []);
 
   // Reactively track reduced-motion preference
   const reducedMotion = useSyncExternalStore(

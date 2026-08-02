@@ -36,7 +36,14 @@ export default function DashboardPage() {
   const [isDemoMode, setIsDemoMode] = useState(false);
 
   // Selected Date State (YYYY-MM-DD)
-  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  });
   const [dailyHoliday, setDailyHoliday] = useState<boolean>(false);
   const [dailyHolidayName, setDailyHolidayName] = useState<string | null>(null);
   const [offlineToast, setOfflineToast] = useState<string | null>(null);
@@ -55,14 +62,6 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    // Initialize date to today in local YYYY-MM-DD format
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    const todayStr = `${y}-${m}-${d}`;
-    setSelectedDate(todayStr);
-
     async function initData() {
       try {
         // Try fetching live Supabase data from Server Action
@@ -141,7 +140,18 @@ export default function DashboardPage() {
     }, 500);
 
     return () => clearTimeout(handler);
-  }, [profile?.target_attendance_percentage, isLoaded, isDemoMode]);
+  }, [profile, profile?.target_attendance_percentage, isLoaded, isDemoMode]);
+
+  // Calculate live deterministic math stats across semester using useMemo
+  const { overall, subjectStats } = useMemo(() => calculateOverallSemesterStats(
+    subjects,
+    slots,
+    holidays,
+    logs,
+    profile?.target_attendance_percentage ?? 75,
+    profile?.semester_end_date,
+    profile?.semester_start_date
+  ), [subjects, slots, holidays, logs, profile?.target_attendance_percentage, profile?.semester_end_date, profile?.semester_start_date]);
 
   if (!isLoaded || !profile) {
     return (
@@ -184,17 +194,6 @@ export default function DashboardPage() {
 
 
 
-
-  // Calculate live deterministic math stats across semester using useMemo
-  const { overall, subjectStats } = useMemo(() => calculateOverallSemesterStats(
-    subjects,
-    slots,
-    holidays,
-    logs,
-    profile.target_attendance_percentage,
-    profile.semester_end_date,
-    profile.semester_start_date
-  ), [subjects, slots, holidays, logs, profile.target_attendance_percentage, profile.semester_end_date, profile.semester_start_date]);
 
   // Derive DailyClassItems for selectedDate
   const [sy, sm, sd] = selectedDate.split('-').map(Number);
@@ -421,6 +420,42 @@ export default function DashboardPage() {
           {/* LEFT COLUMN: HERO STATS & GOALS */}
           <div className="lg:col-span-4 space-y-6">
             <HeroWidget stats={overall} onUpdateTarget={handleUpdateTarget} />
+            
+            <div className="glass-card rounded-2xl p-5 border border-white/5 bg-slate-900 shadow-sm space-y-4">
+              <h3 className="text-sm font-bold text-slate-200">Subject Overview</h3>
+              <div className="space-y-3">
+                {subjectStats.map(stat => (
+                  <div key={stat.subject_id} className="flex items-center justify-between bg-slate-800/40 p-3 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm" style={{ backgroundColor: stat.color_hex || '#6366f1' }}>
+                        <span className="text-xs font-bold text-white">{stat.subject_code}</span>
+                      </div>
+                      <div>
+                        <div className="text-sm font-bold text-slate-200">{stat.current_percentage}%</div>
+                        <div className="text-[10px] text-slate-400">{stat.present} / {stat.conducted}</div>
+                      </div>
+                    </div>
+                    <div>
+                      {stat.status === 'SAFE' && (
+                        <div className="px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+                          Safe: {stat.safe_skips}
+                        </div>
+                      )}
+                      {stat.status === 'WARNING' && (
+                        <div className="px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold">
+                          Safe: {stat.safe_skips}
+                        </div>
+                      )}
+                      {stat.status === 'DANGER' && (
+                        <div className="px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold">
+                          Need: {stat.classes_to_attend}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* RIGHT COLUMN: DAILY SCHEDULE & FEED */}
