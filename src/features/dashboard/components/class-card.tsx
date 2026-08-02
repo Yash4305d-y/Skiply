@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Check, X, Ban, RefreshCw, MapPin, Clock, AlertTriangle, ShieldCheck, ArrowRightLeft } from 'lucide-react';
 import { DailyClassItem, AttendanceStatus, Subject } from '@/types';
 
@@ -33,7 +33,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
   };
 
   return (
-    <motion.div 
+    <m.div 
       variants={{
         hidden: { opacity: 0, y: 12 },
         show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
@@ -175,7 +175,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
       {/* Inline Swap Sheet */}
       <AnimatePresence>
         {isSwapping && !isMarked && (
-          <motion.div 
+          <m.div 
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -204,9 +204,9 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 </button>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }

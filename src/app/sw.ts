@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import { Serwist, CacheFirst, ExpirationPlugin, StaleWhileRevalidate } from "serwist";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -13,12 +13,53 @@ declare global {
 
 declare const self: WorkerGlobalScope;
 
+const customCaching = [
+  {
+    matcher: ({ request, url }: { request: Request; url: URL }) => 
+      request.destination === 'image' && !url.pathname.includes('/_next/image'),
+    handler: new CacheFirst({
+      cacheName: 'static-image-assets',
+      plugins: [
+        new ExpirationPlugin({
+          maxEntries: 100,
+          maxAgeSeconds: 31536000, // 1 year
+        }),
+      ],
+    }),
+  },
+  {
+    matcher: ({ request }: { request: Request }) => request.destination === 'font',
+    handler: new CacheFirst({
+      cacheName: 'static-font-assets',
+      plugins: [
+        new ExpirationPlugin({
+          maxEntries: 10,
+          maxAgeSeconds: 31536000, // 1 year
+        }),
+      ],
+    }),
+  },
+  {
+    matcher: ({ url }: { url: URL }) => url.pathname.includes('/_next/image'),
+    handler: new StaleWhileRevalidate({
+      cacheName: 'next-image-cache',
+      plugins: [
+        new ExpirationPlugin({
+          maxEntries: 50,
+          maxAgeSeconds: 86400 * 30, // 30 days
+        }),
+      ],
+    }),
+  },
+  ...defaultCache,
+];
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  runtimeCaching: defaultCache,
+  runtimeCaching: customCaching,
 });
 
 serwist.addEventListeners();

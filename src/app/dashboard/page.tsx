@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
-import HeroWidget from '@/features/dashboard/components/hero-widget';
-import DailyClassList from '@/features/dashboard/components/daily-class-list';
-import AttendanceReminder from '@/features/dashboard/components/attendance-reminder';
+
+const HeroWidget = dynamic(() => import('@/features/dashboard/components/hero-widget'), { ssr: false });
+const DailyClassList = dynamic(() => import('@/features/dashboard/components/daily-class-list'), { ssr: false });
+const AttendanceReminder = dynamic(() => import('@/features/dashboard/components/attendance-reminder'), { ssr: false });
 import { 
   getDemoProfile, getDemoSubjects, getDemoTimetableSlots, 
   getDemoHolidays, getDemoAttendanceLogs, saveDemoAttendanceLog, 
@@ -20,7 +22,7 @@ import {
 } from '@/types';
 import NextLink from 'next/link';
 import { Sparkles, ArrowRight, Calendar as CalendarIcon, Check, Settings, LogOut, Loader2, Link2, Database, Shield } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { updateSemesterConfig } from '@/actions/db';
 import { updateDemoSemesterConfig } from '@/lib/demo-store';
 
@@ -145,7 +147,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex flex-col bg-slate-950">
         <Navbar />
-        <motion.main 
+        <m.main 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
           transition={{ duration: 0.5 }}
@@ -167,7 +169,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-      </motion.main>
+      </m.main>
     </div>
     );
   }
@@ -183,8 +185,8 @@ export default function DashboardPage() {
 
 
 
-  // Calculate live deterministic math stats across semester
-  const { overall, subjectStats } = calculateOverallSemesterStats(
+  // Calculate live deterministic math stats across semester using useMemo
+  const { overall, subjectStats } = useMemo(() => calculateOverallSemesterStats(
     subjects,
     slots,
     holidays,
@@ -192,7 +194,7 @@ export default function DashboardPage() {
     profile.target_attendance_percentage,
     profile.semester_end_date,
     profile.semester_start_date
-  );
+  ), [subjects, slots, holidays, logs, profile.target_attendance_percentage, profile.semester_end_date, profile.semester_start_date]);
 
   // Derive DailyClassItems for selectedDate
   const [sy, sm, sd] = selectedDate.split('-').map(Number);
@@ -370,7 +372,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <motion.main 
+      <m.main 
         className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full"
         initial="hidden"
         animate="show"
@@ -385,7 +387,7 @@ export default function DashboardPage() {
         {/* Onboarding Banner if not onboarded yet */}
         <AnimatePresence>
         {!isOnboardedInDemo() && (
-          <motion.div 
+          <m.div 
             variants={{
               hidden: { opacity: 0, y: 12 },
               show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
@@ -411,7 +413,7 @@ export default function DashboardPage() {
               <span>⚡ Start AI Setup</span>
               <ArrowRight className="w-4 h-4" />
             </NextLink>
-          </motion.div>
+          </m.div>
         )}
         </AnimatePresence>
 
@@ -447,7 +449,7 @@ export default function DashboardPage() {
         </div>
         
         <AttendanceReminder slots={slots} logs={logs} />
-      </motion.main>
+      </m.main>
 
       <Footer />
     </div>

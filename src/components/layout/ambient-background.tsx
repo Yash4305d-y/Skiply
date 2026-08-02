@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 export default function AmbientBackground() {
@@ -23,7 +23,7 @@ export default function AmbientBackground() {
       )}
 
       {/* 2. Top-Left Mint Glow (always rendered — primary ambient) */}
-      <motion.div
+      <m.div
         animate={!shouldReduceMotion ? {
           x: isLowEnd ? [0, 20, 0] : [0, 40, -20, 0],
           y: isLowEnd ? [0, 15, 0] : [0, 30, -30, 0],
@@ -33,12 +33,12 @@ export default function AmbientBackground() {
           repeat: Infinity,
           ease: "linear",
         }}
-        className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-teal-400 opacity-[0.06] blur-[150px]"
+        className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-[radial-gradient(circle,rgba(45,212,191,0.06)_0%,transparent_70%)]"
       />
 
       {/* 3. Upper-Right Sky Blue Glow (high-end only) */}
       {!isLowEnd && (
-        <motion.div
+        <m.div
           animate={!shouldReduceMotion ? {
             x: [0, -50, 20, 0],
             y: [0, -20, 40, 0],
@@ -48,13 +48,13 @@ export default function AmbientBackground() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute -top-[5%] -right-[15%] w-[60%] h-[60%] rounded-full bg-sky-400 opacity-[0.05] blur-[160px]"
+          className="absolute -top-[5%] -right-[15%] w-[60%] h-[60%] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.05)_0%,transparent_70%)]"
         />
       )}
 
       {/* 4. Lower-Center Mint/Sky Blend Glow (high-end only) */}
       {!isLowEnd && (
-        <motion.div
+        <m.div
           animate={!shouldReduceMotion ? {
             x: [0, 30, -40, 0],
             y: [0, -40, 20, 0],
@@ -64,7 +64,7 @@ export default function AmbientBackground() {
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute top-[65%] left-[20%] w-[60%] h-[50%] rounded-full bg-teal-300 opacity-[0.04] blur-[140px]"
+          className="absolute top-[65%] left-[20%] w-[60%] h-[50%] rounded-full bg-[radial-gradient(circle,rgba(94,234,212,0.04)_0%,transparent_70%)]"
         />
       )}
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ShieldCheck, AlertTriangle, Flame, Calendar, CheckCircle2, XCircle, AlertOctagon, Target } from 'lucide-react';
 import { OverallSemesterStats } from '@/types';
 import { AnimatedNumber } from '@/components/ui/animated-number';
@@ -38,7 +38,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
   return (
     <div className="space-y-4">
       {/* CARD 1: Overall Progress & Target */}
-      <motion.div 
+      <m.div 
         variants={{
           hidden: { opacity: 0, y: 12 },
           show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
@@ -68,7 +68,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             style={{ left: `${stats.target_percentage}%` }}
             title={`Required Minimum: ${stats.target_percentage}%`}
           />
-          <motion.div 
+          <m.div 
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(100, stats.overall_percentage)}%` }}
             transition={{ duration: 1, ease: "easeOut" }}
@@ -94,10 +94,10 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
             </span>
           </div>
         )}
-      </motion.div>
+      </m.div>
 
       {/* CARD 2: Hero Message block */}
-      <motion.div
+      <m.div
         variants={{
           hidden: { opacity: 0, y: 12 },
           show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
@@ -110,10 +110,10 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
         <p className="text-xs text-slate-400 leading-relaxed">
           {stats.hero_subtext}
         </p>
-      </motion.div>
+      </m.div>
 
       {/* GRID 3: Mini Stat Cards (2x2 Grid) */}
-      <motion.div
+      <m.div
         variants={{
           hidden: { opacity: 0, y: 12 },
           show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
@@ -151,7 +151,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
           </div>
           <div className="text-xl font-bold text-slate-100"><AnimatedNumber value={stats.total_remaining} duration={800} /></div>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

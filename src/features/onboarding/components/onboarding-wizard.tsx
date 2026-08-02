@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { 
   UploadCloud, Sparkles, CheckCircle2, AlertTriangle, 
   Calendar, Clock, BookOpen, ArrowRight, ArrowLeft, 
@@ -295,7 +295,7 @@ export default function OnboardingWizard() {
       {/* Floating Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -303,7 +303,7 @@ export default function OnboardingWizard() {
           >
             <CheckCircle2 className="w-5 h-5" />
             <span>{toastMessage}</span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -352,7 +352,7 @@ export default function OnboardingWizard() {
       <AnimatePresence mode="wait">
         {/* STEP 1: UPLOAD */}
         {step === 'UPLOAD' && (
-          <motion.div 
+          <m.div 
             key="step-upload"
             initial={{ opacity: 0, y: 15 }} 
             animate={{ opacity: 1, y: 0 }} 
@@ -531,12 +531,12 @@ export default function OnboardingWizard() {
                 <span>Extract With AI</span>
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* STEP 2: PROCESSING */}
         {step === 'PROCESSING' && (
-          <motion.div 
+          <m.div 
             key="step-processing"
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
@@ -555,12 +555,12 @@ export default function OnboardingWizard() {
                 {isMocking ? 'Simulating extraction of 5 subjects, 11 weekly slots, and 3 holidays...' : 'Analyzing grid columns, resolving course abbreviations, and mapping lab hours...'}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* STEP 3: INTERACTIVE REVIEW GRID */}
         {step === 'REVIEW' && (
-          <motion.div 
+          <m.div 
             key="step-review"
             initial={{ opacity: 0, y: 15 }} 
             animate={{ opacity: 1, y: 0 }} 
@@ -849,12 +849,12 @@ export default function OnboardingWizard() {
                 )}
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* STEP 4: SUCCESS */}
         {step === 'SUCCESS' && (
-          <motion.div 
+          <m.div 
             key="step-success"
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
@@ -869,7 +869,7 @@ export default function OnboardingWizard() {
                 Redirecting you to your daily dashboard and safe skip calculator...
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

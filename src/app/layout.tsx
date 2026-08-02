@@ -9,8 +9,10 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
+  display: "optional",
 });
+
+import { LazyMotion, domAnimation } from "framer-motion";
 
 export const metadata: Metadata = {
   title: "Skiply — AI-Powered Attendance Planner & Safe Skip Calculator",
@@ -45,7 +47,9 @@ export default function RootLayout({
         <PerformanceTierProvider>
           <PerformanceClassApplier />
           <NavigationHandler />
-          {children}
+          <LazyMotion features={domAnimation} strict>
+            {children}
+          </LazyMotion>
         </PerformanceTierProvider>
       </body>
     </html>

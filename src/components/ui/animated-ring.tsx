@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { m, useInView, useReducedMotion } from 'framer-motion';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 interface AnimatedRingProps {
@@ -47,7 +47,7 @@ export function AnimatedRing({
           cx={size / 2}
           cy={size / 2}
         />
-        <motion.circle
+        <m.circle
           className={colorClass}
           stroke={color || "currentColor"}
           fill="transparent"

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Sparkles, LayoutDashboard, History, LogOut, LogIn, Menu, X } from 'lucide-react';
 import { getDemoProfile } from '@/lib/demo-store';
 import { getCurrentUser, signOut } from '@/actions/auth';
@@ -57,7 +57,7 @@ export default function Navbar() {
       >
         {/* Logo */}
         <NextLink href="/" className="shrink-0 p-1 -ml-1 rounded-2xl outline-none group focus-visible:ring-2 ring-[#5EEAD4] block">
-          <motion.div 
+          <m.div 
             whileHover="hover"
             whileTap="tap"
             variants={{
@@ -67,7 +67,7 @@ export default function Navbar() {
             className="flex items-center gap-3 sm:gap-4"
           >
             {/* Logo Container */}
-            <motion.div 
+            <m.div 
               variants={{
                 hover: { y: -2, scale: 1.03 }
               }}
@@ -75,21 +75,21 @@ export default function Navbar() {
               className="relative w-10 h-10 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center"
             >
               {/* Breathing Ambient Glow — disabled on low-end */}
-              <motion.div 
+              <m.div 
                 initial={{ opacity: 0.1 }}
                 animate={isLowEnd ? {} : { opacity: [0.1, 0.2, 0.1] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                 variants={{
                   hover: { opacity: 0.3, scale: 1.1, transition: { duration: 0.2 } }
                 }}
-                className="absolute inset-[-20%] bg-[#5EEAD4] blur-[24px] rounded-full pointer-events-none" 
+                className="absolute inset-[-20%] bg-[radial-gradient(circle,rgba(94,234,212,1)_0%,transparent_70%)] rounded-full pointer-events-none" 
               />
               
               {/* App Icon Container */}
               <div className="relative w-full h-full rounded-[12px] sm:rounded-[16px] flex items-center justify-center border border-black/[0.04] shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(0,0,0,0.05),0_4px_10px_rgba(0,0,0,0.25)] bg-[#F6F8FB] z-10 overflow-hidden transition-shadow duration-200 group-hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(0,0,0,0.05),0_6px_14px_rgba(0,0,0,0.35)]">
                 <Image src="/nav-logo.png" alt="Skiply Icon" width={64} height={64} className="w-full h-full object-contain" />
               </div>
-            </motion.div>
+            </m.div>
             
             {/* Text block */}
             <div className="flex flex-col justify-center">
@@ -100,7 +100,7 @@ export default function Navbar() {
                 Smart Attendance Platform
               </span>
             </div>
-          </motion.div>
+          </m.div>
         </NextLink>
 
         {/* Desktop Navigation Links */}
@@ -124,7 +124,7 @@ export default function Navbar() {
                 }`}
               >
                 {isActive && (
-                  <motion.div
+                  <m.div
                     layoutId="activeNavIndicator"
                     className="absolute inset-0 bg-slate-800/80 rounded-xl border border-white/5"
                     transition={{ duration: 0.2, ease: "easeOut" }}
@@ -182,7 +182,7 @@ export default function Navbar() {
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -243,7 +243,7 @@ export default function Navbar() {
                 </NextLink>
               )}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </header>

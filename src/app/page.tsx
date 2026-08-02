@@ -2,18 +2,22 @@
 
 import React from 'react';
 import NextLink from 'next/link';
-import { motion, useScroll, useTransform, useReducedMotion, Variants } from 'framer-motion';
+import { m, useScroll, useTransform, useReducedMotion, Variants } from 'framer-motion';
 import { Sparkles, ShieldCheck, Zap, UploadCloud, Calendar, Clock, ArrowRight, CheckCircle2, Flame, Smartphone, ChevronDown, LogIn } from 'lucide-react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
-import AmbientBackground from '@/components/layout/ambient-background';
 import { getCurrentUser } from '@/actions/auth';
 import dynamic from 'next/dynamic';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
+const AmbientBackground = dynamic(
+  () => import('@/components/layout/ambient-background'),
+  { ssr: false }
+);
+
 const DashboardPreview = dynamic(
   () => import('@/features/marketing/components/dashboard-preview').then(mod => mod.DashboardPreview),
-  { ssr: false, loading: () => <div className="w-full max-w-5xl mx-auto mt-16 h-[600px] rounded-2xl glass-card animate-pulse" /> }
+  { ssr: false, loading: () => <div className="w-full max-w-5xl mx-auto mt-16 min-h-[1100px] md:min-h-[600px] rounded-2xl glass-card animate-pulse" /> }
 );
 
 export default function Home() {
@@ -87,64 +91,55 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-transparent text-slate-100 selection:bg-[#5EEAD4]/30 selection:text-white overflow-x-hidden w-full relative">
       {/* Scroll Progress Bar */}
-      <motion.div
+      <m.div
         className="fixed top-0 left-0 right-0 h-[2px] bg-[#5EEAD4] origin-left z-[100] shadow-[0_0_10px_rgba(94,234,212,0.5)]"
         style={{ scaleX: scrollYProgress }}
       />
 
+      {/* Background is purely decorative */}
       <AmbientBackground />
       
       {/* Navbar fades in first */}
-      <motion.div
-        initial={{ opacity: 0, y: isLowEnd ? 0 : -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: isLowEnd ? 0.2 : 0.4, ease: "easeOut" }}
-      >
+      <div className="animate-in fade-in slide-in-from-top-2 duration-500">
         <Navbar />
-      </motion.div>
+      </div>
 
       <main className="flex-1 relative z-10">
         {/* HERO SECTION */}
         <section className="relative pt-16 pb-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
           {/* Hero Soft Reflection with Parallax & Vignette */}
-          <motion.div 
+          <m.div 
             style={{ y: shouldReduceMotion ? 0 : yHeroAurora }}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] w-[100%] h-[120%] bg-[radial-gradient(ellipse_at_center,rgba(94,234,212,0.08)_0%,transparent_70%)] rounded-full pointer-events-none -z-10" 
           />
 
-          <motion.div 
-            variants={heroContainerVariants}
-            initial="hidden"
-            animate="show"
-            className="relative z-10 space-y-7 max-w-4xl mx-auto flex flex-col items-center"
-          >
+          <div className="relative z-10 space-y-7 max-w-4xl mx-auto flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Pill Badge */}
-            <motion.div 
-              variants={fadeUpVariant}
+            <m.div 
               whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, backgroundColor: "rgba(15, 23, 42, 0.9)" }}
               transition={{ duration: 0.2 }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-[#5EEAD4]/20 text-[#5EEAD4] text-[13px] font-semibold shadow-lg shadow-[#5EEAD4]/5 cursor-default"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>AI-Powered Attendance Intelligence</span>
-            </motion.div>
+            </m.div>
 
             {/* Headline */}
-            <motion.h1 variants={fadeUpVariant} className="text-[40px] sm:text-[56px] md:text-[64px] lg:text-[72px] font-bold tracking-[-0.03em] text-white leading-[1.1] max-w-3xl">
+            <h1 className="text-[40px] sm:text-[56px] md:text-[64px] lg:text-[72px] font-bold tracking-[-0.03em] text-white leading-[1.1] max-w-3xl">
               How many classes can you <span className="text-[#5EEAD4]">safely skip</span> without ruining your attendance?
-            </motion.h1>
+            </h1>
 
             {/* Subtitle */}
-            <motion.p variants={fadeUpVariant} className="text-[18px] sm:text-[20px] md:text-[24px] text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
+            <p className="text-[18px] sm:text-[20px] md:text-[24px] text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
               Stop manually calculating attendance percentages or creating Excel spreadsheets. Upload your class timetable and academic calendar once — Vision AI sets up your entire semester automatically.
-            </motion.p>
+            </p>
 
             {/* CTA Buttons */}
-            <motion.div variants={fadeUpVariant} className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+            <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
               
               {/* DESKTOP ONLY: Interactive Demo */}
               <NextLink href="/dashboard" className="hidden sm:block outline-none w-full sm:w-auto rounded-xl">
-                <motion.div
+                <m.div
                   whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
                   whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                   transition={{ duration: 0.2 }}
@@ -152,19 +147,19 @@ export default function Home() {
                 >
                   <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
                   <span>Interactive Demo</span>
-                  <motion.div
+                  <m.div
                     transition={{ duration: 0.2 }}
                     className="group-hover:translate-x-1"
                   >
                     <ArrowRight className="w-4 h-4" />
-                  </motion.div>
-                </motion.div>
+                  </m.div>
+                </m.div>
               </NextLink>
 
               {/* MOBILE ONLY: Sign In (Only if not logged in) */}
               {!isLoggedIn && (
                 <NextLink href="/login" className="sm:hidden outline-none block w-full rounded-xl">
-                  <motion.div
+                  <m.div
                     whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
                     whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                     transition={{ duration: 0.2 }}
@@ -172,18 +167,18 @@ export default function Home() {
                   >
                     <LogIn className="w-4 h-4 text-teal-600" />
                     <span>Sign In</span>
-                    <motion.div
+                    <m.div
                       transition={{ duration: 0.2 }}
                       className="group-hover:translate-x-1"
                     >
                       <ArrowRight className="w-4 h-4" />
-                    </motion.div>
-                  </motion.div>
+                    </m.div>
+                  </m.div>
                 </NextLink>
               )}
 
               <NextLink href="/onboarding" className="outline-none block w-full sm:w-auto rounded-xl">
-                <motion.div
+                <m.div
                   whileHover={shouldReduceMotion ? {} : { border: "1px solid rgba(94,234,212,0.4)", backgroundColor: "rgba(30,41,59,0.8)" }}
                   whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                   transition={{ duration: 0.2 }}
@@ -191,25 +186,25 @@ export default function Home() {
                 >
                   <UploadCloud className="w-4 h-4 text-[#5EEAD4] group-hover:scale-110 transition-transform" />
                   <span>Start AI Setup</span>
-                </motion.div>
+                </m.div>
               </NextLink>
-            </motion.div>
+            </div>
 
             {/* Dashboard Preview Component */}
-            <motion.div variants={fadeUpVariant} className="pt-16 pb-6 w-full">
+            <div className="pt-16 pb-6 w-full animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
               <DashboardPreview />
-            </motion.div>
+            </div>
 
             {/* Trust Bar */}
-            <motion.div variants={fadeUpVariant} className="pb-12 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm text-slate-400 font-medium">
+            <div className="pb-12 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm text-slate-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
               <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> AI Attendance Prediction</span>
               <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Automatic Timetable Import</span>
               <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Smart Skip Calculator</span>
               <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Semester Analytics</span>
-            </motion.div>
+            </div>
 
             {/* Scroll Cue */}
-            <motion.div 
+            <m.div 
               variants={fadeUpVariant}
               initial={{ y: 0 }}
               animate={isLowEnd ? {} : { y: [0, 8, 0] }}
@@ -218,19 +213,19 @@ export default function Home() {
             >
               <span className="text-[9px] uppercase tracking-[0.2em] font-bold">Scroll to explore</span>
               <ChevronDown className="w-4 h-4" />
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </div>
         </section>
 
         {/* FEATURE CARDS GRID */}
         <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10 overflow-visible">
           {/* Features Soft Reflection with Parallax */}
-          <motion.div 
+          <m.div 
             style={{ y: shouldReduceMotion ? 0 : yFeaturesAurora }}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-sky-400/5 blur-[120px] rounded-full pointer-events-none -z-10" 
           />
 
-          <motion.div 
+          <m.div 
             variants={sectionRevealVariant}
             initial="hidden"
             whileInView="show"
@@ -243,9 +238,9 @@ export default function Home() {
             <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
               Everything you need to maintain your required 75% threshold while keeping your academic sanity intact.
             </p>
-          </motion.div>
+          </m.div>
 
-          <motion.div 
+          <m.div 
             variants={featureContainerVariants}
             initial="hidden"
             whileInView="show"
@@ -290,7 +285,7 @@ export default function Home() {
                 desc: "Maintain a verifiable log of every class attended across the entire semester. Filter by course or date, and edit logs anytime if you made a mistake."
               }
             ].map((feature, i) => (
-              <motion.div 
+              <m.div 
                 key={i}
                 variants={featureCardVariant}
               whileHover={isLowEnd ? {} : (shouldReduceMotion ? {} : { y: -4 })}
@@ -298,29 +293,29 @@ export default function Home() {
                 transition={{ duration: 0.2, ease: "easeOut" }}
                 className="glass-card card-interactive premium-gradient-border p-8 rounded-2xl space-y-4 group bg-slate-900/40 hover:bg-slate-900/70"
               >
-                <motion.div 
+                <m.div 
                   className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${feature.color}`}
                 >
                   <feature.icon className="w-5 h-5" />
-                </motion.div>
+                </m.div>
                 <h3 className="text-lg font-bold text-slate-100">{feature.title}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">
                   {feature.desc}
                 </p>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </section>
 
         {/* BOTTOM BANNER CTA */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative z-10">
           {/* CTA Soft Reflection with Parallax */}
-          <motion.div 
+          <m.div 
             style={{ y: shouldReduceMotion ? 0 : yCtaAurora }}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[80%] bg-[#5EEAD4]/10 blur-[120px] rounded-full pointer-events-none -z-10" 
           />
 
-          <motion.div 
+          <m.div 
             variants={sectionRevealVariant}
             initial="hidden"
             whileInView="show"
@@ -336,7 +331,7 @@ export default function Home() {
               </p>
               <div className="pt-6 flex flex-col sm:flex-row justify-center gap-4">
                 <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
-                  <motion.div
+                  <m.div
                     whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
                     whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                     transition={{ duration: 0.2 }}
@@ -344,14 +339,14 @@ export default function Home() {
                   >
                     <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
                     <span>Launch Demo Dashboard</span>
-                    <motion.div transition={{ duration: 0.2 }} className="group-hover:translate-x-1 hidden sm:block">
+                    <m.div transition={{ duration: 0.2 }} className="group-hover:translate-x-1 hidden sm:block">
                       <ArrowRight className="w-4 h-4" />
-                    </motion.div>
-                  </motion.div>
+                    </m.div>
+                  </m.div>
                 </NextLink>
 
                 <NextLink href="/onboarding" className="outline-none block w-full sm:w-auto rounded-xl">
-                  <motion.div
+                  <m.div
                     whileHover={shouldReduceMotion ? {} : { border: "1px solid rgba(94,234,212,0.4)", backgroundColor: "rgba(30,41,59,0.8)" }}
                     whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                     transition={{ duration: 0.2 }}
@@ -359,11 +354,11 @@ export default function Home() {
                   >
                     <Sparkles className="w-4 h-4 text-[#5EEAD4] group-hover:scale-110 transition-transform" />
                     <span>AI Timetable Upload</span>
-                  </motion.div>
+                  </m.div>
                 </NextLink>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </section>
       </main>
 

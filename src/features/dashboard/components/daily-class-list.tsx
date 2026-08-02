@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Sun } from 'lucide-react';
 import { DailyClassItem, AttendanceStatus, Subject, AcademicHoliday } from '@/types';
 import ClassCard from './class-card';
@@ -159,7 +159,7 @@ export default function DailyClassList({
 
       {/* Holiday Banner if present */}
       {activeHoliday && (
-        <motion.div 
+        <m.div 
           initial={{ opacity: 0, y: -10 }} 
           animate={{ opacity: 1, y: 0 }} 
           className="glass-card p-6 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex items-center gap-4 text-amber-200"
@@ -173,12 +173,12 @@ export default function DailyClassList({
               🏖️ Academic holiday or break — All scheduled classes are suspended.
             </p>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Out of Semester Banner */}
       {isOutOfSemesterBounds && !activeHoliday && (
-        <motion.div 
+        <m.div 
           initial={{ opacity: 0, y: -10 }} 
           animate={{ opacity: 1, y: 0 }} 
           className="glass-card p-6 rounded-2xl bg-teal-500/5 border border-teal-500/20 flex items-center gap-4 text-teal-200"
@@ -192,7 +192,7 @@ export default function DailyClassList({
               This date is outside your configured semester start and end dates. Attendance marking is disabled.
             </p>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
       {/* Class List or Empty State */}

@@ -1,13 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from 'framer-motion';
 import { usePerformanceTier } from "@/lib/utils/use-performance-tier";
 
 export default function Template({ children }: { children: React.ReactNode }) {
   const { isLowEnd } = usePerformanceTier();
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: isLowEnd ? 0 : 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -17,6 +17,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
       className="flex-1 flex flex-col"
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
