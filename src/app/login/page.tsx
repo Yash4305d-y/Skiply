@@ -53,12 +53,9 @@ function LoginContent() {
         if (res && res.error) {
           setErrorMsg(res.error);
         }
-      } catch (err: unknown) {
+      } catch (err: any) {
         // NEXT_REDIRECT throws an error when redirecting, which is expected behavior
-        const errObj = err as Record<string, unknown>;
-        const errMsg = typeof errObj?.message === 'string' ? errObj.message : '';
-        const errDigest = typeof errObj?.digest === 'string' ? errObj.digest : '';
-        if (errMsg.includes('NEXT_REDIRECT') || errDigest.includes('NEXT_REDIRECT')) {
+        if (err?.message?.includes('NEXT_REDIRECT') || err?.digest?.includes('NEXT_REDIRECT')) {
           return;
         }
         setErrorMsg('An unexpected error occurred. Please try again.');
