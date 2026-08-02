@@ -421,41 +421,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-4 space-y-6">
             <HeroWidget stats={overall} onUpdateTarget={handleUpdateTarget} />
             
-            <div className="glass-card rounded-2xl p-5 border border-white/5 bg-slate-900 shadow-sm space-y-4">
-              <h3 className="text-sm font-bold text-slate-200">Subject Overview</h3>
-              <div className="space-y-3">
-                {subjectStats.map(stat => (
-                  <div key={stat.subject_id} className="flex items-center justify-between bg-slate-800/40 p-3 rounded-xl border border-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm" style={{ backgroundColor: stat.color_hex || '#6366f1' }}>
-                        <span className="text-xs font-bold text-white">{stat.subject_code}</span>
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-slate-200">{stat.current_percentage}%</div>
-                        <div className="text-[10px] text-slate-400">{stat.present} / {stat.conducted}</div>
-                      </div>
-                    </div>
-                    <div>
-                      {stat.status === 'SAFE' && (
-                        <div className="px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold">
-                          Safe: {stat.safe_skips}
-                        </div>
-                      )}
-                      {stat.status === 'WARNING' && (
-                        <div className="px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold">
-                          Safe: {stat.safe_skips}
-                        </div>
-                      )}
-                      {stat.status === 'DANGER' && (
-                        <div className="px-2 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold">
-                          Need: {stat.classes_to_attend}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+
           </div>
 
           {/* RIGHT COLUMN: DAILY SCHEDULE & FEED */}
