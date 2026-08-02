@@ -5,8 +5,11 @@ import { Serwist, CacheFirst, ExpirationPlugin, StaleWhileRevalidate } from "ser
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
     __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     addEventListener: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     location: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clients: any;
   }
 }
@@ -64,12 +67,15 @@ const serwist = new Serwist({
 
 serwist.addEventListeners();
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (self as any).addEventListener('notificationclick', (event: any) => {
   event.notification.close();
   
   const targetUrl = event.notification.data?.url || '/dashboard';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const urlToOpen = new URL(targetUrl, (self as any).location.origin).href;
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const promiseChain = (self as any).clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients: any[]) => {
     let matchingClient = null;
     for (let i = 0; i < windowClients.length; i++) {
@@ -82,6 +88,7 @@ serwist.addEventListeners();
     if (matchingClient) {
       return matchingClient.focus();
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (self as any).clients.openWindow(urlToOpen);
     }
   });

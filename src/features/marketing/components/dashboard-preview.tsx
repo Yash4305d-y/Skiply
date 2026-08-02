@@ -261,14 +261,14 @@ export function DashboardPreview() {
             <p className="text-sm text-slate-300 leading-relaxed font-medium relative z-10 transition-all duration-300">
               {isWarning 
                 ? <><strong className="text-white">Warning:</strong> Your attendance is dangerously low. You must attend the next {safeSkips} classes consecutively to recover your target.</>
-                : <>You can afford to skip <strong className="text-white">Data Structures</strong> tomorrow. You'll still remain above your target threshold.</>}
+                : <>You can afford to skip <strong className="text-white">Data Structures</strong> tomorrow. You&apos;ll still remain above your target threshold.</>}
             </p>
           </m.div>
 
           {/* Timetable Slice */}
           <m.div variants={itemVariants} className="flex-1 p-5 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-100">Today's Schedule</h3>
+              <h3 className="text-sm font-bold text-slate-100">Today&apos;s Schedule</h3>
               <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Click to Toggle</span>
             </div>
             <div className="space-y-3">

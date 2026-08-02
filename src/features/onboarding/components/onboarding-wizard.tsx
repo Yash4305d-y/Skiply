@@ -103,8 +103,9 @@ export default function OnboardingWizard() {
       setInitialEnd(endDate);
       setToastMessage('Semester configuration updated successfully!');
       setTimeout(() => setToastMessage(null), 3000);
-    } catch (e: any) {
-      alert(e.message || 'Failed to update configuration.');
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : 'Failed to update configuration.';
+      alert(errMsg);
     } finally {
       setIsUpdatingConfig(false);
     }
@@ -251,11 +252,12 @@ export default function OnboardingWizard() {
 
     try {
       await saveOnboardingData(payload);
-    } catch (e: any) {
+    } catch (e: unknown) {
       // If student is testing in Demo Mode without cloud auth, quietly proceed with local demo save
       console.log('Cloud DB save skipped (Demo Mode or unauthenticated):', e);
-      if (e?.message && !e.message.includes('Not authenticated')) {
-        console.error('Supabase save error during AI onboarding:', e.message);
+      const errMsg = e instanceof Error ? e.message : String(e);
+      if (!errMsg.includes('Not authenticated')) {
+        console.error('Supabase save error during AI onboarding:', errMsg);
       }
     }
 
@@ -276,17 +278,17 @@ export default function OnboardingWizard() {
   };
 
   // Edit Subject Field
-  const updateSubject = (id: string, field: keyof AIExtractedSubject, val: any) => {
+  const updateSubject = (id: string, field: keyof AIExtractedSubject, val: string | number | boolean) => {
     setSubjects(prev => prev.map(s => s.temp_id === id ? { ...s, [field]: val } : s));
   };
 
   // Edit Slot Field
-  const updateSlot = (id: string, field: keyof AIExtractedSlot, val: any) => {
+  const updateSlot = (id: string, field: keyof AIExtractedSlot, val: string | number) => {
     setSlots(prev => prev.map(sl => sl.temp_id === id ? { ...sl, [field]: val } : sl));
   };
 
   // Edit Holiday Field
-  const updateHoliday = (id: string, field: keyof AIExtractedHoliday, val: any) => {
+  const updateHoliday = (id: string, field: keyof AIExtractedHoliday, val: string | number | boolean) => {
     setHolidays(prev => prev.map(h => h.temp_id === id ? { ...h, [field]: val } : h));
   };
 
@@ -371,6 +373,7 @@ export default function OnboardingWizard() {
                 </div>
               </div>
               <button 
+                type="button"
                 onClick={() => startAIProcessing(true)}
                 className="btn-interactive w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm shadow-sm flex items-center justify-center gap-2"
               >

@@ -9,7 +9,7 @@ export async function getVirtualEmail(username: string): Promise<string> {
   return `${sanitized}.skiply.app@gmail.com`;
 }
 
-export async function signUpWithUniqueId(arg1: any, arg2?: FormData) {
+export async function signUpWithUniqueId(arg1: unknown, arg2?: FormData) {
   const formData = arg2 instanceof FormData ? arg2 : (arg1 instanceof FormData ? arg1 : new FormData());
   const supabase = await createClient();
   
@@ -57,7 +57,7 @@ export async function signUpWithUniqueId(arg1: any, arg2?: FormData) {
   redirect(redirectTo);
 }
 
-export async function signInWithUniqueId(arg1: any, arg2?: FormData) {
+export async function signInWithUniqueId(arg1: unknown, arg2?: FormData) {
   const formData = arg2 instanceof FormData ? arg2 : (arg1 instanceof FormData ? arg1 : new FormData());
   const supabase = await createClient();
   

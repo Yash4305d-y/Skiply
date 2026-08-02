@@ -128,7 +128,7 @@ Analyze the provided class timetable and academic calendar images or PDF documen
 3. Extract all holidays and non-instructional days from the academic calendar with exact dates in YYYY-MM-DD format.
 4. Assign a confidence score (0-100). For any low-resolution, blurry, or ambiguous text, add a descriptive warning starting with '⚠️ '.`;
 
-    const contents: any[] = [prompt];
+    const contents: Array<string | Record<string, unknown>> = [prompt];
     
     // Add images or PDF documents if provided as base64
     if (timetableImage && timetableImage.startsWith('data:')) {
@@ -173,10 +173,10 @@ Analyze the provided class timetable and academic calendar images or PDF documen
           }
         });
         if (response) break; // Successfully generated!
-      } catch (err: any) {
+      } catch (err: unknown) {
         lastError = err;
         const errStr = typeof err === 'object' ? JSON.stringify(err) : String(err);
-        const errMsg = err.message || errStr;
+        const errMsg = err instanceof Error ? err.message : errStr;
         console.warn(`Model ${modelName} failed:`, errMsg);
 
         // If rate limited (429 or RESOURCE_EXHAUSTED), wait 4 seconds before trying the next fallback model
@@ -200,14 +200,15 @@ Analyze the provided class timetable and academic calendar images or PDF documen
       ...parsedData,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('AI Extraction Error:', error);
     // On API error, gracefully fall back to mock extraction so UI remains functional
     const fallback = getMockExtractionResult();
+    const errMsg = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({
       ...fallback,
-      summary_message: 'Used offline mock parser due to AI API connectivity or key issue: ' + (error.message || 'Unknown error'),
-      raw_error: error.message,
+      summary_message: 'Used offline mock parser due to AI API connectivity or key issue: ' + errMsg,
+      raw_error: errMsg,
     });
   }
 }

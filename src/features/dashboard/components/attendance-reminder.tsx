@@ -24,7 +24,7 @@ export default function AttendanceReminder({ slots, logs }: AttendanceReminderPr
   }, []);
 
   useEffect(() => {
-    let timeoutIds: NodeJS.Timeout[] = [];
+    const timeoutIds: NodeJS.Timeout[] = [];
 
     const handleReminders = async () => {
       if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return;
@@ -84,8 +84,8 @@ export default function AttendanceReminder({ slots, logs }: AttendanceReminderPr
                      icon: '/icon-192.png',
                      tag: tag,
                      data: { url: '/dashboard' },
-                     // @ts-ignore
-                     showTrigger: new (window as any).TimestampTrigger(targetTime.getTime())
+                     // @ts-expect-error TimestampTrigger is an experimental API
+                     showTrigger: new (window as unknown as { TimestampTrigger: new (time: number) => unknown }).TimestampTrigger(targetTime.getTime())
                    });
                  } catch (e) {
                    console.log('TimestampTrigger not supported or failed', e);
