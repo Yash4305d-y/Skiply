@@ -301,7 +301,7 @@ export default function OnboardingWizard() {
             exit={{ opacity: 0, y: -20 }}
             className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl bg-success text-white font-bold text-sm shadow-2xl flex items-center gap-2.5 border border-emerald-400"
           >
-            <CheckCircle2 className="w-5 h-5 animate-bounce" />
+            <CheckCircle2 className="w-5 h-5" />
             <span>{toastMessage}</span>
           </motion.div>
         )}
@@ -310,7 +310,7 @@ export default function OnboardingWizard() {
       {/* Wizard Header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-4">
-          <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5" />
           <span>AI Onboarding Wizard</span>
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
@@ -544,7 +544,7 @@ export default function OnboardingWizard() {
             className="glass-card p-12 rounded-2xl text-center space-y-6 max-w-md mx-auto my-12 border-white/5"
           >
             <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border border-teal-500/20 animate-ping" />
+              <div className="absolute inset-0 rounded-full border border-teal-500/20 animate-pulse" />
               <div className="w-16 h-16 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400">
                 <RefreshCw className="w-8 h-8 animate-spin" />
               </div>

@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 interface AnimatedRingProps {
   percentage: number; // 0 to 100
@@ -25,6 +26,9 @@ export function AnimatedRing({
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
   const shouldReduceMotion = useReducedMotion();
+  const { isLowEnd } = usePerformanceTier();
+
+  const effectiveDuration = isLowEnd ? Math.min(duration, 500) : duration;
 
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -55,7 +59,7 @@ export function AnimatedRing({
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: shouldReduceMotion ? targetOffset : initialOffset }}
           animate={{ strokeDashoffset: isInView || shouldReduceMotion ? targetOffset : initialOffset }}
-          transition={{ duration: duration / 1000, ease: "easeOut" }}
+          transition={{ duration: effectiveDuration / 1000, ease: "easeOut" }}
         />
       </svg>
     </div>

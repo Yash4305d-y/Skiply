@@ -113,7 +113,7 @@ function LoginContent() {
                 <motion.div
                   layoutId="activeTabIndicator"
                   className="absolute inset-0 bg-slate-800 rounded-lg border border-white/5"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 />
               )}
               <span className="relative z-10">Log In</span>
@@ -135,7 +135,7 @@ function LoginContent() {
                 <motion.div
                   layoutId="activeTabIndicator"
                   className="absolute inset-0 bg-slate-800 rounded-lg border border-white/5"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 />
               )}
               <span className="relative z-10">Register</span>

@@ -9,6 +9,7 @@ import Footer from '@/components/layout/footer';
 import AmbientBackground from '@/components/layout/ambient-background';
 import { getCurrentUser } from '@/actions/auth';
 import dynamic from 'next/dynamic';
+import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 const DashboardPreview = dynamic(
   () => import('@/features/marketing/components/dashboard-preview').then(mod => mod.DashboardPreview),
@@ -18,6 +19,7 @@ const DashboardPreview = dynamic(
 export default function Home() {
   const { scrollYProgress } = useScroll();
   const shouldReduceMotion = useReducedMotion();
+  const { isLowEnd } = usePerformanceTier();
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   React.useEffect(() => {
@@ -28,10 +30,10 @@ export default function Home() {
     });
   }, []);
 
-  // Parallax effects for background elements
-  const yHeroAurora = useTransform(scrollYProgress, [0, 1], [0, 250]);
-  const yFeaturesAurora = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const yCtaAurora = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  // Parallax effects for background elements (disabled on low-end)
+  const yHeroAurora = useTransform(scrollYProgress, [0, 1], isLowEnd ? [0, 0] : [0, 250]);
+  const yFeaturesAurora = useTransform(scrollYProgress, [0, 1], isLowEnd ? [0, 0] : [0, 300]);
+  const yCtaAurora = useTransform(scrollYProgress, [0, 1], isLowEnd ? [0, 0] : [0, 150]);
 
   // Shared animation variants
   const heroContainerVariants: Variants = {
@@ -39,18 +41,18 @@ export default function Home() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: isLowEnd ? 0.06 : 0.1,
+        delayChildren: isLowEnd ? 0.1 : 0.2,
       }
     }
   };
 
   const fadeUpVariant: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
+    hidden: { opacity: 0, y: (shouldReduceMotion || isLowEnd) ? 0 : 10 },
     show: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.6, ease: "easeOut" } 
+      transition: { duration: isLowEnd ? 0.3 : 0.5, ease: "easeOut" } 
     }
   };
 
@@ -59,26 +61,26 @@ export default function Home() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.06,
+        staggerChildren: 0.05,
       }
     }
   };
 
   const featureCardVariant: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 25 },
+    hidden: { opacity: 0, y: (shouldReduceMotion || isLowEnd) ? 0 : 16 },
     show: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.4, ease: "easeOut" } 
+      transition: { duration: isLowEnd ? 0.25 : 0.4, ease: "easeOut" } 
     }
   };
 
   const sectionRevealVariant: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 30 },
+    hidden: { opacity: 0, y: (shouldReduceMotion || isLowEnd) ? 0 : 20 },
     show: { 
       opacity: 1, 
       y: 0, 
-      transition: { duration: 0.45, ease: "easeOut" } 
+      transition: { duration: isLowEnd ? 0.3 : 0.45, ease: "easeOut" } 
     }
   };
 
@@ -94,9 +96,9 @@ export default function Home() {
       
       {/* Navbar fades in first */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: isLowEnd ? 0 : -8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: isLowEnd ? 0.2 : 0.4, ease: "easeOut" }}
       >
         <Navbar />
       </motion.div>
@@ -121,7 +123,7 @@ export default function Home() {
               variants={fadeUpVariant}
               whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, backgroundColor: "rgba(15, 23, 42, 0.9)" }}
               transition={{ duration: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-[#5EEAD4]/20 text-[#5EEAD4] text-[13px] font-semibold shadow-lg shadow-[#5EEAD4]/5 cursor-default backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-[#5EEAD4]/20 text-[#5EEAD4] text-[13px] font-semibold shadow-lg shadow-[#5EEAD4]/5 cursor-default"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>AI-Powered Attendance Intelligence</span>
@@ -210,7 +212,7 @@ export default function Home() {
             <motion.div 
               variants={fadeUpVariant}
               initial={{ y: 0 }}
-              animate={{ y: [0, 8, 0] }}
+              animate={isLowEnd ? {} : { y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               className="flex flex-col items-center justify-center text-slate-400 gap-2 mt-4 opacity-60"
             >
@@ -291,14 +293,13 @@ export default function Home() {
               <motion.div 
                 key={i}
                 variants={featureCardVariant}
-                whileHover={shouldReduceMotion ? {} : { y: -6, scale: 1.01 }}
-                whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}
+              whileHover={isLowEnd ? {} : (shouldReduceMotion ? {} : { y: -4 })}
+                whileTap={isLowEnd ? {} : (shouldReduceMotion ? {} : { scale: 0.98 })}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="glass-card card-interactive premium-gradient-border p-8 rounded-2xl space-y-4 group transition-all hover:shadow-2xl hover:shadow-[#5EEAD4]/5 bg-slate-900/40 hover:bg-slate-900/70"
+                className="glass-card card-interactive premium-gradient-border p-8 rounded-2xl space-y-4 group bg-slate-900/40 hover:bg-slate-900/70"
               >
                 <motion.div 
-                  className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${feature.color} transition-colors group-hover:bg-slate-800/80 group-hover:shadow-inner`}
-                  whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
+                  className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${feature.color}`}
                 >
                   <feature.icon className="w-5 h-5" />
                 </motion.div>

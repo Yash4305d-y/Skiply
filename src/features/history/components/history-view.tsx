@@ -206,11 +206,10 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
             const isSelected = filterSubject === s.id;
 
             return (
-              <motion.div
+              <div
                 key={s.id}
-                whileHover={{ scale: 1.02 }}
                 onClick={() => openSubjectModal(s.id)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                className={`p-3.5 rounded-xl border cursor-pointer flex flex-col justify-between gap-3 ${
                   isSelected 
                     ? 'bg-slate-800 border-teal-500/50 ring-1 ring-teal-500/50 shadow-sm' 
                     : 'bg-slate-900 border-white/5 hover:border-white/10 hover:bg-slate-800/50'
@@ -267,7 +266,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                     <span className="text-emerald-400 flex items-center gap-0.5 font-bold">↑ Stable</span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -378,11 +377,10 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
               const isToday = cell.dateStr === new Date().toISOString().split('T')[0];
 
               return (
-                <motion.div
+                <div
                   key={cell.dateStr}
-                  whileHover={{ scale: 1.02 }}
                   onClick={() => openDayModal(cell.dateStr!)}
-                  className={`min-h-[90px] p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                  className={`min-h-[90px] p-2 rounded-xl border cursor-pointer flex flex-col justify-between ${
                     isToday ? 'bg-slate-800/40 border-teal-500/30 ring-1 ring-teal-500/20' :
                     dayLogs.length > 0 ? 'bg-slate-900 border-white/5 hover:border-white/10' :
                     'bg-slate-900/30 border-white/5 hover:bg-slate-800/30'
@@ -421,7 +419,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       </span>
                     )}
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -535,11 +533,12 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
       {/* INTERACTIVE DAY DRAWER / MODAL */}
       <AnimatePresence>
         {selectedDayModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="glass-card w-full max-w-lg p-6 rounded-2xl border border-white/10 space-y-6 bg-slate-950 shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -629,11 +628,12 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
 
         {/* Subject Details & AI Prediction Modal */}
         {selectedSubjectModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="bg-slate-950 border border-white/10 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-5"
             >
               {(() => {

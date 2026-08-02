@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, LayoutDashboard, History, LogOut, LogIn, Menu, X } from 'lucide-react';
 import { getDemoProfile } from '@/lib/demo-store';
 import { getCurrentUser, signOut } from '@/actions/auth';
+import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 // Paths that require authentication
 const PROTECTED_PATHS = ['/dashboard', '/history', '/onboarding'];
@@ -15,6 +16,7 @@ const PROTECTED_PATHS = ['/dashboard', '/history', '/onboarding'];
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isLowEnd } = usePerformanceTier();
   const [userName, setUserName] = useState('Demo Student');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,10 +74,10 @@ export default function Navbar() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="relative w-10 h-10 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center"
             >
-              {/* Breathing Ambient Glow */}
+              {/* Breathing Ambient Glow — disabled on low-end */}
               <motion.div 
                 initial={{ opacity: 0.1 }}
-                animate={{ opacity: [0.1, 0.2, 0.1] }}
+                animate={isLowEnd ? {} : { opacity: [0.1, 0.2, 0.1] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
                 variants={{
                   hover: { opacity: 0.3, scale: 1.1, transition: { duration: 0.2 } }
@@ -125,7 +127,7 @@ export default function Navbar() {
                   <motion.div
                     layoutId="activeNavIndicator"
                     className="absolute inset-0 bg-slate-800/80 rounded-xl border border-white/5"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
                   />
                 )}
                 <div className="relative z-10 flex items-center gap-2">
@@ -181,11 +183,11 @@ export default function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -10, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-            className="md:hidden absolute top-[72px] left-0 right-0 bg-slate-950/95 backdrop-blur-3xl border-b border-white/[0.08] shadow-2xl z-40 overflow-hidden"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="md:hidden absolute top-[72px] left-0 right-0 bg-slate-950/95 backdrop-blur-3xl border-b border-white/[0.08] shadow-2xl z-40"
           >
             <div className="px-4 py-6 flex flex-col gap-4">
               {navItems.map((item) => {

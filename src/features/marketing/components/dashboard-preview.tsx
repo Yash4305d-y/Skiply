@@ -5,11 +5,13 @@ import { motion, useInView, useReducedMotion, Variants } from 'framer-motion';
 import { TrendingUp, Sparkles, CheckCircle2, AlertCircle, XCircle, CircleDashed } from 'lucide-react';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { AnimatedRing } from '@/components/ui/animated-ring';
+import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 export function DashboardPreview() {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: "-100px" });
   const shouldReduceMotion = useReducedMotion();
+  const { isLowEnd } = usePerformanceTier();
 
   // Interactive Demo State (Independent from production data)
   const [attendance, setAttendance] = useState(82.4);
@@ -60,23 +62,22 @@ export function DashboardPreview() {
 
   // Entrance variants
   const containerVariants: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 40, scale: shouldReduceMotion ? 1 : 0.98 },
+    hidden: { opacity: 0, y: (shouldReduceMotion || isLowEnd) ? 0 : 24 },
     show: {
       opacity: 1,
       y: 0,
-      scale: 1,
       transition: {
-        duration: 0.8,
-        ease: [0.16, 1, 0.3, 1], // Custom smooth ease-out
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
+        duration: isLowEnd ? 0.4 : 0.6,
+        ease: [0.16, 1, 0.3, 1],
+        staggerChildren: isLowEnd ? 0.06 : 0.1,
+        delayChildren: isLowEnd ? 0.15 : 0.3,
       }
     }
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+    hidden: { opacity: 0, y: (shouldReduceMotion || isLowEnd) ? 0 : 12 },
+    show: { opacity: 1, y: 0, transition: { duration: isLowEnd ? 0.25 : 0.4, ease: "easeOut" } }
   };
 
   // Calculate SVG path for the chart dynamically based on state
@@ -111,8 +112,10 @@ export function DashboardPreview() {
       tabIndex={-1}
       className="w-full max-w-5xl mx-auto mt-16 rounded-2xl overflow-hidden glass-card border border-white/10 shadow-2xl shadow-teal-500/10 bg-slate-950/80 backdrop-blur-xl flex flex-col relative group focus:outline-none"
     >
-      {/* 3D Tilt effect container (desktop only) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      {/* Hover gradient overlay (high-end only) */}
+      {!isLowEnd && (
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      )}
 
       {/* Mac OS Window Header */}
       <div className="h-10 border-b border-white/5 flex items-center px-4 gap-2 bg-slate-900/50">
@@ -213,7 +216,7 @@ export function DashboardPreview() {
                       initial={{ pathLength: 0, opacity: 0 }}
                       animate={{ pathLength: 1, opacity: 1, d: pathD, stroke: isWarning ? "#f43f5e" : "#5EEAD4" }}
                       transition={{ 
-                        pathLength: { duration: 1.5, ease: "easeInOut", delay: 0.5 },
+                        pathLength: { duration: isLowEnd ? 0.8 : 1.5, ease: "easeInOut", delay: isLowEnd ? 0.2 : 0.5 },
                         d: { duration: 0.5, ease: "easeOut" },
                         stroke: { duration: 0.5 }
                       }}
@@ -277,11 +280,11 @@ export function DashboardPreview() {
                   whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}
                   custom={i}
                   variants={{
-                    hidden: { opacity: 0, x: shouldReduceMotion ? 0 : 20 },
-                    show: i => ({ 
+                    hidden: { opacity: 0, x: (shouldReduceMotion || isLowEnd) ? 0 : 12 },
+                    show: (i: number) => ({ 
                       opacity: 1, 
                       x: 0, 
-                      transition: { delay: 0.8 + (i * 0.1), duration: 0.4, ease: "easeOut" } 
+                      transition: { delay: (isLowEnd ? 0.3 : 0.8) + (i * 0.08), duration: 0.3, ease: "easeOut" } 
                     })
                   }}
                   className="w-full text-left flex items-center gap-3 p-3 rounded-lg bg-slate-950/50 border border-white/5 hover:bg-slate-800/60 transition-colors group cursor-pointer"

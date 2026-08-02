@@ -1,16 +1,17 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePerformanceTier } from "@/lib/utils/use-performance-tier";
 
 export default function Template({ children }: { children: React.ReactNode }) {
-  const shouldReduceMotion = useReducedMotion();
+  const { isLowEnd } = usePerformanceTier();
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 10 }}
+      initial={{ opacity: 0, y: isLowEnd ? 0 : 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.3, // 300ms
+        duration: isLowEnd ? 0.2 : 0.3,
         ease: "easeOut",
       }}
       className="flex-1 flex flex-col"
