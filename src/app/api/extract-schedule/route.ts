@@ -151,9 +151,9 @@ Analyze the provided class timetable and academic calendar images or PDF documen
     }
 
     const candidateModels = [
+      'gemini-3.5-flash',
       'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'gemini-1.5-flash-8b'
+      'gemini-1.5-flash'
     ];
 
     let response = null;
