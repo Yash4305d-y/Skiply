@@ -9,8 +9,9 @@ export async function getVirtualEmail(username: string): Promise<string> {
   return `${sanitized}.skiply.app@gmail.com`;
 }
 
-export async function signUpWithUniqueId(arg1: unknown, arg2?: FormData) {
-  const formData = arg2 instanceof FormData ? arg2 : (arg1 instanceof FormData ? arg1 : new FormData());
+export async function signUpWithUniqueId(arg1: any, arg2?: FormData) {
+  const isFormData = (obj: any) => obj && typeof obj === 'object' && typeof obj.get === 'function';
+  const formData = isFormData(arg2) ? arg2 : (isFormData(arg1) ? arg1 : new FormData());
   const supabase = await createClient();
   
   const usernameRaw = (formData.get('username') || formData.get('uniqueId') || formData.get('studentId')) as string;
@@ -31,6 +32,7 @@ export async function signUpWithUniqueId(arg1: unknown, arg2?: FormData) {
   }
 
   const virtualEmail = await getVirtualEmail(sanitizedId);
+  console.log('SIGNUP ATTEMPT:', { usernameRaw, sanitizedId, virtualEmail });
 
   const { error } = await supabase.auth.signUp({
     email: virtualEmail,
@@ -47,18 +49,20 @@ export async function signUpWithUniqueId(arg1: unknown, arg2?: FormData) {
   });
 
   if (error) {
-    if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('exists')) {
+    console.error('SUPABASE SIGNUP ERROR:', error);
+    if (error.message && (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('exists'))) {
       return { error: 'This Username / Student ID is already registered. Please switch to the Login tab or try another username.' };
     }
-    return { error: error.message };
+    return { error: error.message || JSON.stringify(error) || 'Unknown signup error' };
   }
 
   const redirectTo = (formData.get('redirectTo') as string) || '/dashboard';
   redirect(redirectTo);
 }
 
-export async function signInWithUniqueId(arg1: unknown, arg2?: FormData) {
-  const formData = arg2 instanceof FormData ? arg2 : (arg1 instanceof FormData ? arg1 : new FormData());
+export async function signInWithUniqueId(arg1: any, arg2?: FormData) {
+  const isFormData = (obj: any) => obj && typeof obj === 'object' && typeof obj.get === 'function';
+  const formData = isFormData(arg2) ? arg2 : (isFormData(arg1) ? arg1 : new FormData());
   const supabase = await createClient();
   
   const usernameRaw = (formData.get('username') || formData.get('uniqueId') || formData.get('studentId')) as string;
@@ -70,6 +74,7 @@ export async function signInWithUniqueId(arg1: unknown, arg2?: FormData) {
 
   const sanitizedId = usernameRaw.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '');
   const virtualEmail = await getVirtualEmail(sanitizedId);
+  console.log('SIGNIN ATTEMPT:', { usernameRaw, sanitizedId, virtualEmail });
 
   const { error } = await supabase.auth.signInWithPassword({
     email: virtualEmail,
@@ -77,6 +82,7 @@ export async function signInWithUniqueId(arg1: unknown, arg2?: FormData) {
   });
 
   if (error) {
+    console.error('SUPABASE SIGNIN ERROR:', error);
     return { error: 'Invalid Username / Student ID or password. Please verify your credentials and try again.' };
   }
 
