@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { 
   History as HistoryIcon, Search, Filter, Trash2, Edit2, Check, X, Ban, 
   ArrowRightLeft, Calendar as CalendarIcon, Grid, List, ChevronLeft, ChevronRight,
   ShieldCheck, AlertTriangle 
 } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { AttendanceLog, Subject, TimetableSlot, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { calculateRemainingLectures, calculateSubjectStats, calculateConductedTillDate } from '@/lib/math-engine';
 
@@ -133,6 +134,15 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
     ? logs.filter(l => l.log_date === selectedDayModal && (filterSubject === 'ALL' || l.subject_id === filterSubject))
     : [];
 
+  // Table Virtualizer
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: filteredLogs.length,
+    getScrollElement: () => tableContainerRef.current,
+    estimateSize: () => 73, // Approximate height of a row
+    overscan: 5,
+  });
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -206,11 +216,10 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
             const isSelected = filterSubject === s.id;
 
             return (
-              <motion.div
+              <div
                 key={s.id}
-                whileHover={{ scale: 1.02 }}
                 onClick={() => openSubjectModal(s.id)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                className={`p-3.5 rounded-xl border cursor-pointer flex flex-col justify-between gap-3 ${
                   isSelected 
                     ? 'bg-slate-800 border-teal-500/50 ring-1 ring-teal-500/50 shadow-sm' 
                     : 'bg-slate-900 border-white/5 hover:border-white/10 hover:bg-slate-800/50'
@@ -267,7 +276,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                     <span className="text-emerald-400 flex items-center gap-0.5 font-bold">↑ Stable</span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -378,11 +387,10 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
               const isToday = cell.dateStr === new Date().toISOString().split('T')[0];
 
               return (
-                <motion.div
+                <div
                   key={cell.dateStr}
-                  whileHover={{ scale: 1.02 }}
                   onClick={() => openDayModal(cell.dateStr!)}
-                  className={`min-h-[90px] p-2 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${
+                  className={`min-h-[90px] p-2 rounded-xl border cursor-pointer flex flex-col justify-between ${
                     isToday ? 'bg-slate-800/40 border-teal-500/30 ring-1 ring-teal-500/20' :
                     dayLogs.length > 0 ? 'bg-slate-900 border-white/5 hover:border-white/10' :
                     'bg-slate-900/30 border-white/5 hover:bg-slate-800/30'
@@ -421,7 +429,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                       </span>
                     )}
                   </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -436,49 +444,64 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
               <p className="text-xs">Try adjusting your filters or searching for a different keyword.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-900/70 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                    <th className="p-4 font-semibold">Date</th>
-                    <th className="p-4 font-semibold">Subject</th>
-                    <th className="p-4 font-semibold">Time Slot</th>
-                    <th className="p-4 font-semibold">Status</th>
-                    <th className="p-4 font-semibold text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800 text-xs">
-                  {filteredLogs.map(log => {
+            <div 
+              ref={tableContainerRef} 
+              className="overflow-auto max-h-[600px] w-full custom-scrollbar relative"
+            >
+              <div className="min-w-[800px] text-left">
+                {/* Fixed Header */}
+                <div className="flex items-center bg-slate-900/95 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800 sticky top-0 z-10 backdrop-blur-sm shadow-sm">
+                  <div className="p-4 font-semibold w-32 shrink-0">Date</div>
+                  <div className="p-4 font-semibold flex-1 min-w-[200px]">Subject</div>
+                  <div className="p-4 font-semibold w-48 shrink-0">Time Slot</div>
+                  <div className="p-4 font-semibold w-56 shrink-0">Status</div>
+                  <div className="p-4 font-semibold w-32 shrink-0 text-right">Actions</div>
+                </div>
+
+                {/* Virtualized Body */}
+                <div className="divide-y divide-slate-800/50 text-xs relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+                  {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                    const log = filteredLogs[virtualRow.index];
                     const sub = subjects.find(s => s.id === log.subject_id);
                     const slot = slots.find(sl => sl.id === log.timetable_slot_id);
                     const isEditing = editingLogId === log.id;
 
                     return (
-                      <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
-                        <td className="p-4 font-mono font-medium text-slate-300">
+                      <div 
+                        key={log.id} 
+                        className="flex items-center hover:bg-slate-800/40 transition-colors absolute w-full top-0 left-0"
+                        style={{
+                          height: `${virtualRow.size}px`,
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                      >
+                        <div className="p-4 font-mono font-medium text-slate-300 w-32 shrink-0">
                           {log.log_date}
-                        </td>
-                        <td className="p-4">
+                        </div>
+                        
+                        <div className="p-4 flex-1 min-w-[200px]">
                           {sub ? (
                             <div className="flex items-center gap-2">
                               <span 
-                                className="px-2 py-0.5 rounded text-[11px] font-bold text-white" 
+                                className="px-2 py-0.5 rounded text-[11px] font-bold text-white shrink-0" 
                                 style={{ backgroundColor: sub.color_hex || '#6366f1' }}
                               >
                                 {sub.subject_code}
                               </span>
-                              <span className="font-semibold text-white">{sub.subject_name}</span>
+                              <span className="font-semibold text-white truncate">{sub.subject_name}</span>
                             </div>
                           ) : (
                             <span className="text-slate-400 italic">Unknown Subject</span>
                           )}
-                        </td>
-                        <td className="p-4 text-slate-400">
+                        </div>
+
+                        <div className="p-4 text-slate-400 w-48 shrink-0">
                           {slot ? `${slot.start_time} - ${slot.end_time}` : 'Manual / Custom Slot'}
-                        </td>
-                        <td className="p-4">
+                        </div>
+
+                        <div className="p-4 w-56 shrink-0">
                           {isEditing ? (
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               {(['PRESENT', 'ABSENT', 'CANCELLED', 'SWAPPED'] as AttendanceStatus[]).map(st => (
                                 <button
                                   key={st}
@@ -486,8 +509,8 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                                     onUpdateLog(log.id, st);
                                     setEditingLogId(null);
                                   }}
-                                  className={`px-2 py-1 rounded text-[10px] font-bold ${
-                                    log.status === st ? 'bg-teal-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+                                  className={`px-2 py-1 rounded text-[10px] font-bold transition-all ${
+                                    log.status === st ? 'bg-teal-600 text-white shadow-sm' : 'bg-slate-800 text-slate-400 hover:text-white'
                                   }`}
                                 >
                                   {st}
@@ -497,12 +520,13 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                           ) : (
                             getStatusBadge(log.status)
                           )}
-                        </td>
-                        <td className="p-4 text-right">
+                        </div>
+
+                        <div className="p-4 w-32 shrink-0 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => setEditingLogId(isEditing ? null : log.id)}
-                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
                               aria-label="Edit status"
                               title="Edit status"
                             >
@@ -514,19 +538,19 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                                   onDeleteLog(log.timetable_slot_id || '', log.log_date);
                                 }
                               }}
-                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/50 text-slate-400 hover:text-rose-400 transition-colors"
+                              className="p-2 rounded-lg bg-slate-800 hover:bg-rose-900/50 text-slate-400 hover:text-rose-400 transition-colors"
                               aria-label="Delete log"
                               title="Delete log"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                        </td>
-                      </tr>
+                        </div>
+                      </div>
                     );
                   })}
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -535,11 +559,12 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
       {/* INTERACTIVE DAY DRAWER / MODAL */}
       <AnimatePresence>
         {selectedDayModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
+            <m.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="glass-card w-full max-w-lg p-6 rounded-2xl border border-white/10 space-y-6 bg-slate-950 shadow-2xl"
             >
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
@@ -623,17 +648,18 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                   Done
                 </button>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
 
         {/* Subject Details & AI Prediction Modal */}
         {selectedSubjectModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90">
+            <m.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="bg-slate-950 border border-white/10 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-5"
             >
               {(() => {
@@ -792,7 +818,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                   </>
                 );
               })()}
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>

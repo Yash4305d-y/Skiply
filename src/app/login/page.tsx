@@ -2,14 +2,15 @@
 
 import React, { useState, useTransition } from 'react';
 import NextLink from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Sparkles, User, Lock, ArrowRight, AlertCircle, Loader2, ArrowLeft, ShieldCheck, HelpCircle } from 'lucide-react';
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { signInWithUniqueId, signUpWithUniqueId } from '@/actions/auth';
 
 function LoginContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const redirectParam = searchParams.get('redirect') || '/dashboard';
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -21,6 +22,11 @@ function LoginContent() {
   const [password, setPassword] = useState('');
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date(new Date().getTime() + 86400000 * 120).toISOString().split('T')[0]);
+
+  // Pre-fetch the destination immediately after mount in the background
+  React.useEffect(() => {
+    router.prefetch(redirectParam);
+  }, [router, redirectParam]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +78,7 @@ function LoginContent() {
         </NextLink>
       </div>
 
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
@@ -110,10 +116,10 @@ function LoginContent() {
               }`}
             >
               {activeTab === 'login' && (
-                <motion.div
+                <m.div
                   layoutId="activeTabIndicator"
                   className="absolute inset-0 bg-slate-800 rounded-lg border border-white/5"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 />
               )}
               <span className="relative z-10">Log In</span>
@@ -132,10 +138,10 @@ function LoginContent() {
               }`}
             >
               {activeTab === 'register' && (
-                <motion.div
+                <m.div
                   layoutId="activeTabIndicator"
                   className="absolute inset-0 bg-slate-800 rounded-lg border border-white/5"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
                 />
               )}
               <span className="relative z-10">Register</span>
@@ -145,7 +151,7 @@ function LoginContent() {
           {/* Inline Error Banner */}
           <AnimatePresence mode="wait">
             {errorMsg && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, height: 0, y: -10 }}
                 animate={{ opacity: 1, height: 'auto', y: 0 }}
                 exit={{ opacity: 0, height: 0, y: -10 }}
@@ -153,7 +159,7 @@ function LoginContent() {
               >
                 <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
@@ -189,7 +195,7 @@ function LoginContent() {
             {/* Full Name & Dates (Only in Register Tab) */}
             <AnimatePresence mode="wait">
               {activeTab === 'register' && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
@@ -247,7 +253,7 @@ function LoginContent() {
                       />
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
@@ -306,7 +312,7 @@ function LoginContent() {
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
           </NextLink>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

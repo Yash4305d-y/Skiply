@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { 
   UploadCloud, Sparkles, CheckCircle2, AlertTriangle, 
   Calendar, Clock, BookOpen, ArrowRight, ArrowLeft, 
@@ -295,22 +295,22 @@ export default function OnboardingWizard() {
       {/* Floating Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl bg-success text-white font-bold text-sm shadow-2xl flex items-center gap-2.5 border border-emerald-400"
           >
-            <CheckCircle2 className="w-5 h-5 animate-bounce" />
+            <CheckCircle2 className="w-5 h-5" />
             <span>{toastMessage}</span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Wizard Header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-4">
-          <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+          <Sparkles className="w-3.5 h-3.5" />
           <span>AI Onboarding Wizard</span>
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
@@ -352,7 +352,7 @@ export default function OnboardingWizard() {
       <AnimatePresence mode="wait">
         {/* STEP 1: UPLOAD */}
         {step === 'UPLOAD' && (
-          <motion.div 
+          <m.div 
             key="step-upload"
             initial={{ opacity: 0, y: 15 }} 
             animate={{ opacity: 1, y: 0 }} 
@@ -531,12 +531,12 @@ export default function OnboardingWizard() {
                 <span>Extract With AI</span>
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* STEP 2: PROCESSING */}
         {step === 'PROCESSING' && (
-          <motion.div 
+          <m.div 
             key="step-processing"
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
@@ -544,7 +544,7 @@ export default function OnboardingWizard() {
             className="glass-card p-12 rounded-2xl text-center space-y-6 max-w-md mx-auto my-12 border-white/5"
           >
             <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border border-teal-500/20 animate-ping" />
+              <div className="absolute inset-0 rounded-full border border-teal-500/20 animate-pulse" />
               <div className="w-16 h-16 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400">
                 <RefreshCw className="w-8 h-8 animate-spin" />
               </div>
@@ -555,12 +555,12 @@ export default function OnboardingWizard() {
                 {isMocking ? 'Simulating extraction of 5 subjects, 11 weekly slots, and 3 holidays...' : 'Analyzing grid columns, resolving course abbreviations, and mapping lab hours...'}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* STEP 3: INTERACTIVE REVIEW GRID */}
         {step === 'REVIEW' && (
-          <motion.div 
+          <m.div 
             key="step-review"
             initial={{ opacity: 0, y: 15 }} 
             animate={{ opacity: 1, y: 0 }} 
@@ -849,12 +849,12 @@ export default function OnboardingWizard() {
                 )}
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {/* STEP 4: SUCCESS */}
         {step === 'SUCCESS' && (
-          <motion.div 
+          <m.div 
             key="step-success"
             initial={{ opacity: 0, scale: 0.95 }} 
             animate={{ opacity: 1, scale: 1 }} 
@@ -869,7 +869,7 @@ export default function OnboardingWizard() {
                 Redirecting you to your daily dashboard and safe skip calculator...
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

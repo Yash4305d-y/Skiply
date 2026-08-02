@@ -41,14 +41,17 @@
   }
 
   .glass-card-hover {
-    transition: all 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                opacity 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                border-color 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .glass-card-hover:hover {
     transform: translateY(-4px);
     background: rgba(15, 23, 42, 0.6);
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 
-      0 12px 24px -8px rgba(0, 0, 0, 0.2), 
+      0 8px 16px -4px rgba(0, 0, 0, 0.2), 
       0 4px 8px -4px rgba(0, 0, 0, 0.1),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
@@ -88,20 +91,16 @@
   
   /* Buttons (Normal: 200ms) */
   .btn-interactive {
-    transition: all 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                opacity 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
     transform-origin: center;
     cursor: pointer;
   }
   .btn-interactive:hover:not(:disabled) {
     transform: translateY(-2px);
-    filter: brightness(1.05);
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.15);
   }
   .btn-interactive:active:not(:disabled) {
     transform: scale(0.97);
-    filter: brightness(1);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
   }
   .btn-interactive:disabled {
     opacity: 0.5;
@@ -115,15 +114,15 @@
 
   /* Cards (Cards: 250ms) */
   .card-interactive {
-    transition: all 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                opacity 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 250ms cubic-bezier(0.2, 0.8, 0.2, 1),
+                border-color 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
     transform-origin: center;
   }
   .card-interactive:hover {
     transform: translateY(-4px);
-    box-shadow: 
-      0 16px 32px -8px rgba(0, 0, 0, 0.3), 
-      0 4px 8px -4px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.25);
     background: rgba(15, 23, 42, 0.6);
     border-color: rgba(255, 255, 255, 0.1);
   }
@@ -133,11 +132,12 @@
 
   /* Icons (Fast: 150ms) */
   .icon-interactive {
-    transition: all 150ms ease-out;
+    transition: transform 150ms ease-out,
+                opacity 150ms ease-out,
+                color 150ms ease-out;
     cursor: pointer;
   }
   .icon-interactive:hover {
-    filter: brightness(1.2);
     color: var(--color-primary);
   }
   .icon-interactive:active {
@@ -146,7 +146,10 @@
 
   /* Navigation Items (Normal: 200ms) */
   .nav-item-interactive {
-    transition: all 200ms ease-out;
+    transition: transform 200ms ease-out,
+                opacity 200ms ease-out,
+                background-color 200ms ease-out,
+                color 200ms ease-out;
     position: relative;
   }
   .nav-item-interactive:hover {
@@ -160,7 +163,8 @@
 
   /* Inputs (Normal: 200ms) */
   .input-interactive {
-    transition: all 200ms ease-out;
+    transition: border-color 200ms ease-out,
+                box-shadow 200ms ease-out;
   }
   .input-interactive:hover {
     border-color: rgba(255, 255, 255, 0.2);
@@ -173,13 +177,27 @@
 
   /* Links (Fast: 150ms) */
   .link-interactive {
-    transition: all 150ms ease-out;
+    transition: color 150ms ease-out,
+                opacity 150ms ease-out;
   }
   .link-interactive:hover {
     color: var(--color-primary);
     opacity: 0.9;
   }
 
+  /* --- LOW PERFORMANCE MODE --- */
+  /* Applied via class on <html> by PerformanceTierProvider */
+  .low-perf .glass-card {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .low-perf .glass-header {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* --- REDUCED MOTION --- */
   @media (prefers-reduced-motion: reduce) {
     .btn-interactive, .card-interactive, .glass-card-hover, 
     .icon-interactive, .nav-item-interactive, .input-interactive, 
@@ -187,6 +205,10 @@
       transition: none !important;
       transform: none !important;
     }
+
+    /* Disable Tailwind keyframe animations */
+    .animate-pulse, .animate-spin, .animate-bounce, .animate-ping {
+      animation: none !important;
+    }
   }
 }
-

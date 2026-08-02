@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Check, X, Ban, RefreshCw, MapPin, Clock, AlertTriangle, ShieldCheck, ArrowRightLeft } from 'lucide-react';
 import { DailyClassItem, AttendanceStatus, Subject } from '@/types';
 
@@ -33,8 +33,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
   };
 
   return (
-    <motion.div 
-      layout
+    <m.div 
       variants={{
         hidden: { opacity: 0, y: 12 },
         show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
@@ -176,11 +175,11 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
       {/* Inline Swap Sheet */}
       <AnimatePresence>
         {isSwapping && !isMarked && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
+          <m.div 
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
           >
             <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Select Swapped Class</span>
@@ -205,9 +204,9 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 </button>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }
