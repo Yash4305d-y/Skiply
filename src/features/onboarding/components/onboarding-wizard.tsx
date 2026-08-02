@@ -361,26 +361,7 @@ export default function OnboardingWizard() {
             exit={{ opacity: 0, y: -15 }}
             className="space-y-6"
           >
-            {/* Quick Demo Button */}
-            <div className="glass-card premium-gradient-border p-4 rounded-2xl bg-slate-900/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">Want to test instantly without uploading?</h3>
-                  <p className="text-xs text-slate-400">Try our AI Demo Mode with pre-loaded college timetable & calendar images.</p>
-                </div>
-              </div>
-              <button 
-                type="button"
-                onClick={() => startAIProcessing(true)}
-                className="btn-interactive w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm shadow-sm flex items-center justify-center gap-2"
-              >
-                <span>⚡ Auto-Fill Demo Schedule</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+
 
             {/* Upload Grids */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

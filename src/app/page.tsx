@@ -136,29 +136,26 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-              
-              {/* DESKTOP ONLY: Interactive Demo */}
-              <NextLink href="/dashboard" className="hidden sm:block outline-none w-full sm:w-auto rounded-xl">
-                <m.div
-                  whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
-                  whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                  transition={{ duration: 0.2 }}
-                  className="btn-interactive w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25 group"
-                >
-                  <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
-                  <span>Interactive Demo</span>
+              {isLoggedIn ? (
+                <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
                   <m.div
+                    whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
+                    whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                     transition={{ duration: 0.2 }}
-                    className="group-hover:translate-x-1"
+                    className="btn-interactive w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25 group"
                   >
-                    <ArrowRight className="w-4 h-4" />
+                    <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
+                    <span>Dashboard</span>
+                    <m.div
+                      transition={{ duration: 0.2 }}
+                      className="group-hover:translate-x-1"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                    </m.div>
                   </m.div>
-                </m.div>
-              </NextLink>
-
-              {/* MOBILE ONLY: Sign In (Only if not logged in) */}
-              {!isLoggedIn && (
-                <NextLink href="/login" className="sm:hidden outline-none block w-full rounded-xl">
+                </NextLink>
+              ) : (
+                <NextLink href="/login" className="outline-none block w-full sm:w-auto rounded-xl">
                   <m.div
                     whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
                     whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
@@ -176,18 +173,6 @@ export default function Home() {
                   </m.div>
                 </NextLink>
               )}
-
-              <NextLink href="/onboarding" className="outline-none block w-full sm:w-auto rounded-xl">
-                <m.div
-                  whileHover={shouldReduceMotion ? {} : { border: "1px solid rgba(94,234,212,0.4)", backgroundColor: "rgba(30,41,59,0.8)" }}
-                  whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                  transition={{ duration: 0.2 }}
-                  className="btn-interactive w-full px-8 py-3.5 rounded-xl bg-slate-900 text-white font-semibold text-base border border-slate-700 flex items-center justify-center gap-2 hover:bg-slate-800 shadow-md group"
-                >
-                  <UploadCloud className="w-4 h-4 text-[#5EEAD4] group-hover:scale-110 transition-transform" />
-                  <span>Start AI Setup</span>
-                </m.div>
-              </NextLink>
             </div>
 
             {/* Dashboard Preview Component */}
@@ -327,35 +312,40 @@ export default function Home() {
                 Ready to take control of your attendance?
               </h2>
               <p className="text-slate-400 text-sm sm:text-base max-w-lg mx-auto">
-                Try our pre-loaded college schedule right now in Demo Mode, or upload your own timetable in under a minute.
+                Sign in to manage your attendance and see exactly how many classes you can skip.
               </p>
               <div className="pt-6 flex flex-col sm:flex-row justify-center gap-4">
-                <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
-                  <m.div
-                    whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
-                    whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                    transition={{ duration: 0.2 }}
-                    className="w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 group shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25"
-                  >
-                    <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
-                    <span>Launch Demo Dashboard</span>
-                    <m.div transition={{ duration: 0.2 }} className="group-hover:translate-x-1 hidden sm:block">
-                      <ArrowRight className="w-4 h-4" />
+                {isLoggedIn ? (
+                  <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
+                    <m.div
+                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
+                      whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 group shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25"
+                    >
+                      <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
+                      <span>Dashboard</span>
+                      <m.div transition={{ duration: 0.2 }} className="group-hover:translate-x-1 hidden sm:block">
+                        <ArrowRight className="w-4 h-4" />
+                      </m.div>
                     </m.div>
-                  </m.div>
-                </NextLink>
-
-                <NextLink href="/onboarding" className="outline-none block w-full sm:w-auto rounded-xl">
-                  <m.div
-                    whileHover={shouldReduceMotion ? {} : { border: "1px solid rgba(94,234,212,0.4)", backgroundColor: "rgba(30,41,59,0.8)" }}
-                    whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                    transition={{ duration: 0.2 }}
-                    className="w-full px-8 py-3.5 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center gap-2 border border-slate-700 shadow-md hover:bg-slate-800 group"
-                  >
-                    <Sparkles className="w-4 h-4 text-[#5EEAD4] group-hover:scale-110 transition-transform" />
-                    <span>AI Timetable Upload</span>
-                  </m.div>
-                </NextLink>
+                  </NextLink>
+                ) : (
+                  <NextLink href="/login" className="outline-none block w-full sm:w-auto rounded-xl">
+                    <m.div
+                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
+                      whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 group shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25"
+                    >
+                      <LogIn className="w-4 h-4 text-teal-600" />
+                      <span>Sign In</span>
+                      <m.div transition={{ duration: 0.2 }} className="group-hover:translate-x-1 hidden sm:block">
+                        <ArrowRight className="w-4 h-4" />
+                      </m.div>
+                    </m.div>
+                  </NextLink>
+                )}
               </div>
             </div>
           </m.div>
