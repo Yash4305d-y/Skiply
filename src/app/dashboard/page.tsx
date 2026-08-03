@@ -383,38 +383,6 @@ export default function DashboardPage() {
           }
         }}
       >
-        {/* Onboarding Banner if not onboarded yet */}
-        <AnimatePresence>
-        {!isOnboardedInDemo() && (
-          <m.div 
-            variants={{
-              hidden: { opacity: 0, y: 12 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
-            }}
-            className="glass-card card-interactive premium-gradient-border p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm mb-8"
-          >
-            <div className="flex items-center gap-3.5">
-              <div className="p-3 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-base">You are currently using sample demo data!</h3>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  Want to track your own university schedule? Use our Vision AI wizard to upload your timetable and calendar in seconds.
-                </p>
-              </div>
-            </div>
-
-            <NextLink
-              href="/onboarding"
-              className="btn-interactive px-5 py-2.5 rounded-xl bg-slate-50 text-slate-950 font-semibold text-base flex items-center gap-2 shadow-sm whitespace-nowrap"
-            >
-              <span>⚡ Start AI Setup</span>
-              <ArrowRight className="w-4 h-4" />
-            </NextLink>
-          </m.div>
-        )}
-        </AnimatePresence>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT COLUMN: HERO STATS & GOALS */}
