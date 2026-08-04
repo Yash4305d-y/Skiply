@@ -42,7 +42,7 @@ export function calculateSubjectStats(
   // Formula 2: Safe Skips Available (from current standing)
   let safeSkips = 0;
   if (totalAvailable > 0 && targetDec > 0 && targetDec <= 1.0) {
-    safeSkips = Math.floor((present / targetDec) - totalAvailable);
+    safeSkips = Math.floor(totalAvailable * (1 - targetDec)) - effectiveAbsent;
   }
 
   let status: SafeSkipStatus = 'SAFE';
@@ -58,8 +58,8 @@ export function calculateSubjectStats(
       message = `Use caution: You can only skip ${safeSkips} more class(es) this semester while maintaining ${targetPct}%.`;
     } else {
       status = 'SAFE';
-      const futureTotal = totalAvailable + safeSkips;
-      const futurePct = futureTotal > 0 ? (present / futureTotal) * 100.0 : 100.0;
+      const finalPresent = totalAvailable - (effectiveAbsent + safeSkips);
+      const futurePct = totalAvailable > 0 ? (finalPresent / totalAvailable) * 100.0 : 100.0;
       message = `You can safely skip up to ${safeSkips} more class(es). If you skip ${safeSkips} class(es), your attendance will be ${Number(futurePct.toFixed(1))}%, keeping you safely above your ${targetPct}% requirement!`;
     }
   } else {

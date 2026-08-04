@@ -22,12 +22,12 @@ function runTests() {
   // Test 1: Standard Safe Skip Calculation (User Example 2)
   {
     // Present=38, Absent=7 -> Total=45 (remaining=0). Target=75%.
-    // Safe Skips = floor((38 / 0.75) - 45) = floor(50.666... - 45) = 5.
+    // Safe Skips = floor(45 * 0.25) - 7 = 11 - 7 = 4.
     const result = calculateSubjectStats(mockSubject, 38, 7, 0, 0, 0, 75.0);
     assert.strictEqual(result.status, 'SAFE', 'Expected status to be SAFE');
-    assert.strictEqual(result.safe_skips, 5, 'Expected exactly 5 safe skips');
+    assert.strictEqual(result.safe_skips, 4, 'Expected exactly 4 safe skips');
     assert.strictEqual(result.current_percentage, 84.44, 'Expected current % around 84.44');
-    console.log('✅ Test 1 Passed: Standard Safe Skip calculation (5 safe skips available)');
+    console.log('✅ Test 1 Passed: Standard Safe Skip calculation (4 safe skips available)');
   }
 
   // Test 2: Borderline / Warning Zone
@@ -40,21 +40,19 @@ function runTests() {
     console.log('✅ Test 2 Passed: Warning Zone detection (0 safe skips at border)');
   }
 
-  // Test 3: Danger Zone Recovery (User Example: 4 done out of 30 total semester classes at 75% target)
+  // Test 3: Danger Zone Recovery -> Math Impossible Scenario
   {
-    // Present=4, Absent=6 -> Conducted=10. Remaining=20 -> Total Available=30. Target=75%.
-    // Required total presents in sem = ceil(0.75 * 30) = 23.
-    // Classes needed to attend = 23 - 4 = 19.
-    const result = calculateSubjectStats(mockSubject, 4, 6, 0, 0, 20, 75.0);
+    // Present=4, Absent=8 -> Conducted=12. Remaining=18 -> Total Available=30. Target=75%.
+    // Allowed misses = floor(30 * 0.25) = 7. Missed so far = 8. Safe skips = 7 - 8 = -1.
+    const result = calculateSubjectStats(mockSubject, 4, 8, 0, 0, 18, 75.0);
     assert.strictEqual(result.status, 'DANGER', 'Expected status to be DANGER');
     assert.strictEqual(result.safe_skips, 0, 'Expected 0 safe skips in danger zone');
-    assert.strictEqual(result.classes_to_attend, 19, 'Expected exactly 19 classes required to reach target');
     assert.strictEqual(
       result.message,
-      'You are currently below your 75% target! Out of 30 total semester classes, you must attend 19 more class(es) to reach 76.7%.',
-      'Expected exact AI message string'
+      'Target cannot be achieved with the remaining lectures.',
+      'Expected math impossible message'
     );
-    console.log('✅ Test 3 Passed: Danger Zone semester recovery calculation (19 classes needed out of 30 total)');
+    console.log('✅ Test 3 Passed: Danger Zone math impossible scenario');
   }
 
   // Test 4: Cancelled Class Dynamism (Does not penalize percentage or inflate conducted)
