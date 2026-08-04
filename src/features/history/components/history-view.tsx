@@ -658,7 +658,7 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                             You can safely skip up to <strong className="text-white underline">{stats.safe_skips} more class(es)</strong>. 
                             If you skip {stats.safe_skips} class{stats.safe_skips !== 1 ? 'es' : ''}, your attendance will be{' '}
                             <strong className="font-mono text-white">
-                              {Math.round((stats.present / (stats.total_available + stats.safe_skips)) * 1000) / 10}%
+                              {Math.round(((stats.total_available - (stats.absent + stats.safe_skips)) / stats.total_available) * 1000) / 10}%
                             </strong>
                             , keeping you safely above your {targetPct}% requirement!
                           </>
