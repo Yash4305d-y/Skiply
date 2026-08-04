@@ -9,6 +9,7 @@ import { Sparkles, LayoutDashboard, History, LogOut, LogIn, Menu, X } from 'luci
 import { getDemoProfile } from '@/lib/demo-store';
 import { getCurrentUser, signOut } from '@/actions/auth';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
+import PushNotificationToggle from '@/components/fcm/push-notification-toggle';
 
 // Paths that require authentication
 const PROTECTED_PATHS = ['/dashboard', '/history', '/onboarding'];
@@ -18,6 +19,7 @@ export default function Navbar() {
   const router = useRouter();
   const { isLowEnd } = usePerformanceTier();
   const [userName, setUserName] = useState('Demo Student');
+  const [userId, setUserId] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -32,8 +34,10 @@ export default function Navbar() {
     getCurrentUser().then((user) => {
       if (user && user.full_name) {
         setUserName(`${user.full_name.split(' ')[0]} (${user.unique_id})`);
+        setUserId(user.id);
         setIsLoggedIn(true);
       } else {
+        setUserId(null);
         setIsLoggedIn(false);
         const prof = getDemoProfile();
         if (prof.full_name) setUserName(prof.full_name.split(' ')[0]);
@@ -149,14 +153,17 @@ export default function Navbar() {
 
           <div className="hidden md:block">
             {isLoggedIn ? (
-              <button
-                onClick={() => signOut()}
-                className="btn-interactive px-3 py-1.5 rounded-xl bg-transparent text-slate-400 hover:text-rose-400 border border-transparent flex items-center justify-center min-h-[44px] gap-1.5 text-base font-semibold shrink-0"
-                title="Sign Out"
-              >
-                <LogOut className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">Sign Out</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {userId && <PushNotificationToggle userId={userId} />}
+                <button
+                  onClick={() => signOut()}
+                  className="btn-interactive px-3 py-1.5 rounded-xl bg-transparent text-slate-400 hover:text-rose-400 border border-transparent flex items-center justify-center min-h-[44px] gap-1.5 text-base font-semibold shrink-0"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  <span className="whitespace-nowrap">Sign Out</span>
+                </button>
+              </div>
             ) : (
               <NextLink
                 href="/login"
