@@ -393,9 +393,6 @@ export default function HistoryView({ logs, subjects, slots, holidays, endDateSt
                     <span className={`text-xs font-bold ${isToday ? 'text-teal-400 bg-teal-500/20 px-1.5 py-0.5 rounded' : 'text-slate-300'}`}>
                       {cell.dayNum}
                     </span>
-                    {dayLogs.length > 0 && (
-                      <span className="text-[10px] text-slate-400 font-mono">{dayLogs.length} log{dayLogs.length > 1 ? 's' : ''}</span>
-                    )}
                   </div>
 
                   {/* Color-coded badges / dots */}
