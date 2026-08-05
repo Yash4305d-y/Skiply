@@ -14,7 +14,9 @@ import {
   saveDemoAttendanceLog, removeDemoAttendanceLog 
 } from '@/lib/demo-store';
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
+import NextLink from 'next/link';
+import Image from 'next/image';
 import { markAttendance, getSemesterData, removeAttendance } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 
@@ -56,16 +58,16 @@ export default function HistoryPage() {
           return;
         }
       } catch (e) {
-        console.log('Cloud getSemesterData fallback to Demo Store:', e);
+        console.log('Cloud getSemesterData error:', e);
       }
 
-      setSubjects(getDemoSubjects());
-      setSlots(getDemoTimetableSlots());
-      setLogs(getDemoAttendanceLogs());
-      setHolidays(getDemoHolidays());
-      setProfile(getDemoProfile());
+      setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
+      setSubjects([]);
+      setSlots([]);
+      setHolidays([]);
+      setLogs([]);
       setIsLoaded(true);
-      setIsDemoMode(true);
+      setIsDemoMode(false);
     }
     initData();
   }, []);
@@ -77,6 +79,30 @@ export default function HistoryPage() {
           <Sparkles className="w-5 h-5 text-teal-400 animate-spin" />
           <span>Loading Attendance Audit Logs...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (subjects.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+        <Navbar />
+        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+            <Image src="/nav-logo.png" alt="Skiply Logo" width={64} height={64} className="mx-auto mb-6 object-contain rounded-2xl shadow-lg" />
+            <h2 className="text-2xl font-bold text-white mb-4">Welcome to Skiply!</h2>
+            <p className="text-slate-400 mb-8 leading-relaxed">
+              Please upload your timetable and holiday list in the AI Onboarding tab to get started.
+            </p>
+            <NextLink 
+              href="/onboarding" 
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105 active:scale-95"
+            >
+              Go to AI Onboarding <ArrowRight className="w-4 h-4" />
+            </NextLink>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
