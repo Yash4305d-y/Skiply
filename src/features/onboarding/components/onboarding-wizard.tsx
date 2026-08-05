@@ -292,6 +292,19 @@ export default function OnboardingWizard() {
     setHolidays(prev => prev.map(h => h.temp_id === id ? { ...h, [field]: val } : h));
   };
 
+  // Add new rows
+  const addSubject = () => {
+    setSubjects(prev => [...prev, { temp_id: `new-sub-${Date.now()}`, subject_code: '', subject_name: '', is_lab: false, credit_hours: 3, confidence_score: 100 }]);
+  };
+
+  const addSlot = () => {
+    setSlots(prev => [...prev, { temp_id: `new-slot-${Date.now()}`, subject_temp_id: subjects[0]?.temp_id || '', day_of_week: 1, start_time: '09:00', end_time: '10:00', room_number: '', confidence_score: 100 }]);
+  };
+
+  const addHoliday = () => {
+    setHolidays(prev => [...prev, { temp_id: `new-hol-${Date.now()}`, holiday_date: new Date().toISOString().split('T')[0], description: '', is_exam_day: false, confidence_score: 100 }]);
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Floating Toast Notification */}
@@ -667,6 +680,14 @@ export default function OnboardingWizard() {
                       ))}
                     </tbody>
                   </table>
+                  <div className="p-4 border-t border-border flex justify-center bg-surface-secondary/20">
+                    <button 
+                      onClick={addSubject}
+                      className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium transition-colors bg-teal-500/10 px-4 py-2 rounded-lg border border-teal-500/20 hover:bg-teal-500/20"
+                    >
+                      <Plus className="w-4 h-4" /> Add Subject
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -752,6 +773,14 @@ export default function OnboardingWizard() {
                       })}
                     </tbody>
                   </table>
+                  <div className="p-4 border-t border-border flex justify-center bg-surface-secondary/20">
+                    <button 
+                      onClick={addSlot}
+                      className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium transition-colors bg-teal-500/10 px-4 py-2 rounded-lg border border-teal-500/20 hover:bg-teal-500/20"
+                    >
+                      <Plus className="w-4 h-4" /> Add Slot
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -801,6 +830,14 @@ export default function OnboardingWizard() {
                       ))}
                     </tbody>
                   </table>
+                  <div className="p-4 border-t border-border flex justify-center bg-surface-secondary/20">
+                    <button 
+                      onClick={addHoliday}
+                      className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium transition-colors bg-teal-500/10 px-4 py-2 rounded-lg border border-teal-500/20 hover:bg-teal-500/20"
+                    >
+                      <Plus className="w-4 h-4" /> Add Holiday
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
