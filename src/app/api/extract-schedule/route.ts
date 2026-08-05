@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI, Type } from '@google/genai';
+import OpenAI from 'openai';
 import { AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday } from '@/types';
 
+const Type = { OBJECT: 'object', ARRAY: 'array', STRING: 'string', INTEGER: 'integer', BOOLEAN: 'boolean' };
 // Mock parser for offline demonstration or when GEMINI_API_KEY is not configured
 function getMockExtractionResult(): AIParsingResult {
   return {
@@ -19,17 +20,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { timetableImage, calendarImage, useMock } = body;
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     // If mock requested or no API key, return mock extraction
-    if (useMock || !apiKey || apiKey === 'your-gemini-api-key-here' || apiKey.length < 10) {
+    if (useMock || !apiKey || apiKey.length < 10) {
       // Simulate slight network delay for realistic AI loading animation
       await new Promise(resolve => setTimeout(resolve, 2000));
       return NextResponse.json(getMockExtractionResult());
     }
 
-    // Initialize Google GenAI SDK
-    const ai = new GoogleGenAI({ apiKey });
+    // Initialize OpenAI SDK for OpenRouter
+    const openai = new OpenAI({ 
+      apiKey,
+      baseURL: 'https://openrouter.ai/api/v1'
+    });
 
     // Construct structured schema for Gemini Vision
     const responseSchema = {
@@ -93,34 +97,31 @@ Analyze the provided class timetable and academic calendar images or PDF documen
 1. Extract all subjects with codes, full titles, whether they are lab/practical sessions, and credit hours.
 2. Extract all weekly lecture timetable slots (0=Sunday to 6=Saturday) with start and end times in 24-hour HH:MM format. If a lab is a multi-hour block (e.g., 2:00 PM - 5:00 PM), represent it with start_time '14:00' and end_time '17:00'.
 3. Extract all holidays and non-instructional days from the academic calendar with exact dates in YYYY-MM-DD format.
-4. Assign a confidence score (0-100). For any low-resolution, blurry, or ambiguous text, add a descriptive warning starting with '⚠️ '.`;
+4. Assign a confidence score (0-100). For any low-resolution, blurry, or ambiguous text, add a descriptive warning starting with '⚠️ '.
+You MUST output valid JSON exactly matching this schema:
+${JSON.stringify(responseSchema)}`;
 
-    const contents: Array<string | Record<string, unknown>> = [prompt];
+    const messageContent: any[] = [
+      { type: 'text', text: prompt }
+    ];
     
-    // Add images or PDF documents if provided as base64
+    // Add images if provided as base64
     if (timetableImage && timetableImage.startsWith('data:')) {
-      const [mime, data] = timetableImage.split(';base64,');
-      contents.push({
-        inlineData: {
-          mimeType: mime.replace('data:', ''),
-          data: data
-        }
+      messageContent.push({
+        type: 'image_url',
+        image_url: { url: timetableImage, detail: 'high' }
       });
     }
     if (calendarImage && calendarImage.startsWith('data:')) {
-      const [mime, data] = calendarImage.split(';base64,');
-      contents.push({
-        inlineData: {
-          mimeType: mime.replace('data:', ''),
-          data: data
-        }
+      messageContent.push({
+        type: 'image_url',
+        image_url: { url: calendarImage, detail: 'high' }
       });
     }
 
     const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-2.5-pro'
+      'openrouter/free',
+      'nvidia/nemotron-nano-12b-v2-vl:free'
     ];
 
     let response = null;
@@ -128,14 +129,16 @@ Analyze the provided class timetable and academic calendar images or PDF documen
 
     for (const modelName of candidateModels) {
       try {
-        console.log(`Attempting schedule extraction with model: ${modelName}...`);
-        response = await ai.models.generateContent({
+        console.log(`Attempting schedule extraction with OpenRouter: ${modelName}...`);
+        response = await openai.chat.completions.create({
           model: modelName,
-          contents: contents,
-          config: {
-            responseMimeType: 'application/json',
-            responseSchema: responseSchema,
-            temperature: 0.2,
+          messages: [{ role: 'user', content: messageContent }],
+          temperature: 0.2,
+          response_format: { type: 'json_object' }
+        }, {
+          headers: {
+            "HTTP-Referer": "http://localhost:3000",
+            "X-Title": "Skiply"
           }
         });
         if (response) break; // Successfully generated!
@@ -145,19 +148,19 @@ Analyze the provided class timetable and academic calendar images or PDF documen
         const errMsg = err instanceof Error ? err.message : errStr;
         console.warn(`Model ${modelName} failed:`, errMsg);
 
-        // If rate limited (429 or RESOURCE_EXHAUSTED), wait 4 seconds before trying the next fallback model
-        if (errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED') || errMsg.includes('quota') || errMsg.includes('limit: 0')) {
-          console.log('Rate limit / quota detected. Waiting 4 seconds before trying next model in chain...');
+        // If rate limited wait 4 seconds
+        if (errMsg.includes('429')) {
+          console.log('Rate limit detected. Waiting 4 seconds before trying next model in chain...');
           await new Promise(res => setTimeout(res, 4000));
         }
       }
     }
 
     if (!response) {
-      throw lastError || new Error('All Gemini models in fallback chain failed to generate content.');
+      throw lastError || new Error('All OpenRouter models in fallback chain failed to generate content.');
     }
 
-    const jsonText = response.text || '{}';
+    const jsonText = response.choices[0]?.message?.content || '{}';
     const parsedData = JSON.parse(jsonText);
 
     return NextResponse.json({
