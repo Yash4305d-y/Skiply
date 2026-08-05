@@ -65,9 +65,15 @@ export async function GET(request: Request) {
       
     if (profileError) throw profileError;
 
+    // Idempotency check: Only fetch tokens that haven't been updated in the last 60 minutes.
+    // If Vercel triggers this cron multiple times within an hour, the first run will update the tokens' `updated_at`,
+    // causing subsequent runs to skip them.
+    const sixtyMinutesAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    
     const { data: fcmTokens, error: tokenError } = await supabase
       .from('fcm_tokens')
-      .select('user_id, token');
+      .select('id, user_id, token, updated_at')
+      .lt('updated_at', sixtyMinutesAgo);
 
     if (tokenError) throw tokenError;
 
@@ -103,53 +109,74 @@ export async function GET(request: Request) {
     // 9. Collect Tokens
     const targetTokensData = fcmTokens.filter(t => targetUserIds.includes(t.user_id));
     const tokenStrings = targetTokensData.map(t => t.token);
+    const tokenIds = targetTokensData.map(t => t.id);
 
     if (tokenStrings.length === 0) {
       return NextResponse.json({ success: true, sent: 0, reason: 'No tokens found for target users' });
     }
 
-    const message = {
-      notification: {
-        title,
-        body,
-      },
-      data: {
-        url: '/dashboard',
-      },
-      tokens: tokenStrings,
-    };
+    // 10. Send multi-cast with batching (max 500 per batch)
+    const BATCH_SIZE = 500;
+    let successCount = 0;
+    let failureCount = 0;
+    const failedTokens: string[] = [];
 
-    // 10. Send multi-cast
-    const response = await adminMessaging.sendEachForMulticast(message);
+    for (let i = 0; i < tokenStrings.length; i += BATCH_SIZE) {
+      const batchTokens = tokenStrings.slice(i, i + BATCH_SIZE);
+      const message = {
+        notification: {
+          title,
+          body,
+        },
+        data: {
+          url: '/dashboard',
+        },
+        tokens: batchTokens,
+      };
 
-    // 11. Clean up invalid tokens
-    if (response.failureCount > 0) {
-      const failedTokens: string[] = [];
-      response.responses.forEach((resp: any, idx: number) => {
-        if (!resp.success) {
-          const errorCode = resp.error?.code;
-          if (
-            errorCode === 'messaging/invalid-registration-token' ||
-            errorCode === 'messaging/registration-token-not-registered'
-          ) {
-            failedTokens.push(tokenStrings[idx]);
+      const response = await adminMessaging.sendEachForMulticast(message);
+      successCount += response.successCount;
+      failureCount += response.failureCount;
+
+      // 11. Clean up invalid tokens
+      if (response.failureCount > 0) {
+        response.responses.forEach((resp: any, idx: number) => {
+          if (!resp.success) {
+            const errorCode = resp.error?.code;
+            if (
+              errorCode === 'messaging/invalid-registration-token' ||
+              errorCode === 'messaging/registration-token-not-registered'
+            ) {
+              failedTokens.push(batchTokens[idx]);
+            }
           }
-        }
-      });
-
-      if (failedTokens.length > 0) {
-        await supabase
-          .from('fcm_tokens')
-          .delete()
-          .in('token', failedTokens);
-        console.log(`[Cron] Cleaned up ${failedTokens.length} invalid tokens.`);
+        });
       }
+    }
+
+    // Delete invalid tokens
+    if (failedTokens.length > 0) {
+      await supabase
+        .from('fcm_tokens')
+        .delete()
+        .in('token', failedTokens);
+      console.log(`[Cron] Cleaned up ${failedTokens.length} invalid tokens.`);
+    }
+
+    // 12. Update tokens for idempotency
+    // We update all target tokens so they aren't processed again if the cron runs twice within the hour.
+    if (tokenIds.length > 0) {
+      const nowIso = new Date().toISOString();
+      await supabase
+        .from('fcm_tokens')
+        .update({ updated_at: nowIso })
+        .in('id', tokenIds);
     }
 
     return NextResponse.json({
       success: true,
-      sentCount: response.successCount,
-      failureCount: response.failureCount,
+      sentCount: successCount,
+      failureCount,
       hour,
       date: currentDateStr
     });
