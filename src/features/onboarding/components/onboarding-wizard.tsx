@@ -383,7 +383,7 @@ export default function OnboardingWizard() {
                 <input 
                   type="file" 
                   aria-label="Upload class timetable"
-                  accept="image/*,.pdf,application/pdf"
+                  accept="image/png, image/jpeg, image/jpg"
                   onChange={(e) => handleFileChange(e, 'TIMETABLE')} 
                   className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 />
@@ -409,7 +409,7 @@ export default function OnboardingWizard() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">Upload Class Timetable</h4>
-                      <p className="text-xs text-slate-400 mt-1">PNG, JPG, or PDF document of notice board</p>
+                      <p className="text-xs text-slate-400 mt-1">PNG or JPG image of notice board</p>
                     </div>
                   </div>
                 )}
@@ -420,7 +420,7 @@ export default function OnboardingWizard() {
                 <input 
                   type="file" 
                   aria-label="Upload academic calendar"
-                  accept="image/*,.pdf,application/pdf"
+                  accept="image/png, image/jpeg, image/jpg"
                   onChange={(e) => handleFileChange(e, 'CALENDAR')} 
                   className="absolute inset-0 opacity-0 cursor-pointer z-10"
                 />
@@ -446,7 +446,7 @@ export default function OnboardingWizard() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white text-sm">Upload Holiday List</h4>
-                      <p className="text-xs text-slate-400 mt-1">PNG, JPG, or PDF document of college calendar</p>
+                      <p className="text-xs text-slate-400 mt-1">PNG or JPG image of college calendar</p>
                     </div>
                   </div>
                 )}
