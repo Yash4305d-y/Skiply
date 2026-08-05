@@ -77,17 +77,17 @@ export default function DashboardPage() {
           return;
         }
       } catch (e) {
-        console.log('Cloud getSemesterData fallback to Demo Store:', e);
+        console.log('Cloud getSemesterData error:', e);
       }
 
-      // Fallback to demo store if unauthenticated or offline
-      setProfile(getDemoProfile());
-      setSubjects(getDemoSubjects());
-      setSlots(getDemoTimetableSlots());
-      setHolidays(getDemoHolidays());
-      setLogs(getDemoAttendanceLogs());
+      // If no data exists, set empty state instead of demo mode
+      setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
+      setSubjects([]);
+      setSlots([]);
+      setHolidays([]);
+      setLogs([]);
       setIsLoaded(true);
-      setIsDemoMode(true);
+      setIsDemoMode(false);
     }
 
     initData();
@@ -181,6 +181,30 @@ export default function DashboardPage() {
           </div>
       </m.main>
     </div>
+    );
+  }
+
+  if (subjects.length === 0) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-950">
+        <Navbar />
+        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+            <Sparkles className="w-12 h-12 text-indigo-500 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-white mb-4">Welcome to Skiply!</h2>
+            <p className="text-slate-400 mb-8 leading-relaxed">
+              Please upload your timetable and holiday list in the AI Onboarding tab to get started.
+            </p>
+            <NextLink 
+              href="/onboarding" 
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105 active:scale-95"
+            >
+              Go to AI Onboarding <ArrowRight className="w-4 h-4" />
+            </NextLink>
+          </div>
+        </main>
+        <Footer />
+      </div>
     );
   }
 
