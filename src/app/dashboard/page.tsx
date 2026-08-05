@@ -21,6 +21,7 @@ import {
   AttendanceLog, AttendanceStatus, DailyClassItem 
 } from '@/types';
 import NextLink from 'next/link';
+import Image from 'next/image';
 import { Sparkles, ArrowRight, Calendar as CalendarIcon, Check, Settings, LogOut, Loader2, Link2, Database, Shield } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
 import { updateSemesterConfig } from '@/actions/db';
@@ -190,7 +191,7 @@ export default function DashboardPage() {
         <Navbar />
         <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-            <Sparkles className="w-12 h-12 text-indigo-500 mx-auto mb-6" />
+            <Image src="/nav-logo.png" alt="Skiply Logo" width={64} height={64} className="mx-auto mb-6 object-contain rounded-2xl shadow-lg" />
             <h2 className="text-2xl font-bold text-white mb-4">Welcome to Skiply!</h2>
             <p className="text-slate-400 mb-8 leading-relaxed">
               Please upload your timetable and holiday list in the AI Onboarding tab to get started.
