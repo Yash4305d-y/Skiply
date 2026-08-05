@@ -4,46 +4,13 @@ import { AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHolida
 
 // Mock parser for offline demonstration or when GEMINI_API_KEY is not configured
 function getMockExtractionResult(): AIParsingResult {
-  const subjects: AIExtractedSubject[] = [
-    { temp_id: 'sub-1', subject_code: 'CS-301', subject_name: 'Operating Systems & System Programming', is_lab: false, credit_hours: 4, confidence_score: 98 },
-    { temp_id: 'sub-2', subject_code: 'CS-301L', subject_name: 'Operating Systems Lab', is_lab: true, credit_hours: 2, confidence_score: 95 },
-    { temp_id: 'sub-3', subject_code: 'CS-302', subject_name: 'Database Management Systems (DBMS)', is_lab: false, credit_hours: 3, confidence_score: 99 },
-    { temp_id: 'sub-4', subject_code: 'MATH-301', subject_name: 'Probability & Applied Statistics', is_lab: false, credit_hours: 3, confidence_score: 97 },
-    { temp_id: 'sub-5', subject_code: 'HUM-201', subject_name: 'Engineering Ethics & Society', is_lab: false, credit_hours: 2, confidence_score: 72, warning: '⚠️ Check Subject Code (OCR ambiguous on notice board)' },
-  ];
-
-  const slots: AIExtractedSlot[] = [
-    // Monday
-    { temp_id: 'slot-1', subject_temp_id: 'sub-1', day_of_week: 1, start_time: '09:00', end_time: '10:00', room_number: 'LT-101', confidence_score: 98 },
-    { temp_id: 'slot-2', subject_temp_id: 'sub-3', day_of_week: 1, start_time: '10:15', end_time: '11:15', room_number: 'LT-204', confidence_score: 96 },
-    { temp_id: 'slot-3', subject_temp_id: 'sub-4', day_of_week: 1, start_time: '11:30', end_time: '12:30', room_number: 'LT-302', confidence_score: 95 },
-    // Tuesday (Lab day - multi hour block split or preserved)
-    { temp_id: 'slot-4', subject_temp_id: 'sub-2', day_of_week: 2, start_time: '14:00', end_time: '16:00', room_number: 'Lab-OS-2', confidence_score: 94 },
-    { temp_id: 'slot-5', subject_temp_id: 'sub-5', day_of_week: 2, start_time: '10:00', end_time: '11:00', room_number: 'Sem-Hall-B', confidence_score: 75, warning: '⚠️ Verify room number' },
-    // Wednesday
-    { temp_id: 'slot-6', subject_temp_id: 'sub-1', day_of_week: 3, start_time: '09:00', end_time: '10:00', room_number: 'LT-101', confidence_score: 99 },
-    { temp_id: 'slot-7', subject_temp_id: 'sub-3', day_of_week: 3, start_time: '10:15', end_time: '11:15', room_number: 'LT-204', confidence_score: 98 },
-    // Thursday
-    { temp_id: 'slot-8', subject_temp_id: 'sub-4', day_of_week: 4, start_time: '09:00', end_time: '10:00', room_number: 'LT-302', confidence_score: 97 },
-    { temp_id: 'slot-9', subject_temp_id: 'sub-5', day_of_week: 4, start_time: '11:00', end_time: '12:00', room_number: 'Sem-Hall-B', confidence_score: 80 },
-    // Friday
-    { temp_id: 'slot-10', subject_temp_id: 'sub-1', day_of_week: 5, start_time: '09:00', end_time: '10:00', room_number: 'LT-101', confidence_score: 99 },
-    { temp_id: 'slot-11', subject_temp_id: 'sub-3', day_of_week: 5, start_time: '10:15', end_time: '11:15', room_number: 'LT-204', confidence_score: 98 },
-  ];
-
-  const holidays: AIExtractedHoliday[] = [
-    { temp_id: 'hol-1', holiday_date: new Date(new Date().getTime() + 86400000 * 10).toISOString().split('T')[0], description: 'Autumn Mid-Term Break', is_exam_day: false, confidence_score: 99 },
-    { temp_id: 'hol-2', holiday_date: new Date(new Date().getTime() + 86400000 * 25).toISOString().split('T')[0], description: 'National Independence Day', is_exam_day: false, confidence_score: 98 },
-    { temp_id: 'hol-3', holiday_date: new Date(new Date().getTime() + 86400000 * 40).toISOString().split('T')[0], description: 'Mid-Semester Exam Prep Day', is_exam_day: true, confidence_score: 95 },
-  ];
-
   return {
     success: true,
     is_mock: true,
-    subjects,
-    timetable_slots: slots,
-    academic_holidays: holidays,
-    summary_message: 'Successfully extracted 5 subjects, 11 weekly timetable slots, and 3 holidays. Notice 1 item flagged for OCR review.',
+    subjects: [],
+    timetable_slots: [],
+    academic_holidays: [],
+    summary_message: 'AI is currently down , sorry for inconvenence but you can still use our app just by manually update',
   };
 }
 
@@ -151,9 +118,9 @@ Analyze the provided class timetable and academic calendar images or PDF documen
     }
 
     const candidateModels = [
-      'gemini-3.5-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-flash'
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-2.5-pro'
     ];
 
     let response = null;
@@ -204,9 +171,17 @@ Analyze the provided class timetable and academic calendar images or PDF documen
     // On API error, gracefully fall back to mock extraction so UI remains functional
     const fallback = getMockExtractionResult();
     const errMsg = error instanceof Error ? error.message : 'Unknown error';
+
+    let cleanMessage = 'AI API connectivity or key issue.';
+    if (errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED') || errMsg.includes('quota') || errMsg.includes('limit: 0')) {
+      cleanMessage = 'AI is currently down , sorry for inconvenence but you can still use our app just by manually update';
+    } else if (errMsg.includes('404')) {
+      cleanMessage = 'AI is currently down , sorry for inconvenence but you can still use our app just by manually update';
+    }
+
     return NextResponse.json({
       ...fallback,
-      summary_message: 'Used offline mock parser due to AI API connectivity or key issue: ' + errMsg,
+      summary_message: cleanMessage,
       raw_error: errMsg,
     });
   }
