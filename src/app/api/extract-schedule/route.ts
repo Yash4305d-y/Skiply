@@ -20,20 +20,18 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { timetableImage, calendarImage, useMock } = body;
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
-
+    // Initialize Google Gen AI
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    
     // If mock requested or no API key, return mock extraction
-    if (useMock || !apiKey || apiKey.length < 10) {
+    if (useMock || !geminiApiKey || geminiApiKey.length < 10) {
       // Simulate slight network delay for realistic AI loading animation
       await new Promise(resolve => setTimeout(resolve, 2000));
       return NextResponse.json(getMockExtractionResult());
     }
 
-    // Initialize OpenAI SDK for OpenRouter
-    const openai = new OpenAI({ 
-      apiKey,
-      baseURL: 'https://openrouter.ai/api/v1'
-    });
+    const { GoogleGenAI } = await import('@google/genai');
+    const ai = new GoogleGenAI({ apiKey: geminiApiKey });
 
     // Construct structured schema for Gemini Vision
     const responseSchema = {
@@ -98,69 +96,42 @@ Analyze the provided class timetable and academic calendar images or PDF documen
 2. Extract all weekly lecture timetable slots (0=Sunday to 6=Saturday) with start and end times in 24-hour HH:MM format. If a lab is a multi-hour block (e.g., 2:00 PM - 5:00 PM), represent it with start_time '14:00' and end_time '17:00'.
 3. Extract all holidays and non-instructional days from the academic calendar with exact dates in YYYY-MM-DD format.
 4. Assign a confidence score (0-100). For any low-resolution, blurry, or ambiguous text, add a descriptive warning starting with '⚠️ '.
-You MUST output valid JSON exactly matching this schema:
-${JSON.stringify(responseSchema)}`;
+You MUST output valid JSON exactly matching this schema.`;
 
-    const messageContent: any[] = [
-      { type: 'text', text: prompt }
-    ];
+    const messageContent: any[] = [ prompt ];
     
     // Add images if provided as base64
     if (timetableImage && timetableImage.startsWith('data:')) {
+      const [header, base64] = timetableImage.split(',');
+      const mimeType = header.replace('data:', '').replace(';base64', '');
       messageContent.push({
-        type: 'image_url',
-        image_url: { url: timetableImage, detail: 'high' }
+        inlineData: { data: base64, mimeType }
       });
     }
     if (calendarImage && calendarImage.startsWith('data:')) {
+      const [header, base64] = calendarImage.split(',');
+      const mimeType = header.replace('data:', '').replace(';base64', '');
       messageContent.push({
-        type: 'image_url',
-        image_url: { url: calendarImage, detail: 'high' }
+        inlineData: { data: base64, mimeType }
       });
     }
 
-    const candidateModels = [
-      'openrouter/free',
-      'nvidia/nemotron-nano-12b-v2-vl:free'
-    ];
-
-    let response = null;
-    let lastError = null;
-
-    for (const modelName of candidateModels) {
-      try {
-        console.log(`Attempting schedule extraction with OpenRouter: ${modelName}...`);
-        response = await openai.chat.completions.create({
-          model: modelName,
-          messages: [{ role: 'user', content: messageContent }],
-          temperature: 0.2,
-          response_format: { type: 'json_object' }
-        }, {
-          headers: {
-            "HTTP-Referer": "http://localhost:3000",
-            "X-Title": "Skiply"
-          }
-        });
-        if (response) break; // Successfully generated!
-      } catch (err: unknown) {
-        lastError = err;
-        const errStr = typeof err === 'object' ? JSON.stringify(err) : String(err);
-        const errMsg = err instanceof Error ? err.message : errStr;
-        console.warn(`Model ${modelName} failed:`, errMsg);
-
-        // If rate limited wait 4 seconds
-        if (errMsg.includes('429')) {
-          console.log('Rate limit detected. Waiting 4 seconds before trying next model in chain...');
-          await new Promise(res => setTimeout(res, 4000));
-        }
+    console.log(`Attempting schedule extraction with Gemini 3.5 Flash...`);
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash',
+      contents: messageContent,
+      config: {
+        temperature: 0.2,
+        responseMimeType: 'application/json',
+        responseSchema: responseSchema
       }
+    });
+
+    if (!response || !response.text) {
+      throw new Error('Gemini failed to generate content.');
     }
 
-    if (!response) {
-      throw lastError || new Error('All OpenRouter models in fallback chain failed to generate content.');
-    }
-
-    const jsonText = response.choices[0]?.message?.content || '{}';
+    const jsonText = response.text;
     const parsedData = JSON.parse(jsonText);
 
     return NextResponse.json({
