@@ -3,7 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import NextLink from 'next/link';
 import { m, AnimatePresence } from 'framer-motion';
-import { Sparkles, User, Lock, ArrowRight, AlertCircle, Loader2, ArrowLeft, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Fingerprint, User, Lock, ArrowRight, AlertCircle, Loader2, ArrowLeft, ShieldCheck, HelpCircle } from 'lucide-react';
 import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { signInWithUniqueId, signUpWithUniqueId } from '@/actions/auth';
@@ -87,7 +87,7 @@ function LoginContent() {
         {/* Brand Header */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 border border-white/5 text-teal-400 mb-2">
-            <Sparkles className="w-6 h-6" />
+            <Fingerprint className="w-6 h-6" />
           </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">
             {activeTab === 'login' ? 'Welcome back to Skiply' : 'Create your Skiply ID'}

@@ -22,7 +22,7 @@ import {
 } from '@/types';
 import NextLink from 'next/link';
 import Image from 'next/image';
-import { Sparkles, ArrowRight, Calendar as CalendarIcon, Check, Settings, LogOut, Loader2, Link2, Database, Shield } from 'lucide-react';
+import { ArrowRight, Calendar as CalendarIcon, Check, Settings, LogOut, Loader2, Link2, Database, Shield } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
 import { updateSemesterConfig } from '@/actions/db';
 import { updateDemoSemesterConfig } from '@/lib/demo-store';

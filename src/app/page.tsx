@@ -3,7 +3,7 @@
 import React from 'react';
 import NextLink from 'next/link';
 import { m, useScroll, useTransform, useReducedMotion, Variants } from 'framer-motion';
-import { Sparkles, ShieldCheck, Zap, UploadCloud, Calendar, Clock, ArrowRight, CheckCircle2, Flame, Smartphone, ChevronDown, LogIn } from 'lucide-react';
+import { BrainCircuit, Wand2, ShieldCheck, Zap, UploadCloud, Calendar, Clock, ArrowRight, CheckCircle2, Flame, Smartphone, ChevronDown, LogIn } from 'lucide-react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import { getCurrentUser } from '@/actions/auth';
@@ -120,7 +120,7 @@ export default function Home() {
               transition={{ duration: 0.2 }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-[#5EEAD4]/20 text-[#5EEAD4] text-[13px] font-semibold shadow-lg shadow-[#5EEAD4]/5 cursor-default"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <BrainCircuit className="w-3.5 h-3.5" />
               <span>AI-Powered Attendance Intelligence</span>
             </m.div>
 
@@ -234,7 +234,7 @@ export default function Home() {
           >
             {[
               {
-                icon: Sparkles,
+                icon: Wand2,
                 color: "text-teal-400",
                 title: "60-Second AI Setup",
                 desc: "Just snap a photo of your college notice board or timetable PDF. Gemini Vision OCR extracts course codes, titles, lab blocks, and exam holidays automatically."

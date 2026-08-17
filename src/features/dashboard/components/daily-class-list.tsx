@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle2, Sparkles, Sun } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, CheckCircle2, PartyPopper, Sun } from 'lucide-react';
 import { DailyClassItem, AttendanceStatus, Subject, AcademicHoliday } from '@/types';
 import ClassCard from './class-card';
 
@@ -201,7 +201,7 @@ export default function DailyClassList({
         {activeHoliday || isOutOfSemesterBounds ? null : items.length === 0 ? (
           <div className="glass-card p-12 rounded-2xl text-center space-y-4 border border-white/5 bg-slate-900/20">
             <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mx-auto text-slate-400 border border-white/5 shadow-inner">
-              <Sparkles className="w-8 h-8" />
+              <PartyPopper className="w-8 h-8" />
             </div>
             <div className="space-y-1">
               <h4 className="text-base font-bold text-white">No Lectures Scheduled</h4>
