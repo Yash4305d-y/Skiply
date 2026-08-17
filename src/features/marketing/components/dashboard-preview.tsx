@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { m, useInView, useReducedMotion, Variants } from 'framer-motion';
-import { TrendingUp, Sparkles, CheckCircle2, AlertCircle, XCircle, CircleDashed } from 'lucide-react';
+import { TrendingUp, Lightbulb, CheckCircle2, AlertCircle, XCircle, CircleDashed } from 'lucide-react';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { AnimatedRing } from '@/components/ui/animated-ring';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
@@ -255,7 +255,7 @@ export function DashboardPreview() {
           <m.div variants={itemVariants} className="p-4 rounded-xl bg-slate-900/40 border border-white/5 relative overflow-hidden flex flex-col">
             <div className={`absolute top-0 right-0 w-32 h-32 blur-[40px] rounded-full transition-colors duration-500 ${isWarning ? 'bg-rose-500/10' : 'bg-teal-500/10'}`} />
             <div className="flex items-center gap-2 mb-3">
-              <Sparkles className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-teal-400'}`} />
+              <Lightbulb className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-teal-400'}`} />
               <h3 className={`text-xs font-bold uppercase tracking-wider transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-teal-400'}`}>Attendra AI Insight</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed font-medium relative z-10 transition-all duration-300">

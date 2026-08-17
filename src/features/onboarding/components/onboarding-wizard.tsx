@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { m, AnimatePresence } from 'framer-motion';
 import { 
-  UploadCloud, Sparkles, CheckCircle2, AlertTriangle, 
+  UploadCloud, BrainCircuit, Wand2, CheckCircle2, AlertTriangle, 
   Calendar, Clock, BookOpen, ArrowRight, ArrowLeft, 
   Plus, Trash2, Edit3, Check, RefreshCw, Layers, FileText, Loader2
 } from 'lucide-react';
@@ -325,7 +325,7 @@ export default function OnboardingWizard() {
       {/* Wizard Header */}
       <div className="text-center mb-10">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-4">
-          <Sparkles className="w-3.5 h-3.5" />
+          <BrainCircuit className="w-3.5 h-3.5" />
           <span>AI Onboarding Wizard</span>
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
@@ -524,7 +524,7 @@ export default function OnboardingWizard() {
                     : 'bg-slate-50 text-slate-950'
                 }`}
               >
-                <Sparkles className="w-4 h-4" />
+                <Wand2 className="w-4 h-4" />
                 <span>Extract With AI</span>
               </button>
             </div>

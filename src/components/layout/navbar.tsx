@@ -5,7 +5,7 @@ import NextLink from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { m, AnimatePresence } from 'framer-motion';
-import { Sparkles, LayoutDashboard, History, LogOut, LogIn, Menu, X } from 'lucide-react';
+import { BrainCircuit, LayoutDashboard, History, LogOut, LogIn, Menu, X } from 'lucide-react';
 import { getDemoProfile } from '@/lib/demo-store';
 import { getCurrentUser, signOut } from '@/actions/auth';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
@@ -48,7 +48,7 @@ export default function Navbar() {
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'History & Audit', href: '/history', icon: History },
-    { name: 'AI Onboarding', href: '/onboarding', icon: Sparkles },
+    { name: 'AI Onboarding', href: '/onboarding', icon: BrainCircuit },
   ];
 
   return (
