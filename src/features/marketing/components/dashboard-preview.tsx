@@ -108,8 +108,9 @@ export function DashboardPreview() {
       ref={containerRef}
       variants={containerVariants}
       initial="hidden"
+      animate={isInView ? "show" : "hidden"}
       tabIndex={-1}
-      className="w-full max-w-5xl mx-auto mt-16 rounded-2xl overflow-hidden glass-card border border-white/10 shadow-2xl shadow-black/40 bg-slate-950/80 backdrop-blur-xl flex flex-col relative group focus:outline-none"
+      className="w-full max-w-5xl mx-auto rounded-2xl overflow-hidden glass-card border border-white/10 shadow-2xl shadow-black/40 bg-slate-950/80 backdrop-blur-xl flex flex-col relative group focus:outline-none"
     >
 
 

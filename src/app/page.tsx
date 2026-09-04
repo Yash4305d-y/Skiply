@@ -102,25 +102,25 @@ export default function Home() {
 
       <main className="flex-1 relative z-10 flex flex-col w-full">
         {/* HERO SECTION */}
-        <section className="relative flex-1 flex flex-col justify-between pt-12 md:pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <section className="relative flex-1 flex flex-col justify-between pt-8 md:pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
           {/* Main Hero Content (Centers in available space) */}
           <div className="relative z-10 flex-1 flex flex-col justify-center">
-            <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-8 w-full">
+            <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8 w-full">
             
             {/* Left Side: 60% Width */}
-            <div className="flex-1 lg:max-w-[55%] flex flex-col items-start text-left animate-in fade-in slide-in-from-bottom-4 duration-700 pt-8 lg:pt-16">
+            <div className="w-full lg:flex-1 lg:max-w-[55%] flex flex-col items-center text-center lg:items-start lg:text-left animate-in fade-in slide-in-from-bottom-4 duration-700 pt-8 lg:pt-16">
               {/* Pill Badge */}
               <m.div 
                 whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, backgroundColor: "rgba(15, 23, 42, 0.9)" }}
                 transition={{ duration: 0.2 }}
-                className="mb-10 inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 text-slate-300 text-[13px] font-semibold shadow-lg shadow-black/5 cursor-default"
+                className="mb-8 sm:mb-10 inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 text-slate-300 text-[11px] sm:text-[13px] font-medium sm:font-semibold shadow-lg shadow-black/5 cursor-default"
               >
-                <BrainCircuit className="w-3.5 h-3.5" />
+                <BrainCircuit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Attendance, automated.</span>
               </m.div>
 
               {/* Headline */}
-              <h1 className="mb-8 text-[40px] sm:text-[56px] md:text-[64px] lg:text-[72px] font-extrabold tracking-[-0.03em] text-white leading-[1.05] max-w-2xl">
+              <h1 className="mb-6 lg:mb-8 text-[36px] sm:text-[48px] md:text-[56px] lg:text-[72px] font-extrabold tracking-[-0.03em] text-white leading-[1.05] max-w-2xl">
                 Know exactly when you can <br className="hidden xl:block" /><span className="text-[#5EEAD4]">safely skip.</span>
               </h1>
 
@@ -130,22 +130,22 @@ export default function Home() {
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-start gap-4 w-full">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full">
                 {isLoggedIn ? (
                   <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
                     <m.div
                       whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, filter: "brightness(1.05)" }}
                       whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                       transition={{ duration: 0.2 }}
-                      className="btn-interactive w-full px-8 py-4 rounded-xl bg-slate-50 text-slate-950 font-bold text-base flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(94,234,212,0.2)] hover:shadow-[0_0_40px_rgba(94,234,212,0.4)] group"
+                      className="btn-interactive w-full px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-slate-50 text-slate-950 font-medium sm:font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_0_30px_rgba(94,234,212,0.2)] hover:shadow-[0_0_40px_rgba(94,234,212,0.4)] group"
                     >
-                      <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
+                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-teal-600 text-teal-600" />
                       <span>Open Dashboard</span>
                       <m.div
                         transition={{ duration: 0.2 }}
                         className="group-hover:translate-x-1"
                       >
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </m.div>
                     </m.div>
                   </NextLink>
@@ -155,15 +155,15 @@ export default function Home() {
                       whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, filter: "brightness(1.05)" }}
                       whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                       transition={{ duration: 0.2 }}
-                      className="btn-interactive w-full px-8 py-4 rounded-xl bg-slate-50 text-slate-950 font-bold text-base flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(94,234,212,0.2)] hover:shadow-[0_0_40px_rgba(94,234,212,0.4)] group"
+                      className="btn-interactive w-full px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-slate-50 text-slate-950 font-medium sm:font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_0_30px_rgba(94,234,212,0.2)] hover:shadow-[0_0_40px_rgba(94,234,212,0.4)] group"
                     >
-                      <LogIn className="w-4 h-4 text-teal-600" />
+                      <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600" />
                       <span>Get Started</span>
                       <m.div
                         transition={{ duration: 0.2 }}
                         className="group-hover:translate-x-1"
                       >
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </m.div>
                     </m.div>
                   </NextLink>
@@ -171,19 +171,19 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Side: 45% Width (Dashboard Preview) */}
-            <div className="w-full lg:w-[45%] flex-shrink-0 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 relative lg:translate-x-4">
+            {/* Right Side: 45% Width (Dashboard Preview) - Hidden on Mobile */}
+            <div className="hidden lg:block w-full lg:w-[45%] flex-shrink-0 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 relative lg:translate-x-4">
               <DashboardPreview />
             </div>
           </div>
           </div>
 
           {/* Trust Bar (Anchors to bottom, flush with footer) */}
-          <div className="relative z-10 pt-8 lg:pt-10 pb-8 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm text-slate-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 border-t border-slate-800/50 mt-12 w-full">
-            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> Timetable Import</span>
-            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> Skip Calculator</span>
-            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> Real-time Margins</span>
-            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> Semester Logs</span>
+          <div className="relative z-10 pt-8 lg:pt-10 pb-8 grid grid-cols-2 lg:flex items-center justify-center gap-x-4 gap-y-4 sm:gap-y-6 lg:gap-12 text-[11px] sm:text-[13px] lg:text-sm text-slate-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 border-t border-slate-800/50 mt-8 lg:mt-12 w-full mx-auto max-w-2xl lg:max-w-none">
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Timetable Import</span>
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Skip Calculator</span>
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Real-time Margins</span>
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Semester Logs</span>
           </div>
         </section>
 
