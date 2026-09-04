@@ -65,7 +65,7 @@ export default function Home() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.05,
+        staggerChildren: 0,
       }
     }
   };
@@ -107,30 +107,24 @@ export default function Home() {
       <main className="flex-1 relative z-10">
         {/* HERO SECTION */}
         <section className="relative pt-16 pb-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-          {/* Hero Soft Reflection with Parallax & Vignette */}
-          <m.div 
-            style={{ y: shouldReduceMotion ? 0 : yHeroAurora }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] w-[100%] h-[120%] bg-[radial-gradient(ellipse_at_center,rgba(94,234,212,0.08)_0%,transparent_70%)] rounded-full pointer-events-none -z-10" 
-          />
-
-          <div className="relative z-10 space-y-7 max-w-4xl mx-auto flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Pill Badge */}
             <m.div 
               whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, backgroundColor: "rgba(15, 23, 42, 0.9)" }}
               transition={{ duration: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-[#5EEAD4]/20 text-[#5EEAD4] text-[13px] font-semibold shadow-lg shadow-[#5EEAD4]/5 cursor-default"
+              className="mb-10 inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 text-slate-300 text-[13px] font-semibold shadow-lg shadow-black/5 cursor-default"
             >
               <BrainCircuit className="w-3.5 h-3.5" />
               <span>AI-Powered Attendance Intelligence</span>
             </m.div>
 
             {/* Headline */}
-            <h1 className="text-[40px] sm:text-[56px] md:text-[64px] lg:text-[72px] font-bold tracking-[-0.03em] text-white leading-[1.1] max-w-3xl">
+            <h1 className="mb-8 text-[40px] sm:text-[56px] md:text-[64px] lg:text-[72px] font-bold tracking-[-0.03em] text-white leading-[1.1] max-w-3xl">
               How many classes can you <span className="text-[#5EEAD4]">safely skip</span> without ruining your attendance?
             </h1>
 
             {/* Subtitle */}
-            <p className="text-[18px] sm:text-[20px] md:text-[24px] text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
+            <p className="mb-12 text-[18px] sm:text-[20px] md:text-[24px] text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
               Stop manually calculating attendance percentages or creating Excel spreadsheets. Upload your class timetable and academic calendar once — Vision AI sets up your entire semester automatically.
             </p>
 
@@ -182,19 +176,16 @@ export default function Home() {
 
             {/* Trust Bar */}
             <div className="pb-12 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm text-slate-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> AI Attendance Prediction</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Automatic Timetable Import</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Smart Skip Calculator</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Semester Analytics</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> AI Attendance Prediction</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> Automatic Timetable Import</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> Smart Skip Calculator</span>
+              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-slate-400" /> Semester Analytics</span>
             </div>
 
             {/* Scroll Cue */}
             <m.div 
               variants={fadeUpVariant}
-              initial={{ y: 0 }}
-              animate={isLowEnd ? {} : { y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="flex flex-col items-center justify-center text-slate-400 gap-2 mt-4 opacity-60"
+              className="flex flex-col items-center justify-center text-slate-500 gap-2 mt-4 opacity-60"
             >
               <span className="text-[9px] uppercase tracking-[0.2em] font-bold">Scroll to explore</span>
               <ChevronDown className="w-4 h-4" />
@@ -235,7 +226,7 @@ export default function Home() {
             {[
               {
                 icon: Wand2,
-                color: "text-teal-400",
+                color: "text-slate-100",
                 title: "60-Second AI Setup",
                 desc: "Just snap a photo of your college notice board or timetable PDF. Gemini Vision OCR extracts course codes, titles, lab blocks, and exam holidays automatically."
               },
@@ -276,7 +267,7 @@ export default function Home() {
               whileHover={isLowEnd ? {} : (shouldReduceMotion ? {} : { y: -4 })}
                 whileTap={isLowEnd ? {} : (shouldReduceMotion ? {} : { scale: 0.98 })}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="glass-card card-interactive premium-gradient-border p-8 rounded-2xl space-y-4 group bg-slate-900/40 hover:bg-slate-900/70"
+                className="bg-slate-900/40 border border-slate-800 card-interactive p-8 rounded-2xl space-y-4 group hover:bg-slate-900/70"
               >
                 <m.div 
                   className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${feature.color}`}
@@ -294,18 +285,12 @@ export default function Home() {
 
         {/* BOTTOM BANNER CTA */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative z-10">
-          {/* CTA Soft Reflection with Parallax */}
-          <m.div 
-            style={{ y: shouldReduceMotion ? 0 : yCtaAurora }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[80%] bg-[#5EEAD4]/10 blur-[120px] rounded-full pointer-events-none -z-10" 
-          />
-
           <m.div 
             variants={sectionRevealVariant}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-100px" }}
-            className="glass-card premium-gradient-border rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
+            className="bg-slate-900/40 border border-slate-800 rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
           >
             <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-[-0.02em]">

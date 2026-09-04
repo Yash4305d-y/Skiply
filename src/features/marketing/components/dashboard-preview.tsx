@@ -18,7 +18,7 @@ export function DashboardPreview() {
   const [safeSkips, setSafeSkips] = useState(14);
   const [weeklyData, setWeeklyData] = useState([65, 75, 82, 78, 90, 85, 95]);
   const [schedule, setSchedule] = useState([
-    { id: 1, time: "09:00", code: "CS301", name: "Data Structures", status: "PRESENT", color: "bg-teal-500" },
+    { id: 1, time: "09:00", code: "CS301", name: "Data Structures", status: "PRESENT", color: "bg-emerald-500" },
     { id: 2, time: "11:30", code: "MA201", name: "Linear Algebra", status: "PENDING", color: "bg-indigo-500" },
     { id: 3, time: "14:00", code: "PH102", name: "Physics Lab", status: "PENDING", color: "bg-rose-500" },
   ]);
@@ -108,14 +108,10 @@ export function DashboardPreview() {
       ref={containerRef}
       variants={containerVariants}
       initial="hidden"
-      animate={isInView ? "show" : "hidden"}
       tabIndex={-1}
-      className="w-full max-w-5xl mx-auto mt-16 rounded-2xl overflow-hidden glass-card border border-white/10 shadow-2xl shadow-teal-500/10 bg-slate-950/80 backdrop-blur-xl flex flex-col relative group focus:outline-none"
+      className="w-full max-w-5xl mx-auto mt-16 rounded-2xl overflow-hidden glass-card border border-white/10 shadow-2xl shadow-black/40 bg-slate-950/80 backdrop-blur-xl flex flex-col relative group focus:outline-none"
     >
-      {/* Hover gradient overlay (high-end only) */}
-      {!isLowEnd && (
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-      )}
+
 
       {/* Mac OS Window Header */}
       <div className="h-10 border-b border-white/5 flex items-center px-4 gap-2 bg-slate-900/50">
@@ -170,7 +166,7 @@ export function DashboardPreview() {
 
             <m.div variants={itemVariants} className="p-5 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col justify-between transition-colors duration-500">
               <div className="flex items-start justify-between">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400' : 'bg-teal-500/10 text-teal-400'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
                   <TrendingUp className="w-4 h-4" />
                 </div>
                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
@@ -190,7 +186,7 @@ export function DashboardPreview() {
           <m.div variants={itemVariants} className="p-5 rounded-xl bg-slate-900/60 border border-white/5 flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-slate-100">Weekly Attendance Trend</h3>
-              <span className={`text-xs font-semibold transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-teal-400'}`}>
+              <span className={`text-xs font-semibold transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-slate-400'}`}>
                 Interactive Mockup
               </span>
             </div>
@@ -209,13 +205,14 @@ export function DashboardPreview() {
                     <m.path
                       d={pathD}
                       fill="none"
-                      stroke={isWarning ? "#f43f5e" : "#5EEAD4"}
+                      stroke={isWarning ? "#f43f5e" : "#94a3b8"}
                       strokeWidth="3"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1, d: pathD, stroke: isWarning ? "#f43f5e" : "#5EEAD4" }}
+                      animate={{ pathLength: 1, opacity: 1, d: pathD, stroke: isWarning ? "#f43f5e" : "#94a3b8" }}
                       transition={{ 
+
                         pathLength: { duration: isLowEnd ? 0.8 : 1.5, ease: "easeInOut", delay: isLowEnd ? 0.2 : 0.5 },
                         d: { duration: 0.5, ease: "easeOut" },
                         stroke: { duration: 0.5 }
@@ -236,8 +233,8 @@ export function DashboardPreview() {
                 )}
                 <defs>
                   <linearGradient id="chart-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="rgba(94, 234, 212, 0.2)" />
-                    <stop offset="100%" stopColor="rgba(94, 234, 212, 0)" />
+                    <stop offset="0%" stopColor="rgba(255, 255, 255, 0.1)" />
+                    <stop offset="100%" stopColor="rgba(255, 255, 255, 0)" />
                   </linearGradient>
                   <linearGradient id="chart-gradient-rose" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stopColor="rgba(244, 63, 94, 0.2)" />
@@ -253,10 +250,10 @@ export function DashboardPreview() {
         <div className="md:col-span-5 flex flex-col gap-6">
           {/* AI Insight Card */}
           <m.div variants={itemVariants} className="p-4 rounded-xl bg-slate-900/40 border border-white/5 relative overflow-hidden flex flex-col">
-            <div className={`absolute top-0 right-0 w-32 h-32 blur-[40px] rounded-full transition-colors duration-500 ${isWarning ? 'bg-rose-500/10' : 'bg-teal-500/10'}`} />
+            <div className={`absolute top-0 right-0 w-32 h-32 blur-[40px] rounded-full transition-colors duration-500 ${isWarning ? 'bg-rose-500/10' : 'bg-sky-500/10'}`} />
             <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-teal-400'}`} />
-              <h3 className={`text-xs font-bold uppercase tracking-wider transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-teal-400'}`}>Attendra AI Insight</h3>
+              <Lightbulb className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-sky-400'}`} />
+              <h3 className={`text-xs font-bold uppercase tracking-wider transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-sky-400'}`}>Attendra AI Insight</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed font-medium relative z-10 transition-all duration-300">
               {isWarning 
@@ -292,7 +289,7 @@ export function DashboardPreview() {
                   <div className={`w-1 h-8 rounded-full ${cls.color}`} />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white group-hover:text-teal-300 transition-colors">{cls.code}</span>
+                      <span className="text-xs font-bold text-white group-hover:text-white transition-colors">{cls.code}</span>
                       <span className="text-[10px] text-slate-400">{cls.time}</span>
                     </div>
                     <p className="text-xs text-slate-300 truncate">{cls.name}</p>
@@ -300,7 +297,7 @@ export function DashboardPreview() {
                   
                   {/* Status Indicator */}
                   {cls.status === "PRESENT" && (
-                    <div className="w-7 h-7 rounded-md bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center transition-colors">
+                    <div className="w-7 h-7 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition-colors">
                       <CheckCircle2 className="w-4 h-4" />
                     </div>
                   )}
