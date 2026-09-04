@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="border-t border-slate-800/60 bg-transparent py-8 text-slate-400 text-xs mt-auto pb-20 md:pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-4">
         <div className="flex flex-wrap items-center justify-center gap-2 text-center">
-          <div className="w-6 h-6 rounded-lg bg-teal-600/20 text-teal-400 flex items-center justify-center shrink-0">
+          <div className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center shrink-0">
             <Wand2 className="w-3.5 h-3.5" />
           </div>
           <span className="font-bold text-slate-300">Skiply (Attendra AI)</span>

@@ -79,15 +79,9 @@ export default function Navbar() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="relative w-10 h-10 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center"
             >
-              {/* Breathing Ambient Glow — disabled on low-end */}
-              <m.div 
-                initial={{ opacity: 0.1 }}
-                animate={isLowEnd ? {} : { opacity: [0.1, 0.2, 0.1] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                variants={{
-                  hover: { opacity: 0.3, scale: 1.1, transition: { duration: 0.2 } }
-                }}
-                className="absolute inset-[-20%] bg-[radial-gradient(circle,rgba(94,234,212,1)_0%,transparent_70%)] rounded-full pointer-events-none" 
+              {/* Static Ambient Glow */}
+              <div 
+                className="absolute inset-[-20%] bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)] rounded-full pointer-events-none" 
               />
               
               {/* App Icon Container */}
@@ -101,7 +95,7 @@ export default function Navbar() {
               <span className="text-xl sm:text-[28px] md:text-[32px] font-bold tracking-[-0.02em] text-white group-hover:brightness-110 transition-all leading-[1.05]">
                 Skiply
               </span>
-              <span className="text-[11px] sm:text-[12px] font-medium text-[#5EEAD4] tracking-[0.15em] opacity-70 group-hover:opacity-90 transition-opacity hidden sm:block leading-none mt-0.5 uppercase">
+              <span className="text-[11px] sm:text-[12px] font-medium text-slate-400 tracking-[0.15em] opacity-70 group-hover:opacity-90 transition-opacity hidden sm:block leading-none mt-0.5 uppercase">
                 Smart Attendance Platform
               </span>
             </div>
@@ -146,7 +140,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-transparent border border-slate-800 hover:bg-slate-800/50 transition-colors cursor-default text-xs text-slate-300">
-            <div className={`w-1.5 h-1.5 rounded-full ${isLoggedIn ? 'bg-teal-400' : 'bg-emerald-400'}`} />
+            <div className={`w-1.5 h-1.5 rounded-full ${isLoggedIn ? 'bg-emerald-400' : 'bg-slate-500'}`} />
             <span className="font-medium text-slate-400">{isLoggedIn ? 'ID:' : 'Student:'}</span>
             <span className="font-semibold text-slate-100">{userName}</span>
           </div>
@@ -228,7 +222,7 @@ export default function Navbar() {
               {isLoggedIn ? (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2 px-3 py-2 text-sm text-slate-400">
-                    <div className="w-2 h-2 rounded-full bg-teal-400" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
                     <span>Logged in as </span>
                     <span className="font-semibold text-slate-100">{userName}</span>
                   </div>

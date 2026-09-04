@@ -9,6 +9,8 @@ import Footer from '@/components/layout/footer';
 import { getCurrentUser } from '@/actions/auth';
 import dynamic from 'next/dynamic';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
+import { AnimatedRing } from '@/components/ui/animated-ring';
+import { AnimatedNumber } from '@/components/ui/animated-number';
 
 const AmbientBackground = dynamic(
   () => import('@/components/layout/ambient-background'),
@@ -65,7 +67,7 @@ export default function Home() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.05,
+        staggerChildren: 0,
       }
     }
   };
@@ -90,12 +92,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-transparent text-slate-100 selection:bg-[#5EEAD4]/30 selection:text-white overflow-x-hidden w-full relative">
-      {/* Scroll Progress Bar */}
-      <m.div
-        className="fixed top-0 left-0 right-0 h-[2px] bg-[#5EEAD4] origin-left z-[100] shadow-[0_0_10px_rgba(94,234,212,0.5)]"
-        style={{ scaleX: scrollYProgress }}
-      />
-
       {/* Background is purely decorative */}
       <AmbientBackground />
       
@@ -104,106 +100,97 @@ export default function Home() {
         <Navbar />
       </div>
 
-      <main className="flex-1 relative z-10">
+      <main className="flex-1 relative z-10 flex flex-col w-full">
         {/* HERO SECTION */}
-        <section className="relative pt-16 pb-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-          {/* Hero Soft Reflection with Parallax & Vignette */}
-          <m.div 
-            style={{ y: shouldReduceMotion ? 0 : yHeroAurora }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] w-[100%] h-[120%] bg-[radial-gradient(ellipse_at_center,rgba(94,234,212,0.08)_0%,transparent_70%)] rounded-full pointer-events-none -z-10" 
-          />
+        <section className="relative flex-1 flex flex-col justify-between pt-8 md:pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+          {/* Main Hero Content (Centers in available space) */}
+          <div className="relative z-10 flex-1 flex flex-col justify-center">
+            <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8 w-full">
+            
+            {/* Left Side: 60% Width */}
+            <div className="w-full lg:flex-1 lg:max-w-[55%] flex flex-col items-center text-center lg:items-start lg:text-left animate-in fade-in slide-in-from-bottom-4 duration-700 pt-8 lg:pt-16">
+              {/* Pill Badge */}
+              <m.div 
+                whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, backgroundColor: "rgba(15, 23, 42, 0.9)" }}
+                transition={{ duration: 0.2 }}
+                className="mb-8 sm:mb-10 inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-lg bg-slate-900/60 border border-slate-800 text-slate-300 text-[11px] sm:text-[13px] font-medium sm:font-semibold shadow-lg shadow-black/5 cursor-default"
+              >
+                <BrainCircuit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span>Attendance, automated.</span>
+              </m.div>
 
-          <div className="relative z-10 space-y-7 max-w-4xl mx-auto flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Pill Badge */}
-            <m.div 
-              whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, backgroundColor: "rgba(15, 23, 42, 0.9)" }}
-              transition={{ duration: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-900/60 border border-[#5EEAD4]/20 text-[#5EEAD4] text-[13px] font-semibold shadow-lg shadow-[#5EEAD4]/5 cursor-default"
-            >
-              <BrainCircuit className="w-3.5 h-3.5" />
-              <span>AI-Powered Attendance Intelligence</span>
-            </m.div>
+              {/* Headline */}
+              <h1 className="mb-6 lg:mb-8 text-[36px] sm:text-[48px] md:text-[56px] lg:text-[72px] font-extrabold tracking-[-0.03em] text-white leading-[1.05] max-w-2xl">
+                Know exactly when you can <br className="hidden xl:block" /><span className="text-[#5EEAD4]">safely skip.</span>
+              </h1>
 
-            {/* Headline */}
-            <h1 className="text-[40px] sm:text-[56px] md:text-[64px] lg:text-[72px] font-bold tracking-[-0.03em] text-white leading-[1.1] max-w-3xl">
-              How many classes can you <span className="text-[#5EEAD4]">safely skip</span> without ruining your attendance?
-            </h1>
+              {/* Subtitle */}
+              <p className="mb-14 text-base sm:text-lg md:text-[20px] text-slate-400 max-w-lg font-normal leading-relaxed">
+                Upload your timetable once. We track your classes, calculate your safety margins, and warn you before you drop below required thresholds.
+              </p>
 
-            {/* Subtitle */}
-            <p className="text-[18px] sm:text-[20px] md:text-[24px] text-slate-400 max-w-xl mx-auto font-normal leading-relaxed">
-              Stop manually calculating attendance percentages or creating Excel spreadsheets. Upload your class timetable and academic calendar once — Vision AI sets up your entire semester automatically.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-              {isLoggedIn ? (
-                <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
-                  <m.div
-                    whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
-                    whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                    transition={{ duration: 0.2 }}
-                    className="btn-interactive w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25 group"
-                  >
-                    <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
-                    <span>Dashboard</span>
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full">
+                {isLoggedIn ? (
+                  <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
                     <m.div
+                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, filter: "brightness(1.05)" }}
+                      whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                       transition={{ duration: 0.2 }}
-                      className="group-hover:translate-x-1"
+                      className="btn-interactive w-full px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-slate-50 text-slate-950 font-medium sm:font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_0_30px_rgba(94,234,212,0.2)] hover:shadow-[0_0_40px_rgba(94,234,212,0.4)] group"
                     >
-                      <ArrowRight className="w-4 h-4" />
+                      <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-teal-600 text-teal-600" />
+                      <span>Open Dashboard</span>
+                      <m.div
+                        transition={{ duration: 0.2 }}
+                        className="group-hover:translate-x-1"
+                      >
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </m.div>
                     </m.div>
-                  </m.div>
-                </NextLink>
-              ) : (
-                <NextLink href="/login" className="outline-none block w-full sm:w-auto rounded-xl">
-                  <m.div
-                    whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
-                    whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
-                    transition={{ duration: 0.2 }}
-                    className="btn-interactive w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25 group"
-                  >
-                    <LogIn className="w-4 h-4 text-teal-600" />
-                    <span>Sign In</span>
+                  </NextLink>
+                ) : (
+                  <NextLink href="/login" className="outline-none block w-full sm:w-auto rounded-xl">
                     <m.div
+                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, filter: "brightness(1.05)" }}
+                      whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                       transition={{ duration: 0.2 }}
-                      className="group-hover:translate-x-1"
+                      className="btn-interactive w-full px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-slate-50 text-slate-950 font-medium sm:font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 sm:gap-2 shadow-[0_0_30px_rgba(94,234,212,0.2)] hover:shadow-[0_0_40px_rgba(94,234,212,0.4)] group"
                     >
-                      <ArrowRight className="w-4 h-4" />
+                      <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-600" />
+                      <span>Get Started</span>
+                      <m.div
+                        transition={{ duration: 0.2 }}
+                        className="group-hover:translate-x-1"
+                      >
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </m.div>
                     </m.div>
-                  </m.div>
-                </NextLink>
-              )}
+                  </NextLink>
+                )}
+              </div>
             </div>
 
-            {/* Dashboard Preview Component */}
-            <div className="pt-16 pb-6 w-full animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+            {/* Right Side: 45% Width (Dashboard Preview) - Hidden on Mobile */}
+            <div className="hidden lg:block w-full lg:w-[45%] flex-shrink-0 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 relative lg:translate-x-4">
               <DashboardPreview />
             </div>
+          </div>
+          </div>
 
-            {/* Trust Bar */}
-            <div className="pb-12 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-sm text-slate-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> AI Attendance Prediction</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Automatic Timetable Import</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Smart Skip Calculator</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-[#5EEAD4]" /> Semester Analytics</span>
-            </div>
-
-            {/* Scroll Cue */}
-            <m.div 
-              variants={fadeUpVariant}
-              initial={{ y: 0 }}
-              animate={isLowEnd ? {} : { y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="flex flex-col items-center justify-center text-slate-400 gap-2 mt-4 opacity-60"
-            >
-              <span className="text-[9px] uppercase tracking-[0.2em] font-bold">Scroll to explore</span>
-              <ChevronDown className="w-4 h-4" />
-            </m.div>
+          {/* Trust Bar (Anchors to bottom, flush with footer) */}
+          <div className="relative z-10 pt-8 lg:pt-10 pb-8 grid grid-cols-2 lg:flex items-center justify-center gap-x-4 gap-y-4 sm:gap-y-6 lg:gap-12 text-[11px] sm:text-[13px] lg:text-sm text-slate-400 font-medium animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 border-t border-slate-800/50 mt-8 lg:mt-12 w-full mx-auto max-w-2xl lg:max-w-none">
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Timetable Import</span>
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Skip Calculator</span>
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Real-time Margins</span>
+            <span className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2"><CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-slate-400 shrink-0" /> Semester Logs</span>
           </div>
         </section>
 
-        {/* FEATURE CARDS GRID */}
-        <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10 overflow-visible">
+        {false && (
+          <div className="unused-sections-kept-for-future">
+            {/* FEATURE CARDS GRID */}
+            <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10 overflow-visible">
           {/* Features Soft Reflection with Parallax */}
           <m.div 
             style={{ y: shouldReduceMotion ? 0 : yFeaturesAurora }}
@@ -230,126 +217,134 @@ export default function Home() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-4 gap-8"
           >
             {[
-              {
-                icon: Wand2,
-                color: "text-teal-400",
-                title: "60-Second AI Setup",
-                desc: "Just snap a photo of your college notice board or timetable PDF. Gemini Vision OCR extracts course codes, titles, lab blocks, and exam holidays automatically."
-              },
               {
                 icon: ShieldCheck,
                 color: "text-emerald-400",
                 title: "Exact Safe Skip Calculator",
-                desc: "Our deterministic math engine calculates the precise number of lectures you can skip per subject, factoring in remaining semester days and upcoming academic holidays."
+                desc: "Our deterministic math engine calculates the precise number of lectures you can skip per subject, factoring in remaining semester days and upcoming academic holidays.",
+                className: "md:col-span-2 md:row-span-2 flex flex-col md:justify-between glass-card border border-white/5 bg-slate-900/60 shadow-xl shadow-black/20",
+                visual: (
+                  <div className="mt-8 flex justify-center md:justify-end">
+                    <div className="relative flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-950/50 border border-slate-800 shadow-inner">
+                      <AnimatedRing percentage={82.4} size={140} strokeWidth={10} colorClass="text-emerald-400" />
+                      <div className="absolute flex flex-col items-center justify-center">
+                        <span className="text-3xl font-bold text-white"><AnimatedNumber value={82.4} suffix="%" /></span>
+                        <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mt-1">Attendance</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              },
+              {
+                icon: Wand2,
+                color: "text-slate-100",
+                title: "60-Second AI Setup",
+                desc: "Just snap a photo of your college notice board or timetable PDF. Gemini Vision OCR extracts course codes, titles, lab blocks, and exam holidays automatically.",
+                className: "md:col-span-2 md:row-span-1 bg-slate-900/40 border-slate-800"
               },
               {
                 icon: Flame,
                 color: "text-rose-400",
                 title: "Danger Zone Recovery",
-                desc: "If your attendance drops below your target threshold, Skiply calculates exactly how many consecutive lectures you must attend to get back in the green."
+                desc: "If your attendance drops below your target threshold, Skiply calculates exactly how many consecutive lectures you must attend to get back in the green.",
+                className: "md:col-span-1 md:row-span-1 bg-slate-900/40 border-slate-800"
               },
               {
                 icon: Clock,
                 color: "text-sky-400",
                 title: "Single-Tap Daily Tracking",
-                desc: "No complex submenus. Every morning, tap Present, Absent, or Cancelled for your scheduled classes in less than 3 seconds. Easily swap classes for proxy lectures."
+                desc: "No complex submenus. Every morning, tap Present, Absent, or Cancelled for your scheduled classes in less than 3 seconds.",
+                className: "md:col-span-1 md:row-span-1 bg-slate-900/40 border-slate-800"
               },
               {
                 icon: Smartphone,
                 color: "text-emerald-400",
                 title: "Works Offline in Lecture Halls",
-                desc: "Basement lecture hall with no cellular signal? No problem. Skiply works as an offline Progressive Web App with local storage and background synchronization."
+                desc: "Basement lecture hall with no cellular signal? No problem. Skiply works as an offline Progressive Web App with local storage and background synchronization.",
+                className: "md:col-span-2 md:row-span-1 bg-slate-900/40 border-slate-800"
               },
               {
                 icon: Calendar,
                 color: "text-amber-400",
                 title: "Full Semester Audit History",
-                desc: "Maintain a verifiable log of every class attended across the entire semester. Filter by course or date, and edit logs anytime if you made a mistake."
+                desc: "Maintain a verifiable log of every class attended across the entire semester. Filter by course or date, and edit logs anytime if you made a mistake.",
+                className: "md:col-span-2 md:row-span-1 bg-slate-900/40 border-slate-800"
               }
             ].map((feature, i) => (
               <m.div 
                 key={i}
                 variants={featureCardVariant}
-              whileHover={isLowEnd ? {} : (shouldReduceMotion ? {} : { y: -4 })}
+                whileHover={isLowEnd ? {} : (shouldReduceMotion ? {} : { y: -4 })}
                 whileTap={isLowEnd ? {} : (shouldReduceMotion ? {} : { scale: 0.98 })}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="glass-card card-interactive premium-gradient-border p-8 rounded-2xl space-y-4 group bg-slate-900/40 hover:bg-slate-900/70"
+                className={`border card-interactive p-8 md:p-10 rounded-3xl space-y-4 group hover:bg-slate-900/70 overflow-hidden ${feature.className || ''}`}
               >
-                <m.div 
-                  className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center ${feature.color}`}
-                >
-                  <feature.icon className="w-5 h-5" />
-                </m.div>
-                <h3 className="text-lg font-bold text-slate-100">{feature.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
+                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-6">
+                  <feature.icon className={`w-6 h-6 ${feature.color}`} />
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2 tracking-[-0.01em]">{feature.title}</h3>
+                <p className="text-slate-400 text-sm md:text-base leading-relaxed">
                   {feature.desc}
                 </p>
+                {feature.visual && feature.visual}
               </m.div>
             ))}
           </m.div>
         </section>
 
         {/* BOTTOM BANNER CTA */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto relative z-10">
-          {/* CTA Soft Reflection with Parallax */}
-          <m.div 
-            style={{ y: shouldReduceMotion ? 0 : yCtaAurora }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[80%] bg-[#5EEAD4]/10 blur-[120px] rounded-full pointer-events-none -z-10" 
-          />
-
+        <section className="py-32 md:py-48 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto relative z-10 border-t border-slate-800/50 mt-16">
           <m.div 
             variants={sectionRevealVariant}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, margin: "-100px" }}
-            className="glass-card premium-gradient-border rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
+            className="flex flex-col items-center justify-center text-center gap-10"
           >
-            <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-[-0.02em]">
-                Ready to take control of your attendance?
-              </h2>
-              <p className="text-slate-400 text-sm sm:text-base max-w-lg mx-auto">
-                Sign in to manage your attendance and see exactly how many classes you can skip.
-              </p>
-              <div className="pt-6 flex flex-col sm:flex-row justify-center gap-4">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-[-0.02em] leading-[1.1] max-w-2xl mx-auto">
+              Ready to take control of your attendance?
+            </h2>
+            
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
                 {isLoggedIn ? (
                   <NextLink href="/dashboard" className="outline-none block w-full sm:w-auto rounded-xl">
                     <m.div
-                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
+                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, filter: "brightness(1.05)" }}
                       whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 group shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25"
+                      className="w-full px-10 py-4 rounded-xl bg-slate-50 text-slate-950 font-bold text-base flex items-center justify-center gap-2 group shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25"
                     >
-                      <Zap className="w-4 h-4 fill-teal-600 text-teal-600" />
+                      <Zap className="w-5 h-5 fill-teal-600 text-teal-600" />
                       <span>Dashboard</span>
                       <m.div transition={{ duration: 0.2 }} className="group-hover:translate-x-1 hidden sm:block">
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-5 h-5" />
                       </m.div>
                     </m.div>
                   </NextLink>
                 ) : (
                   <NextLink href="/login" className="outline-none block w-full sm:w-auto rounded-xl">
                     <m.div
-                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.01, filter: "brightness(1.05)" }}
+                      whileHover={shouldReduceMotion ? {} : { y: -2, scale: 1.02, filter: "brightness(1.05)" }}
                       whileTap={shouldReduceMotion ? {} : { scale: 0.97 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full px-8 py-3.5 rounded-xl bg-slate-50 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 group shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25"
+                      className="w-full px-10 py-4 rounded-xl bg-slate-50 text-slate-950 font-bold text-base flex items-center justify-center gap-2 group shadow-lg shadow-[#5EEAD4]/10 hover:shadow-[#5EEAD4]/25"
                     >
-                      <LogIn className="w-4 h-4 text-teal-600" />
+                      <LogIn className="w-5 h-5 text-teal-600" />
                       <span>Sign In</span>
                       <m.div transition={{ duration: 0.2 }} className="group-hover:translate-x-1 hidden sm:block">
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-5 h-5" />
                       </m.div>
                     </m.div>
                   </NextLink>
                 )}
               </div>
-            </div>
           </m.div>
         </section>
+          </div>
+        )}
       </main>
 
       <Footer />
