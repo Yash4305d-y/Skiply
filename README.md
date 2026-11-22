@@ -113,22 +113,70 @@ Skiply Engine:         "You can safely skip 3 more classes this semester.
 Skiply does not guess. The margin engine operates entirely on deterministic discrete arithmetic implemented in [`src/lib/math-engine.ts`](src/lib/math-engine.ts):
 
 ### 1. Current Attendance Standing
-$$\text{Attendance Rate} = \begin{cases} 100.0\% & \text{if Conducted} = 0 \\ \left(\dfrac{\text{Classes Attended}}{\text{Classes Conducted}}\right) \times 100 & \text{if Conducted} > 0 \end{cases}$$
 
-### 2. Verified Safe Skips Remaining
-Given a target percentage $T$ (where $T_{\text{dec}} = \frac{T}{100}$) and total semester availability $N_{\text{total}}$:
+#### Individual Subject Attendance Rate
+The current attendance standing for any subject is calculated strictly from verified instructional records:
 
-$$\text{Safe Skips} = \left\lfloor N_{\text{total}} \times (1 - T_{\text{dec}}) \right\rfloor - \text{Classes Absent}$$
+$$\text{Attendance Rate } (\%) = \begin{cases} 100.0\% & \text{if } C = 0 \\ \left(\dfrac{P}{C}\right) \times 100 & \text{if } C > 0 \end{cases}$$
 
-- **$\text{Safe Skips} > 0$ (`SAFE`)**: You remain above your required minimum even if you skip these classes.
-- **$\text{Safe Skips} = 0$ (`WARNING`)**: You sit directly at the threshold boundary. Any absence triggers a deficit.
+Where:
+- **$P$ (Attended)**: Count of classes logged as `PRESENT`.
+- **$A$ (Absent)**: Count of classes logged as `ABSENT`.
+- **$C$ (Conducted Classes)**: Total instructional sessions held to date ($C = P + A_{\text{effective}}$).
 
-### 3. Deficit Recovery Requirement
-When standing falls below the target threshold ($\text{Safe Skips} < 0$), the engine computes the required recovery attendance:
+#### Dynamic Conducted Class Accounting
+When calculating past conducted classes from the semester timeline, the engine accounts for timetable slots, institutional holidays, and cancellations:
 
-$$\text{Classes to Attend} = \left\lceil T_{\text{dec}} \times N_{\text{total}} \right\rceil - \text{Classes Attended}$$
+$$C = \max\left(0, \; \sum_{d = \text{StartDate}}^{\text{Today}} \text{Slots}(d) \;-\; \text{Holidays} \;-\; \text{Cancelled} \;+\; \text{Extra}\right)$$
 
-If $\text{Classes to Attend} > \text{Classes Remaining}$, the system flags an irrecoverable semester deficit so the student can seek departmental waivers before exams.
+- **Cancelled Sessions (`CANCELLED`)**: Never penalize the student; excluded from the conducted denominator $C$.
+- **Swapped Sessions (`SWAPPED`)**: Transferred seamlessly to the replacement subject credit pool.
+- **Academic Holidays**: Automatically bypassed using the university holiday calendar.
+
+#### Overall Aggregate Semester Standing
+The composite metric across all enrolled subjects ($M$) on the student's dashboard:
+
+$$\text{Overall Attendance Rate } (\%) = \begin{cases} 100.0\% & \text{if } \sum C_i = 0 \\ \left(\dfrac{\sum_{i=1}^{M} P_i}{\sum_{i=1}^{M} C_i}\right) \times 100 & \text{if } \sum C_i > 0 \end{cases}$$
+
+---
+
+### 2. Total Semester Availability ($N_{\text{total}}$) & Future Runway
+
+To calculate safe skips accurately, Skiply projects the instructional runway from tomorrow until the configured semester end date:
+
+$$R = \sum_{d = \text{Tomorrow}}^{\text{EndDate}} \text{Scheduled Slots}(d) \quad \Big[\text{excluding weekends without classes and Academic Holidays}\Big]$$
+
+$$\text{Total Semester Classes } (N_{\text{total}}) = C + R$$
+
+---
+
+### 3. Verified Safe Skips Remaining
+
+Given the student's target percentage threshold $T$ (e.g., $75\%$ or $80\%$, where decimal $T_{\text{dec}} = \frac{T}{100}$):
+
+1. **Maximum Allowable Absences ($A_{\text{max}}$)** over the whole semester:
+   $$A_{\text{max}} = \left\lfloor N_{\text{total}} \times (1 - T_{\text{dec}}) \right\rfloor$$
+
+2. **Safe Skips Remaining**:
+   $$\text{Safe Skips} = A_{\text{max}} - A_{\text{effective}}$$
+
+#### Status Classification:
+- **`SAFE` ($\text{Safe Skips} > 2$)**: Comfortable safety cushion above target.
+- **`WARNING` ($\text{Safe Skips} \in [0, 2]$)**: High-risk boundary zone. Immediate caution advised.
+  - If $\text{Safe Skips} = 0$, student is right at the border: any absence causes a deficit.
+- **`DANGER` ($\text{Safe Skips} < 0$)**: Current standing is below the required threshold.
+
+---
+
+### 4. Deficit Recovery Requirement
+
+When in the danger zone ($\text{Safe Skips} < 0$), the engine computes the exact minimum attendance streak required to recover:
+
+$$P_{\text{required}} = \left\lceil T_{\text{dec}} \times N_{\text{total}} \right\rceil$$
+
+$$\text{Classes to Attend} = \max\Big(1, \; P_{\text{required}} - P\Big)$$
+
+- **Feasibility Check**: If $\text{Classes to Attend} > R$, the deficit is flagged as **irrecoverable** through standard scheduled lectures alone, alerting the student to seek faculty makeup classes or medical waivers.
 
 ---
 
