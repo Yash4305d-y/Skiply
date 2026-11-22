@@ -24,14 +24,32 @@ export default function RubberBandContainer({ children, className = '' }: Rubber
   useEffect(() => {
     if (isLowEnd || typeof window === 'undefined') return;
 
+    const isInsideOverlay = (e: TouchEvent) => {
+      if (document.body.style.overflow === 'hidden') return true;
+      const target = e.target as HTMLElement | null;
+      if (!target) return false;
+      return Boolean(
+        target.closest?.('.fixed, [role="dialog"], [aria-modal="true"], .overflow-y-auto, .overflow-auto, [data-sheet]')
+      );
+    };
+
     const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return;
+      if (e.touches.length !== 1 || isInsideOverlay(e)) {
+        touchStartY.current = null;
+        return;
+      }
       touchStartY.current = e.touches[0].clientY;
       isRubberBanding.current = false;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (touchStartY.current === null || e.touches.length !== 1) return;
+      if (touchStartY.current === null || e.touches.length !== 1 || isInsideOverlay(e)) {
+        if (isRubberBanding.current) {
+          y.set(0);
+          isRubberBanding.current = false;
+        }
+        return;
+      }
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - touchStartY.current;
 

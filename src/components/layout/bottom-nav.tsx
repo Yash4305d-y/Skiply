@@ -45,6 +45,25 @@ export default function BottomNav() {
     setIsAboutOpen(false);
   }, [pathname]);
 
+  // Lock background body scroll when either Actions or About sheet is open
+  useEffect(() => {
+    if (isActionsOpen || isAboutOpen) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalBodyTouchAction = document.body.style.touchAction;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+      document.documentElement.style.overflow = 'hidden';
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.touchAction = originalBodyTouchAction;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+      };
+    }
+  }, [isActionsOpen, isAboutOpen]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
@@ -189,7 +208,11 @@ export default function BottomNav() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => setIsActionsOpen(false)}
-            className="md:hidden fixed inset-0 bg-[#0B0C0E]/80 mix-blend-multiply z-40 backdrop-blur-[2px]"
+            onTouchMove={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="md:hidden fixed inset-0 bg-[#0B0C0E]/80 mix-blend-multiply z-40 backdrop-blur-[2px] touch-none"
           />
         )}
       </AnimatePresence>
@@ -211,7 +234,12 @@ export default function BottomNav() {
                     mass: 0.85,
                   }
             }
-            className="md:hidden fixed inset-x-0 bottom-0 z-50 bg-[#121417] border-t border-white/[0.10] rounded-t-2xl pb-[calc(1.25rem+env(safe-area-inset-bottom,0.5rem))] px-4 pt-3 max-w-md mx-auto select-none max-h-[85dvh] overflow-y-auto shadow-[0_-16px_48px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            data-sheet="actions"
+            style={{
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+            }}
+            className="md:hidden fixed inset-x-0 bottom-0 z-50 bg-[#121417] border-t border-white/[0.10] rounded-t-2xl pb-[calc(1.25rem+env(safe-area-inset-bottom,0.5rem))] px-4 pt-3 max-w-md mx-auto max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y shadow-[0_-16px_48px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
             {/* Grabber Handle */}
             <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
@@ -336,7 +364,7 @@ export default function BottomNav() {
       {/* Mobile About Skiply Bottom Sheet Modal */}
       <AnimatePresence>
         {isAboutOpen && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center select-none">
+          <div className="fixed inset-0 z-50 flex items-end justify-center" data-sheet="about">
             {/* Backdrop with Multiply Blending */}
             <m.div
               initial={{ opacity: 0 }}
@@ -344,7 +372,11 @@ export default function BottomNav() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
               onClick={() => setIsAboutOpen(false)}
-              className="fixed inset-0 bg-[#0B0C0E]/85 mix-blend-multiply backdrop-blur-[2px] z-40"
+              onTouchMove={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="fixed inset-0 bg-[#0B0C0E]/85 mix-blend-multiply backdrop-blur-[2px] z-40 touch-none"
               aria-hidden="true"
             />
 
@@ -363,7 +395,12 @@ export default function BottomNav() {
                       mass: 0.85,
                     }
               }
-              className="fixed inset-x-0 bottom-0 z-50 bg-[#121417] border-t border-white/[0.10] rounded-t-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom,0.5rem))] px-5 pt-3 max-w-md mx-auto max-h-[88dvh] overflow-y-auto shadow-[0_-16px_48px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+              data-sheet="about-content"
+              style={{
+                WebkitOverflowScrolling: 'touch',
+                overscrollBehavior: 'contain',
+              }}
+              className="relative w-full max-w-md mx-auto z-50 bg-[#121417] border-t border-white/[0.10] rounded-t-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom,0.5rem))] px-5 pt-3 max-h-[85dvh] overflow-y-auto overscroll-contain touch-pan-y shadow-[0_-16px_48px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
             >
               {/* Grabber Handle */}
               <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-3" />

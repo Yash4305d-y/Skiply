@@ -140,41 +140,87 @@ export default function DashboardPage() {
 
   if (!isLoaded || !profile) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-950">
+      <div className="min-h-screen flex flex-col bg-[#0B0C0E] text-slate-100">
         <Navbar />
         <m.main 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
-          transition={{ duration: 0.5 }}
-          className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full"
+          transition={{ duration: 0.3 }}
+          className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-28 sm:pb-32 md:py-8 w-full"
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Column Skeleton */}
+            {/* Left Column Skeleton (Hero Metrics) */}
             <div className="lg:col-span-4 space-y-4">
-              <div className="h-64 bg-slate-900/50 rounded-2xl animate-pulse border border-white/5" />
-              <div className="h-32 bg-slate-900/50 rounded-2xl animate-pulse border border-white/5" />
+              <div className="h-72 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-6 flex flex-col items-center justify-center space-y-4">
+                <div className="h-3 w-28 bg-white/[0.08] rounded-full" />
+                <div className="w-36 h-36 rounded-full border-4 border-white/[0.06] border-t-teal-500/30 animate-spin" />
+                <div className="h-5 w-36 bg-white/[0.06] rounded-md" />
+              </div>
+              <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 space-y-3">
+                <div className="h-3 w-24 bg-white/[0.08] rounded" />
+                <div className="h-8 w-full bg-white/[0.04] rounded-lg" />
+              </div>
             </div>
-            {/* Right Column Skeleton */}
+
+            {/* Right Column Skeleton (Daily Schedule) */}
             <div className="lg:col-span-8 space-y-4">
-              <div className="h-16 bg-slate-900/50 rounded-2xl animate-pulse border border-white/5" />
-              <div className="space-y-2">
-                <div className="h-20 bg-slate-900/50 rounded-xl animate-pulse border border-white/5" />
-                <div className="h-20 bg-slate-900/50 rounded-xl animate-pulse border border-white/5" />
-                <div className="h-20 bg-slate-900/50 rounded-xl animate-pulse border border-white/5" />
+              {/* Date Header Skeleton */}
+              <div className="h-14 bg-[#121417] rounded-xl animate-pulse border border-white/[0.06] flex items-center justify-between px-4">
+                <div className="h-4 w-36 bg-white/[0.08] rounded" />
+                <div className="h-8 w-24 bg-white/[0.04] rounded-lg" />
+              </div>
+
+              {/* Class Cards Skeleton */}
+              <div className="space-y-3">
+                <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
+                  <div className="space-y-2.5">
+                    <div className="h-4 w-28 bg-white/[0.08] rounded" />
+                    <div className="h-3 w-48 bg-white/[0.04] rounded" />
+                    <div className="h-3 w-32 bg-white/[0.04] rounded" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+                  </div>
+                </div>
+
+                <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
+                  <div className="space-y-2.5">
+                    <div className="h-4 w-32 bg-white/[0.08] rounded" />
+                    <div className="h-3 w-40 bg-white/[0.04] rounded" />
+                    <div className="h-3 w-24 bg-white/[0.04] rounded" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+                  </div>
+                </div>
+
+                <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
+                  <div className="space-y-2.5">
+                    <div className="h-4 w-24 bg-white/[0.08] rounded" />
+                    <div className="h-3 w-36 bg-white/[0.04] rounded" />
+                    <div className="h-3 w-28 bg-white/[0.04] rounded" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-      </m.main>
-    </div>
+        </m.main>
+      </div>
     );
   }
 
   if (subjects.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-950">
+      <div className="min-h-screen flex flex-col bg-[#0B0C0E] text-slate-100">
         <Navbar />
-        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <div className="max-w-md w-full glass-card border border-white/5 bg-slate-900/60 rounded-2xl p-6 sm:p-8 space-y-4">
+        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center pb-28 sm:pb-32 md:py-8">
+          <div className="max-w-md w-full bg-[#121417] border border-white/[0.08] rounded-2xl p-6 sm:p-8 space-y-4 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
             <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
               No timetable configured
             </h2>

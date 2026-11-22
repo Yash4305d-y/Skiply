@@ -7,7 +7,7 @@ export default function AmbientBackground() {
   const { isLowEnd } = usePerformanceTier();
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 bg-[#08111F]">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10 bg-[#0B0C0E]">
       
       {/* 1. Subtle Background Grid (high-end only) */}
       {!isLowEnd && (
@@ -24,7 +24,7 @@ export default function AmbientBackground() {
       <div className="absolute top-0 left-0 w-[100%] h-[100%] bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.03)_0%,transparent_50%)]" />
 
       {/* 3. Edge Vignette for Depth (always — composited once, cheap) */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(8,17,31,0.85)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(11,12,14,0.85)_100%)]" />
 
       {/* 6. Fine Monochrome Grain Texture (high-end only) */}
       {!isLowEnd && (

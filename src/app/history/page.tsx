@@ -6,7 +6,7 @@ import Footer from '@/components/layout/footer';
 import dynamic from 'next/dynamic';
 const HistoryView = dynamic(() => import('@/features/history/components/history-view'), {
   ssr: false,
-  loading: () => <div className="animate-pulse h-96 bg-slate-900 rounded-2xl border border-slate-800" />
+  loading: () => <div className="animate-pulse h-96 bg-[#121417] rounded-2xl border border-white/[0.06]" />
 });
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { LoaderCircle, ArrowRight } from 'lucide-react';
@@ -78,8 +78,8 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
         <Navbar />
-        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <div className="max-w-md w-full glass-card border border-white/5 bg-slate-900/60 rounded-2xl p-6 sm:p-8 space-y-4">
+        <main className="flex-1 flex flex-col items-center justify-center p-6 text-center pb-28 sm:pb-32 md:py-8">
+          <div className="max-w-md w-full bg-[#121417] border border-white/[0.08] rounded-2xl p-6 sm:p-8 space-y-4 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
             <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
               No timetable configured
             </h2>
