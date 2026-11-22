@@ -80,8 +80,8 @@ export default function Home() {
             </NextLink>
           </div>
 
-          {/* Readout Component: Example IoT with 75% tick progress bar & safe skips */}
-          <div className="mt-8 w-full max-w-[320px] bg-[#121417] border border-white/[0.06] rounded-lg p-3.5 select-none">
+          {/* Readout Component: Example IoT with 75% tick progress bar & safe skips (Desktop only) */}
+          <div className="hidden md:block mt-8 w-full max-w-[320px] bg-[#121417] border border-white/[0.06] rounded-lg p-3.5 select-none">
             {/* Header: Label, Subject, Value, and Teal Safe Skips */}
             <div className="flex items-center justify-between text-xs mb-2">
               <div className="flex items-center gap-1.5">
