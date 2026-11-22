@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import NavigationHandler from "@/components/providers/navigation-handler";
 import { PerformanceTierProvider } from "@/lib/utils/use-performance-tier";
@@ -10,6 +10,13 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   display: "optional",
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
 });
 
 import { LazyMotion, domAnimation } from "framer-motion";
@@ -40,10 +47,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} h-full antialiased dark`}
+      className={`${plusJakartaSans.variable} ${instrumentSerif.variable} h-full antialiased dark`}
       style={{ colorScheme: "dark" }}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 font-sans selection:bg-teal-500 selection:text-white">
+      <body className="min-h-full flex flex-col bg-[#0B0C0E] text-slate-100 font-sans selection:bg-teal-400 selection:text-slate-950">
         <PerformanceTierProvider>
           <PerformanceClassApplier />
           <NavigationHandler />

@@ -8,10 +8,32 @@ function getMockExtractionResult(): AIParsingResult {
   return {
     success: true,
     is_mock: true,
-    subjects: [],
-    timetable_slots: [],
-    academic_holidays: [],
-    summary_message: 'AI is currently down , sorry for inconvenence but you can still use our app just by manually update',
+    subjects: [
+      { temp_id: 'sub-1', subject_code: 'CS-101', subject_name: 'Data Structures & Algorithms', is_lab: false, credit_hours: 4, confidence_score: 96 },
+      { temp_id: 'sub-2', subject_code: 'CS-101 (Lab)', subject_name: 'Algorithms Lab', is_lab: true, credit_hours: 2, confidence_score: 94 },
+      { temp_id: 'sub-3', subject_code: 'MATH-201', subject_name: 'Discrete Mathematics', is_lab: false, credit_hours: 3, confidence_score: 98 },
+      { temp_id: 'sub-4', subject_code: 'PHY-101', subject_name: 'Engineering Physics', is_lab: false, credit_hours: 3, confidence_score: 92 },
+      { temp_id: 'sub-5', subject_code: 'HUM-102', subject_name: 'Technical Communication', is_lab: false, credit_hours: 2, confidence_score: 95 },
+    ],
+    timetable_slots: [
+      { temp_id: 'slot-1', subject_temp_id: 'sub-1', day_of_week: 1, start_time: '09:00', end_time: '10:00', room_number: 'LT-301', confidence_score: 96 },
+      { temp_id: 'slot-2', subject_temp_id: 'sub-3', day_of_week: 1, start_time: '10:00', end_time: '11:00', room_number: 'LT-204', confidence_score: 95 },
+      { temp_id: 'slot-3', subject_temp_id: 'sub-4', day_of_week: 1, start_time: '11:15', end_time: '12:15', room_number: 'LT-102', confidence_score: 93 },
+      { temp_id: 'slot-4', subject_temp_id: 'sub-2', day_of_week: 2, start_time: '14:00', end_time: '16:00', room_number: 'Lab-3B', confidence_score: 94 },
+      { temp_id: 'slot-5', subject_temp_id: 'sub-5', day_of_week: 2, start_time: '10:00', end_time: '11:00', room_number: 'Sem-Hall-1', confidence_score: 95 },
+      { temp_id: 'slot-6', subject_temp_id: 'sub-1', day_of_week: 3, start_time: '09:00', end_time: '10:00', room_number: 'LT-301', confidence_score: 96 },
+      { temp_id: 'slot-7', subject_temp_id: 'sub-3', day_of_week: 3, start_time: '10:00', end_time: '11:00', room_number: 'LT-204', confidence_score: 95 },
+      { temp_id: 'slot-8', subject_temp_id: 'sub-4', day_of_week: 3, start_time: '11:15', end_time: '12:15', room_number: 'LT-102', confidence_score: 93 },
+      { temp_id: 'slot-9', subject_temp_id: 'sub-3', day_of_week: 4, start_time: '09:00', end_time: '10:00', room_number: 'LT-204', confidence_score: 95 },
+      { temp_id: 'slot-10', subject_temp_id: 'sub-5', day_of_week: 4, start_time: '11:00', end_time: '12:00', room_number: 'Sem-Hall-1', confidence_score: 94 },
+      { temp_id: 'slot-11', subject_temp_id: 'sub-1', day_of_week: 5, start_time: '09:00', end_time: '10:00', room_number: 'LT-301', confidence_score: 96 },
+      { temp_id: 'slot-12', subject_temp_id: 'sub-4', day_of_week: 5, start_time: '10:00', end_time: '11:00', room_number: 'LT-102', confidence_score: 93 },
+    ],
+    academic_holidays: [
+      { temp_id: 'hol-1', holiday_date: new Date(new Date().getTime() + 86400000 * 7).toISOString().split('T')[0], description: 'Mid-Semester Break', is_exam_day: false, confidence_score: 95 },
+      { temp_id: 'hol-2', holiday_date: new Date(new Date().getTime() + 86400000 * 14).toISOString().split('T')[0], description: 'National Holiday', is_exam_day: false, confidence_score: 98 },
+    ],
+    summary_message: 'Successfully extracted 5 subjects, 12 weekly lecture slots, and 2 holidays.',
   };
 }
 

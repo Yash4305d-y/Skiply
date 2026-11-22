@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { m, AnimatePresence } from 'framer-motion';
-import { Check, X, Ban, RefreshCw, MapPin, Clock, AlertTriangle, ShieldCheck, ArrowRightLeft } from 'lucide-react';
+import { Check, X, Ban, RefreshCw, MapPin, ArrowRightLeft } from 'lucide-react';
 import { DailyClassItem, AttendanceStatus, Subject } from '@/types';
 
 interface ClassCardProps {
@@ -33,180 +32,168 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
   };
 
   return (
-    <m.div 
-      variants={{
-        hidden: { opacity: 0, y: 12 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
-      }}
-      className={`group relative glass-card glass-card-hover rounded-2xl p-3 sm:px-4 sm:py-3 transition-colors border ${
+    <div 
+      className={`group relative rounded-xl p-3 sm:px-4 sm:py-3 transition-colors border select-none ${
         isMarked && currentStatus === 'PRESENT' 
-          ? 'border-emerald-500/30 bg-emerald-500/5' 
+          ? 'border-teal-500/30 bg-[#121417]' 
           : isMarked && currentStatus === 'ABSENT' 
-          ? 'border-rose-500/30 bg-rose-500/5'
+          ? 'border-rose-500/30 bg-[#121417]'
           : isMarked && currentStatus === 'CANCELLED' 
-          ? 'border-slate-500/30 bg-slate-800/50'
+          ? 'border-white/10 bg-[#121417]'
           : isMarked && currentStatus === 'SWAPPED' 
-          ? 'border-sky-500/30 bg-sky-500/5'
-          : 'border-white/5 bg-transparent'
+          ? 'border-white/10 bg-[#121417]'
+          : 'border-white/[0.06] bg-[#121417]'
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        
         {/* Left Side: Time and Subject */}
-        <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1">
+        <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0">
           {/* Time (Compact) */}
-          <div className="flex flex-col sm:w-20 shrink-0 mt-0.5 sm:mt-0 text-slate-400">
-            <span className="text-xs font-bold text-slate-300">{item.start_time}</span>
-            <span className="text-[10px] uppercase font-semibold">{item.end_time}</span>
+          <div className="flex flex-col sm:w-20 shrink-0 text-slate-400 font-mono">
+            <span className="text-xs font-semibold text-slate-200 tabular-nums">{item.start_time}</span>
+            <span className="text-[10px] text-slate-500 tabular-nums">{item.end_time}</span>
           </div>
 
           {/* Subject Badge & Info */}
-          <div className="flex items-center gap-3">
-            <div 
-              className="w-2.5 h-10 rounded-full shrink-0 shadow-sm"
-              style={{ backgroundColor: item.color_hex || '#6366f1' }}
-            />
+          <div className="flex flex-col gap-1 min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-1.5 py-0.5 rounded text-[11px] font-mono font-medium text-slate-300 bg-[#181B1F] border border-white/[0.06] shrink-0">
+                {item.subject_code}
+              </span>
+              <h3 className="text-sm font-semibold text-white truncate">
+                {item.subject_name}
+              </h3>
+              {item.is_lab && (
+                <span className="px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-300 text-[10px] font-medium">
+                  Lab
+                </span>
+              )}
+              {item.room_number && (
+                <span className="flex items-center gap-0.5 text-[11px] text-slate-400">
+                  <MapPin className="w-3 h-3 text-slate-500" />
+                  {item.room_number}
+                </span>
+              )}
+            </div>
             
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-bold text-white tracking-tight leading-none">
-                  {item.subject_name}
-                </h3>
-                <span className="px-1.5 py-0.5 rounded-lg text-[9px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
-                  {item.subject_code}
-                </span>
-                {item.is_lab && (
-                  <span className="px-1.5 py-0.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[9px] font-bold">
-                    LAB
-                  </span>
+            {/* Stats inline */}
+            <div className="flex items-center gap-2 text-xs font-mono tabular-nums">
+              <span className={`font-semibold ${
+                isDanger ? 'text-rose-400' : isWarning ? 'text-amber-400' : 'text-slate-200'
+              }`}>
+                {stats.current_percentage}%
+              </span>
+              <span className="text-slate-600">•</span>
+              <span className="text-slate-400">
+                {isDanger ? (
+                  <span className="text-rose-400">Must attend {stats.classes_to_attend}</span>
+                ) : (
+                  <span>Safe to skip: <strong className="text-teal-400 font-semibold">{stats.safe_skips}</strong></span>
                 )}
-                {item.room_number && (
-                  <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
-                    <MapPin className="w-3.5 h-3.5" />
-                    {item.room_number}
-                  </span>
-                )}
-              </div>
-              
-              {/* Stats inline */}
-              <div className="flex items-center gap-2 text-[10px]">
-                <span className={`font-bold flex items-center gap-1 ${
-                  isDanger ? 'text-rose-400' : isWarning ? 'text-amber-400' : 'text-emerald-400'
-                }`}>
-                  {isDanger ? <AlertTriangle className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                  <span>{stats.current_percentage}%</span>
-                </span>
-                <span className="text-slate-600">•</span>
-                <span className="text-slate-400 font-medium">
-                  {isDanger ? (
-                    <span className="text-rose-400">Attend {stats.classes_to_attend} more</span>
-                  ) : (
-                    <span>Buffer: <strong className="text-slate-200">{stats.safe_skips}</strong> skip{stats.safe_skips !== 1 ? 's' : ''} left</span>
-                  )}
-                </span>
-              </div>
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Right Side: Quick Actions (Dense) */}
-        <div className="flex items-center justify-end gap-1.5 sm:opacity-50 group-hover:opacity-100 transition-opacity ml-[3.25rem] sm:ml-0">
+        {/* Right Side: Quick Actions */}
+        <div className="flex items-center justify-end gap-1.5 shrink-0">
           {isMarked ? (
-            <div className="flex items-center gap-1">
-              <div className={`px-2 py-1 rounded-lg font-semibold text-xs flex items-center gap-1 uppercase tracking-wider ${
-                currentStatus === 'PRESENT' ? 'bg-emerald-500/20 text-emerald-400' :
-                currentStatus === 'ABSENT' ? 'bg-rose-500/20 text-rose-400' :
-                currentStatus === 'CANCELLED' ? 'bg-amber-500/20 text-amber-400' :
-                'bg-sky-500/20 text-sky-400'
+            <div className="flex items-center gap-1.5">
+              <div className={`px-2.5 py-1 rounded-lg font-medium text-xs flex items-center gap-1 border ${
+                currentStatus === 'PRESENT' ? 'bg-teal-500/10 text-teal-400 border-teal-500/20' :
+                currentStatus === 'ABSENT' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
+                currentStatus === 'CANCELLED' ? 'bg-white/[0.06] text-slate-400 border-white/10' :
+                'bg-white/[0.06] text-slate-300 border-white/10'
               }`}>
                 {currentStatus === 'PRESENT' && <Check className="w-3.5 h-3.5" />}
                 {currentStatus === 'ABSENT' && <X className="w-3.5 h-3.5" />}
                 {currentStatus === 'CANCELLED' && <Ban className="w-3.5 h-3.5" />}
                 {currentStatus === 'SWAPPED' && <ArrowRightLeft className="w-3.5 h-3.5" />}
-                <span>{currentStatus}</span>
+                <span>
+                  {currentStatus === 'PRESENT' ? 'Present' : currentStatus === 'ABSENT' ? 'Absent' : currentStatus === 'CANCELLED' ? 'Cancelled' : 'Swapped'}
+                </span>
               </div>
-              <button 
+              <button
+                type="button"
                 onClick={() => onUndoAttendance(item.slot_id)}
-                className="icon-interactive p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-slate-100"
-                title="Undo"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
+                title="Undo attendance"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5 w-full sm:w-auto">
+            <div className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={() => handleTap('PRESENT')}
-                className="btn-interactive flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 font-semibold text-xs flex items-center justify-center gap-1.5"
+                className="px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs flex items-center gap-1 transition-colors"
               >
-                <Check className="w-4 h-4" />
-                <span className="sm:hidden lg:inline">Present</span>
+                <Check className="w-3.5 h-3.5" />
+                <span>Present</span>
               </button>
-              
               <button
+                type="button"
                 onClick={() => handleTap('ABSENT')}
-                className="btn-interactive flex-1 sm:flex-initial px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 font-semibold text-xs flex items-center justify-center gap-1.5"
+                className="px-2.5 py-1.5 rounded-lg bg-[#181B1F] hover:bg-white/10 text-slate-300 border border-white/[0.06] font-medium text-xs flex items-center gap-1 transition-colors"
               >
-                <X className="w-4 h-4" />
-                <span className="sm:hidden lg:inline">Absent</span>
+                <X className="w-3.5 h-3.5" />
+                <span>Absent</span>
               </button>
-
-              <div className="flex items-center gap-1 border-l border-white/10 pl-1.5">
-                <button
-                  onClick={() => handleTap('CANCELLED')}
-                  className="icon-interactive p-1.5 rounded-xl bg-amber-500/5 hover:bg-amber-500/20 text-amber-400"
-                  title="Cancelled"
-                >
-                  <Ban className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setIsSwapping(!isSwapping)}
-                  className="icon-interactive p-1.5 rounded-xl bg-slate-800/50 hover:bg-slate-700 text-slate-400 hover:text-white"
-                  title="Swap Class"
-                >
-                  <ArrowRightLeft className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => handleTap('CANCELLED')}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
+                title="Mark Cancelled"
+              >
+                <Ban className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSwapping(!isSwapping)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
+                title="Swap Subject"
+              >
+                <ArrowRightLeft className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Inline Swap Sheet */}
-      <AnimatePresence>
-        {isSwapping && !isMarked && (
-          <m.div 
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
+      {/* Swapping Dropdown Drawer if open */}
+      {isSwapping && (
+        <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-2">
+          <span className="text-xs text-slate-400">Swap with:</span>
+          <select
+            value={selectedSwapSubject}
+            onChange={(e) => setSelectedSwapSubject(e.target.value)}
+            className="bg-[#181B1F] border border-white/10 rounded-lg text-xs text-white px-2 py-1 flex-1 outline-none"
           >
-            <div className="mt-3 pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Select Swapped Class</span>
-              <div className="flex items-center gap-2 flex-1 sm:max-w-xs">
-                <select
-                  aria-label="Select class to swap"
-                  value={selectedSwapSubject}
-                  onChange={(e) => setSelectedSwapSubject(e.target.value)}
-                  className="input-interactive w-full bg-slate-900 px-2 py-1.5 rounded-xl border border-slate-700 text-slate-300 text-xs"
-                >
-                  {allSubjects.map(sub => (
-                    <option key={sub.id} value={sub.id}>
-                      {sub.subject_code}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => handleTap('SWAPPED')}
-                  className="btn-interactive px-3 py-1.5 rounded-xl bg-sky-600 text-white font-semibold text-xs uppercase shadow-sm"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </m.div>
-        )}
-      </AnimatePresence>
-    </m.div>
+            {allSubjects
+              .filter(s => s.id !== item.subject_id)
+              .map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.subject_code} — {s.subject_name}
+                </option>
+              ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => handleTap('SWAPPED')}
+            className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium"
+          >
+            Confirm
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsSwapping(false)}
+            className="px-2 py-1 text-xs text-slate-400 hover:text-white"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

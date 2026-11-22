@@ -25,7 +25,7 @@ export async function getUserProfile() {
 export async function updateSemesterDates(startDate: string, endDate: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('profiles')
@@ -37,7 +37,7 @@ export async function updateSemesterDates(startDate: string, endDate: string) {
       semester_end_date: endDate 
     }, { onConflict: 'id' })
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidatePath('/dashboard')
   return { success: true }
 }
@@ -45,7 +45,7 @@ export async function updateSemesterDates(startDate: string, endDate: string) {
 export async function updateSemesterConfig(targetPct: number, startDate: string, endDate: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('profiles')
@@ -58,7 +58,7 @@ export async function updateSemesterConfig(targetPct: number, startDate: string,
       semester_end_date: endDate 
     }, { onConflict: 'id' })
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidatePath('/dashboard')
   return { success: true }
 }

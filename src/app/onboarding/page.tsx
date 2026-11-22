@@ -10,7 +10,7 @@ import Navbar from '@/components/layout/navbar';
 
 export default function OnboardingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950">
+    <div className="min-h-screen flex flex-col bg-[#0B0C0E]">
       <Navbar />
       <main className="flex-1 py-8">
         <OnboardingWizard />

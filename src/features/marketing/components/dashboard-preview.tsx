@@ -18,9 +18,9 @@ export function DashboardPreview() {
   const [safeSkips, setSafeSkips] = useState(14);
   const [weeklyData, setWeeklyData] = useState([65, 75, 82, 78, 90, 85, 95]);
   const [schedule, setSchedule] = useState([
-    { id: 1, time: "09:00", code: "CS301", name: "Data Structures", status: "PRESENT", color: "bg-emerald-500" },
-    { id: 2, time: "11:30", code: "MA201", name: "Linear Algebra", status: "PENDING", color: "bg-indigo-500" },
-    { id: 3, time: "14:00", code: "PH102", name: "Physics Lab", status: "PENDING", color: "bg-rose-500" },
+    { id: 1, time: "09:00", code: "CS301", name: "Data Structures", status: "PRESENT", color: "bg-teal-400" },
+    { id: 2, time: "11:30", code: "MA201", name: "Linear Algebra", status: "PENDING", color: "bg-slate-700" },
+    { id: 3, time: "14:00", code: "PH102", name: "Physics Lab", status: "PENDING", color: "bg-slate-700" },
   ]);
 
   const toggleClassStatus = (id: number) => {
@@ -122,7 +122,7 @@ export function DashboardPreview() {
           <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
         </div>
         <div className="mx-auto flex items-center gap-2 px-24">
-          <div className="w-48 h-5 rounded-md bg-slate-800/50 flex items-center justify-center border border-white/5">
+          <div className="w-48 h-5 rounded-lg bg-slate-800/50 flex items-center justify-center border border-white/5">
             <span className="text-[10px] text-slate-400 font-medium tracking-wide">skiply.app/dashboard</span>
           </div>
         </div>
@@ -136,42 +136,30 @@ export function DashboardPreview() {
           {/* Top Stats Row */}
           <div className="grid grid-cols-2 gap-4">
             <m.div variants={itemVariants} className={`p-5 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col items-center justify-center text-center gap-3 relative overflow-hidden transition-colors duration-500 ${isWarning ? 'shadow-[inset_0_0_20px_rgba(244,63,94,0.1)]' : ''}`}>
-              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${isWarning ? 'from-rose-500 to-orange-400' : 'from-teal-500 to-emerald-400'} transition-colors duration-500`} />
+              <div className={`absolute top-0 left-0 w-full h-1 ${isWarning ? 'bg-rose-500' : 'bg-teal-400'} transition-colors duration-500`} />
               {isInView && (
                 <AnimatedRing 
                   percentage={attendance} 
                   size={120} 
                   strokeWidth={10} 
-                  color={isWarning ? "url(#rose-gradient)" : "url(#teal-gradient)"}
+                  color={isWarning ? "#f43f5e" : "#2dd4bf"}
                 />
               )}
-              <svg className="hidden">
-                <defs>
-                  <linearGradient id="teal-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#14b8a6" />
-                    <stop offset="100%" stopColor="#34d399" />
-                  </linearGradient>
-                  <linearGradient id="rose-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#f43f5e" />
-                    <stop offset="100%" stopColor="#fb923c" />
-                  </linearGradient>
-                </defs>
-              </svg>
               <div className="absolute flex flex-col items-center justify-center mt-2">
                 <span className="text-xl sm:text-2xl font-bold text-white">
                   {isInView ? <AnimatedNumber value={attendance} suffix="%" /> : '0%'}
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Overall</span>
+                <span className="text-[10px] text-slate-400 font-semibold">Overall</span>
               </div>
             </m.div>
 
             <m.div variants={itemVariants} className="p-5 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col justify-between transition-colors duration-500">
               <div className="flex items-start justify-between">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400' : 'bg-teal-500/10 text-teal-400'}`}>
                   <TrendingUp className="w-4 h-4" />
                 </div>
-                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                  {isWarning ? 'Danger Zone' : 'On Track'}
+                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-medium border transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-teal-500/10 text-teal-400 border-teal-500/20'}`}>
+                  {isWarning ? 'Danger zone' : 'On track'}
                 </span>
               </div>
               <div className="space-y-1 mt-4">
@@ -250,11 +238,10 @@ export function DashboardPreview() {
         {/* Right Column (Timetable & AI Insight) */}
         <div className="md:col-span-5 flex flex-col gap-6">
           {/* AI Insight Card */}
-          <m.div variants={itemVariants} className="p-4 rounded-xl bg-slate-900/40 border border-white/5 relative overflow-hidden flex flex-col">
-            <div className={`absolute top-0 right-0 w-32 h-32 blur-[40px] rounded-full transition-colors duration-500 ${isWarning ? 'bg-rose-500/10' : 'bg-sky-500/10'}`} />
+          <m.div variants={itemVariants} className="p-4 rounded-xl bg-slate-900/40 border border-white/5 relative flex flex-col">
             <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-sky-400'}`} />
-              <h3 className={`text-xs font-bold uppercase tracking-wider transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-sky-400'}`}>Attendra AI Insight</h3>
+              <Lightbulb className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-slate-400'}`} />
+              <h3 className={`text-xs font-semibold transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-slate-300'}`}>Skiply insight</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed font-medium relative z-10 transition-all duration-300">
               {isWarning 
@@ -266,8 +253,8 @@ export function DashboardPreview() {
           {/* Timetable Slice */}
           <m.div variants={itemVariants} className="flex-1 p-5 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-100">Today&apos;s Schedule</h3>
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Click to Toggle</span>
+              <h3 className="text-sm font-bold text-slate-100">Today&apos;s schedule</h3>
+              <span className="text-[10px] text-slate-400 font-medium">Click to toggle</span>
             </div>
             <div className="space-y-3">
               {schedule.map((cls, i) => (
@@ -298,17 +285,17 @@ export function DashboardPreview() {
                   
                   {/* Status Indicator */}
                   {cls.status === "PRESENT" && (
-                    <div className="w-7 h-7 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition-colors">
+                    <div className="w-7 h-7 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center transition-colors">
                       <CheckCircle2 className="w-4 h-4" />
                     </div>
                   )}
                   {cls.status === "ABSENT" && (
-                    <div className="w-7 h-7 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center transition-colors">
+                    <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center transition-colors">
                       <XCircle className="w-4 h-4" />
                     </div>
                   )}
                   {cls.status === "PENDING" && (
-                    <div className="w-7 h-7 rounded-md bg-slate-800/50 text-slate-400 border border-slate-700 flex items-center justify-center transition-colors group-hover:text-slate-400">
+                    <div className="w-7 h-7 rounded-lg bg-slate-800/50 text-slate-400 border border-slate-700 flex items-center justify-center transition-colors group-hover:text-slate-400">
                       <CircleDashed className="w-4 h-4" />
                     </div>
                   )}

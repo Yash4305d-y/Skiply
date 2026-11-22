@@ -198,6 +198,30 @@ export function setOnboardedInDemo(val: boolean): void {
   localStorage.setItem(DEMO_KEYS.ONBOARDED, val ? 'true' : 'false');
 }
 
+export function isDemoModeActive(): boolean {
+  if (typeof window === 'undefined') return true;
+  const val = localStorage.getItem('skiply_demo_active');
+  if (val === null) return true; // Default to active for instant testing
+  return val === 'true';
+}
+
+export function setDemoModeActive(active: boolean): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('skiply_demo_active', active ? 'true' : 'false');
+  window.dispatchEvent(new Event('skiply_demo_state_changed'));
+}
+
+export function seedDemoData(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(DEMO_KEYS.PROFILE, JSON.stringify(DEFAULT_PROFILE));
+  localStorage.setItem(DEMO_KEYS.SUBJECTS, JSON.stringify(DEFAULT_SUBJECTS));
+  localStorage.setItem(DEMO_KEYS.SLOTS, JSON.stringify(DEFAULT_SLOTS));
+  localStorage.setItem(DEMO_KEYS.HOLIDAYS, JSON.stringify(DEFAULT_HOLIDAYS));
+  localStorage.setItem(DEMO_KEYS.LOGS, JSON.stringify(generateSampleLogs()));
+  localStorage.setItem(DEMO_KEYS.ONBOARDED, 'true');
+  setDemoModeActive(true);
+}
+
 export function resetDemoData(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(DEMO_KEYS.PROFILE);
@@ -206,6 +230,7 @@ export function resetDemoData(): void {
   localStorage.removeItem(DEMO_KEYS.HOLIDAYS);
   localStorage.removeItem(DEMO_KEYS.LOGS);
   localStorage.removeItem(DEMO_KEYS.ONBOARDED);
+  seedDemoData();
 }
 
 // Save AI confirmed schedule into local demo store
