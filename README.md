@@ -25,19 +25,27 @@
 
 ---
 
+
 ## 🌐 Live Demo
 
 Experience the live production application deployed on Vercel:
 
 <p align="center">
-  <a href="https://skiply-kk.vercel.app/">
-    <img src="https://img.shields.io/badge/⚡_LAUNCH_SKIPLY_APP-https%3A%2F%2Fskiply--kk.vercel.app-2DD4BF?style=for-the-badge&labelColor=0B0C0E" alt="Launch Skiply">
+  <a href="https://skiply-kk.vercel.app/" target="_blank">
+    <img
+      src="https://img.shields.io/badge/⚡_LAUNCH_SKIPLY_APP-2DD4BF?style=for-the-badge&labelColor=0B0C0E"
+      alt="Launch Skiply"
+    />
   </a>
 </p>
 
-> **Direct Production URL:** [https://skiply-kk.vercel.app/](https://skiply-kk.vercel.app/)
+<p align="center">
+  <strong>Live Application:</strong>
+  <a href="https://skiply-kk.vercel.app/">skiply-kk.vercel.app</a>
+</p>
 
 ---
+
 
 ## 📖 Overview
 
