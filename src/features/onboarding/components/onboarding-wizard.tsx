@@ -278,7 +278,7 @@ export default function OnboardingWizard() {
   const isEndDateInPast = Boolean(endDate && endDate < todayIso);
 
   return (
-    <div className="max-w-xl mx-auto px-4 pb-28 sm:pb-12 pt-2 select-none">
+    <div className="max-w-xl mx-auto px-4 pb-40 sm:pb-12 pt-2 select-none">
       {/* Step Indicator: "Step 1 of 4" + Thin 4-Segment Progress Line */}
       <div className="space-y-2 mb-6">
         <div className="flex items-center justify-between text-xs font-mono">
@@ -435,7 +435,7 @@ export default function OnboardingWizard() {
           )}
 
           {/* Sticky Bottom Primary Button */}
-          <div className="fixed bottom-0 inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-20 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0">
+          <div className="fixed bottom-[calc(3.5rem+max(0.5rem,env(safe-area-inset-bottom,0.5rem)))] inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-30 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0">
             <button 
               onClick={runAIExtraction}
               disabled={!timetableFile || isExtracting}
@@ -532,7 +532,7 @@ export default function OnboardingWizard() {
           </div>
 
           {/* Sticky Bottom Actions */}
-          <div className="fixed bottom-0 inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-20 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0 flex items-center gap-3">
+          <div className="fixed bottom-[calc(3.5rem+max(0.5rem,env(safe-area-inset-bottom,0.5rem)))] inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-30 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0 flex items-center gap-3">
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
@@ -747,7 +747,7 @@ export default function OnboardingWizard() {
           )}
 
           {/* Sticky Bottom Actions */}
-          <div className="fixed bottom-0 inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-20 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0 flex items-center gap-3">
+          <div className="fixed bottom-[calc(3.5rem+max(0.5rem,env(safe-area-inset-bottom,0.5rem)))] inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-30 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0 flex items-center gap-3">
             <button 
               type="button"
               onClick={() => setCurrentStep(2)}

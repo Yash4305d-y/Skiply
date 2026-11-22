@@ -4,6 +4,7 @@ import "./globals.css";
 import NavigationHandler from "@/components/providers/navigation-handler";
 import { PerformanceTierProvider } from "@/lib/utils/use-performance-tier";
 import PerformanceClassApplier from "@/components/providers/performance-class-applier";
+import BottomNav from "@/components/layout/bottom-nav";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -56,6 +57,7 @@ export default function RootLayout({
           <NavigationHandler />
           <LazyMotion features={domAnimation} strict>
             {children}
+            <BottomNav />
           </LazyMotion>
         </PerformanceTierProvider>
       </body>
