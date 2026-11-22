@@ -4,7 +4,7 @@
 
 <div align="center">
 
-# <img src="public/icon.svg" alt="Skiply Icon" width="40" height="40" align="center" style="vertical-align: -6px;"/> Skiply
+# <img src="public/icon.svg" alt="Skiply Icon" width="52" height="52" align="absmiddle" valign="middle" style="vertical-align: middle; margin-right: 6px;"/> Skiply
 
 **Know exactly when you can safely skip.**
 
