@@ -70,7 +70,7 @@ export async function flushOfflineQueue(): Promise<{ synced: number; failed: num
         remaining.push(action);
         failed++;
       } else {
-        // If auth error in demo mode or row conflict, drop from queue so it doesn't block forever
+        // If auth error or row conflict, drop from queue so it doesn't block forever
         synced++;
       }
     }

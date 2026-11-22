@@ -25,7 +25,7 @@ export async function getUserProfile() {
 export async function updateSemesterDates(startDate: string, endDate: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('profiles')
@@ -37,7 +37,7 @@ export async function updateSemesterDates(startDate: string, endDate: string) {
       semester_end_date: endDate 
     }, { onConflict: 'id' })
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidatePath('/dashboard')
   return { success: true }
 }
@@ -45,7 +45,7 @@ export async function updateSemesterDates(startDate: string, endDate: string) {
 export async function updateSemesterConfig(targetPct: number, startDate: string, endDate: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) return { error: 'Not authenticated' }
 
   const { error } = await supabase
     .from('profiles')
@@ -58,7 +58,7 @@ export async function updateSemesterConfig(targetPct: number, startDate: string,
       semester_end_date: endDate 
     }, { onConflict: 'id' })
 
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidatePath('/dashboard')
   return { success: true }
 }
@@ -343,7 +343,7 @@ export async function getSemesterData() {
     holidaysData = oldRes.data ? oldRes.data.map((h: Record<string, unknown>) => ({ ...h, holiday_name: h.description })) : [];
   }
 
-  // If profile doesn't exist yet, or if there are no subjects/slots in the cloud DB, return null so frontend cleanly falls back to Demo Store
+  // If profile doesn't exist yet, or if there are no subjects/slots in the cloud DB, return null
   if (!profileRes.data || ((!subjectsRes.data || subjectsRes.data.length === 0) && (!slotsRes.data || slotsRes.data.length === 0))) {
     return null;
   }

@@ -8,12 +8,7 @@ import Footer from '@/components/layout/footer';
 const HeroWidget = dynamic(() => import('@/features/dashboard/components/hero-widget'), { ssr: false });
 const DailyClassList = dynamic(() => import('@/features/dashboard/components/daily-class-list'), { ssr: false });
 const AttendanceReminder = dynamic(() => import('@/features/dashboard/components/attendance-reminder'), { ssr: false });
-import { 
-  getDemoProfile, getDemoSubjects, getDemoTimetableSlots, 
-  getDemoHolidays, getDemoAttendanceLogs, saveDemoAttendanceLog, 
-  removeDemoAttendanceLog, isOnboardedInDemo 
-} from '@/lib/demo-store';
-import { getSemesterData, getDailySchedule, markAttendance } from '@/actions/db';
+import { getSemesterData, getDailySchedule, markAttendance, removeAttendance, updateSemesterConfig } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 import { calculateOverallSemesterStats } from '@/lib/math-engine';
 import { 
@@ -21,11 +16,8 @@ import {
   AttendanceLog, AttendanceStatus, DailyClassItem 
 } from '@/types';
 import NextLink from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, Calendar as CalendarIcon, Check, Settings, LogOut, Loader2, Link2, Database, Shield } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
-import { updateSemesterConfig } from '@/actions/db';
-import { updateDemoSemesterConfig } from '@/lib/demo-store';
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -34,7 +26,6 @@ export default function DashboardPage() {
   const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isDemoMode, setIsDemoMode] = useState(false);
 
   // Selected Date State (YYYY-MM-DD)
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -54,7 +45,7 @@ export default function DashboardPage() {
     const handleSynced = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail && detail.synced > 0) {
-        setSyncToast('🔄 Offline attendance synced to database!');
+        setSyncToast('Offline attendance synced to database');
         setTimeout(() => setSyncToast(null), 4000);
       }
     };
@@ -65,7 +56,6 @@ export default function DashboardPage() {
   useEffect(() => {
     async function initData() {
       try {
-        // Try fetching live Supabase data from Server Action
         const cloudData = await getSemesterData();
         if (cloudData && cloudData.profile) {
           setProfile(cloudData.profile);
@@ -74,21 +64,18 @@ export default function DashboardPage() {
           setHolidays(cloudData.holidays);
           setLogs(cloudData.logs);
           setIsLoaded(true);
-          setIsDemoMode(false);
           return;
         }
       } catch (e) {
         console.log('Cloud getSemesterData error:', e);
       }
 
-      // If no data exists, set empty state instead of demo mode
       setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
       setSubjects([]);
       setSlots([]);
       setHolidays([]);
       setLogs([]);
       setIsLoaded(true);
-      setIsDemoMode(false);
     }
 
     initData();
@@ -102,17 +89,15 @@ export default function DashboardPage() {
     const dayOfWeek = selectedDateObj.getDay();
 
     async function checkDailySchedule() {
-      if (!isDemoMode) {
-        try {
-          const res = await getDailySchedule(dayOfWeek, selectedDate);
-          if (res) {
-            setDailyHoliday(res.isHoliday);
-            setDailyHolidayName(res.holidayName);
-            return;
-          }
-        } catch (e) {
-          console.log('getDailySchedule error:', e);
+      try {
+        const res = await getDailySchedule(dayOfWeek, selectedDate);
+        if (res) {
+          setDailyHoliday(res.isHoliday);
+          setDailyHolidayName(res.holidayName);
+          return;
         }
+      } catch (e) {
+        console.log('getDailySchedule error:', e);
       }
 
       // Fallback local holiday check
@@ -122,26 +107,25 @@ export default function DashboardPage() {
     }
 
     checkDailySchedule();
-  }, [selectedDate, holidays, isLoaded, isDemoMode]);
+  }, [selectedDate, holidays, isLoaded]);
 
   // Debounced save to backend for target percentage updates
   useEffect(() => {
-    if (!profile || !isLoaded) return;
+    if (!profile || !isLoaded || profile.id === 'new') return;
     
     const handler = setTimeout(async () => {
-      if (isDemoMode) {
-        updateDemoSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
-      } else {
-        try {
-          await updateSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
-        } catch (e) {
-          console.error('Failed to save target:', e);
+      try {
+        const res = await updateSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
+        if (res?.error) {
+          console.log('Semester config save notice:', res.error);
         }
+      } catch (e) {
+        console.error('Failed to save target:', e);
       }
     }, 500);
 
     return () => clearTimeout(handler);
-  }, [profile, profile?.target_attendance_percentage, isLoaded, isDemoMode]);
+  }, [profile, profile?.target_attendance_percentage, isLoaded]);
 
   // Calculate live deterministic math stats across semester using useMemo
   const { overall, subjectStats } = useMemo(() => calculateOverallSemesterStats(
@@ -190,18 +174,22 @@ export default function DashboardPage() {
       <div className="min-h-screen flex flex-col bg-slate-950">
         <Navbar />
         <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-            <Image src="/nav-logo.png" alt="Skiply Logo" width={64} height={64} className="mx-auto mb-6 object-contain rounded-2xl shadow-lg" />
-            <h2 className="text-2xl font-bold text-white mb-4">Welcome to Skiply!</h2>
-            <p className="text-slate-400 mb-8 leading-relaxed">
-              Please upload your timetable and holiday list in the AI Onboarding tab to get started.
+          <div className="max-w-md w-full glass-card border border-white/5 bg-slate-900/60 rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              No timetable configured
+            </h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Upload your timetable or syllabus in onboarding to calculate safe skips and track attendance.
             </p>
-            <NextLink 
-              href="/onboarding" 
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl font-semibold transition-all hover:scale-105 active:scale-95"
-            >
-              Go to AI Onboarding <ArrowRight className="w-4 h-4" />
-            </NextLink>
+            <div className="pt-2">
+              <NextLink 
+                href="/onboarding" 
+                className="btn-interactive inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-slate-950 px-5 py-2.5 rounded-xl font-semibold text-sm"
+              >
+                <span>Set up timetable</span>
+                <ArrowRight strokeWidth={1.75} className="w-4 h-4" />
+              </NextLink>
+            </div>
           </div>
         </main>
         <Footer />
@@ -300,22 +288,17 @@ export default function DashboardPage() {
     };
 
     // 1. INSTANT OPTIMISTIC UI UPDATE
-    if (isDemoMode) {
-      const updatedLogs = saveDemoAttendanceLog(newLog);
-      setLogs([...updatedLogs]);
-    } else {
-      setLogs(prev => {
-        const existingIdx = prev.findIndex(
-          l => l.subject_id === subjectId && l.timetable_slot_id === slotId && l.log_date === selectedDate
-        );
-        if (existingIdx >= 0) {
-          const newArr = [...prev];
-          newArr[existingIdx] = newLog;
-          return newArr;
-        }
-        return [...prev, newLog];
-      });
-    }
+    setLogs(prev => {
+      const existingIdx = prev.findIndex(
+        l => l.subject_id === subjectId && l.timetable_slot_id === slotId && l.log_date === selectedDate
+      );
+      if (existingIdx >= 0) {
+        const newArr = [...prev];
+        newArr[existingIdx] = newLog;
+        return newArr;
+      }
+      return [...prev, newLog];
+    });
 
     // Check if browser is offline
     if (typeof window !== 'undefined' && !navigator.onLine && (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED')) {
@@ -325,13 +308,13 @@ export default function DashboardPage() {
         logDate: selectedDate,
         status,
       });
-      setOfflineToast('📴 Offline — attendance queued to sync!');
+      setOfflineToast('Offline — attendance queued to sync');
       setTimeout(() => setOfflineToast(null), 3500);
       return;
     }
 
-    // 2. QUIET BACKGROUND SERVER ACTION
-    if (!isDemoMode && (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED')) {
+    // 2. BACKGROUND SERVER ACTION
+    if (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED') {
       try {
         await markAttendance({
           subjectId,
@@ -348,84 +331,67 @@ export default function DashboardPage() {
             logDate: selectedDate,
             status,
           });
-          setOfflineToast('📴 Offline — attendance queued to sync!');
+          setOfflineToast('Offline — attendance queued to sync');
           setTimeout(() => setOfflineToast(null), 3500);
         } else {
-          console.log('Background markAttendance skipped or failed (Demo Mode or offline):', e);
+          console.log('Background markAttendance error:', e);
         }
       }
     }
   };
 
   const handleUndoAttendance = async (slotId: string) => {
-    if (isDemoMode) {
-      const updatedLogs = removeDemoAttendanceLog(slotId, selectedDate);
-      setLogs([...updatedLogs]);
-    } else {
-      const slot = slots.find(s => s.id === slotId);
-      if (!slot) return;
-      setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === selectedDate)));
-      try {
-        const { removeAttendance } = await import('@/actions/db');
-        await removeAttendance({
-          subjectId: slot.subject_id,
-          timetableSlotId: slotId,
-          logDate: selectedDate
-        });
-      } catch (e) {
-        console.log('Undo failed offline:', e);
-      }
+    const slot = slots.find(s => s.id === slotId);
+    if (!slot) return;
+    setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === selectedDate)));
+    try {
+      await removeAttendance({
+        subjectId: slot.subject_id,
+        timetableSlotId: slotId,
+        logDate: selectedDate
+      });
+    } catch (e) {
+      console.log('Undo failed offline:', e);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
       <Navbar />
 
       {/* Floating Offline & Sync Toast Banners */}
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none">
         {offlineToast && (
-          <div className="px-5 py-2.5 rounded-2xl bg-amber-500 text-slate-950 font-bold text-xs shadow-2xl flex items-center gap-2 border border-amber-400 animate-bounce">
+          <div className="px-3.5 py-1.5 rounded-lg bg-[#181B1F] text-amber-400 font-medium text-xs flex items-center gap-2 border border-amber-500/20 shadow-md">
             <span>{offlineToast}</span>
           </div>
         )}
         {syncToast && (
-          <div className="px-5 py-2.5 rounded-2xl bg-emerald-500 text-white font-bold text-xs shadow-2xl flex items-center gap-2 border border-emerald-400 animate-bounce">
+          <div className="px-3.5 py-1.5 rounded-lg bg-[#181B1F] text-teal-400 font-medium text-xs flex items-center gap-2 border border-teal-500/20 shadow-md">
             <span>{syncToast}</span>
           </div>
         )}
       </div>
 
-      <m.main 
-        className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full"
-        initial="hidden"
-        animate="show"
-        variants={{
-          hidden: { opacity: 0 },
-          show: {
-            opacity: 1,
-            transition: { staggerChildren: 0.06 }
-          }
-        }}
+      <main 
+        className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 sm:pb-32 md:py-8 w-full"
       >
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT COLUMN: HERO STATS & GOALS */}
           <div className="lg:col-span-4 space-y-6">
             <HeroWidget stats={overall} onUpdateTarget={handleUpdateTarget} />
-            
-
           </div>
 
           {/* RIGHT COLUMN: DAILY SCHEDULE & FEED */}
           <div className="lg:col-span-8 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl sm:text-[28px] md:text-[32px] font-bold text-white tracking-[-0.02em]">
-                Daily Schedule
+            <div>
+              <h2 className="font-serif text-2xl sm:text-3xl text-white tracking-[-0.02em] [text-wrap:balance]">
+                Daily schedule
               </h2>
-              <span className="text-[11px] text-slate-400 font-medium">
-                Single-tap Present / Absent / Cancelled
-              </span>
+              <p className="text-xs text-slate-400 mt-1">
+                Single-tap to mark present, absent, or cancelled
+              </p>
             </div>
 
             <DailyClassList
@@ -438,12 +404,14 @@ export default function DashboardPage() {
               onUndoAttendance={handleUndoAttendance}
               isOutOfSemesterBounds={profile ? (selectedDate < profile.semester_start_date || selectedDate > profile.semester_end_date) : false}
               cloudHolidayName={dailyHoliday ? dailyHolidayName : null}
+              semesterStartDate={profile?.semester_start_date}
+              semesterEndDate={profile?.semester_end_date}
             />
           </div>
         </div>
         
         <AttendanceReminder slots={slots} logs={logs} />
-      </m.main>
+      </main>
 
       <Footer />
     </div>

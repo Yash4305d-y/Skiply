@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { adminMessaging } from '@/lib/firebase-admin';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mock.supabase.co';
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-key';
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 export async function GET(request: Request) {
   // 1. Verify Vercel Cron Secret
@@ -44,20 +48,21 @@ export async function GET(request: Request) {
   let body = '';
 
   if (hour === 18) {
-    title = 'Attendance Reminder';
-    body = "🔔 You haven't marked today's attendance yet. Don't forget before the day ends.";
+    title = 'Attendance reminder';
+    body = "You haven't marked today's attendance yet. Don't forget before the day ends.";
   } else if (hour === 20) {
-    title = 'Attendance Reminder';
-    body = "⏰ Your attendance is still pending. Please mark it before the day ends.";
+    title = 'Attendance reminder';
+    body = "Your attendance is still pending. Please mark it before the day ends.";
   } else if (hour === 22) {
-    title = 'Final Reminder';
-    body = "⚠️ This is your final reminder. Today's attendance is still pending.";
+    title = 'Final reminder';
+    body = "This is your final reminder. Today's attendance is still pending.";
   } else {
     // If cron triggered at an unexpected hour, skip it.
     return NextResponse.json({ skipped: true, reason: 'Not a reminder hour', hour });
   }
 
   try {
+    const supabase = getSupabase();
     // 5. Fetch all users with valid tokens and reminders enabled
     const { data: profiles, error: profileError } = await supabase
       .from('profiles')

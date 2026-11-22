@@ -2,13 +2,17 @@ import { NextResponse } from 'next/server';
 import { adminMessaging } from '@/lib/firebase-admin';
 import { createClient } from '@supabase/supabase-js';
 
-// We need a server-side Supabase client with Service Role to bypass RLS and read any user's tokens
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export const dynamic = 'force-dynamic';
+
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mock.supabase.co';
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-key';
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 export async function POST(request: Request) {
   try {
+    const supabase = getSupabase();
     if (!adminMessaging) {
       return NextResponse.json({ error: 'Firebase Admin not initialized' }, { status: 500 });
     }

@@ -4,8 +4,8 @@
   "description": "AI-powered college attendance tracker and safe skip calculator.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#090e1a",
-  "theme_color": "#0f172a",
+  "background_color": "#0B0C0E",
+  "theme_color": "#0B0C0E",
   "orientation": "portrait-primary",
   "icons": [
     {

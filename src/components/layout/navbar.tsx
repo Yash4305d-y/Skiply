@@ -2,35 +2,29 @@
 
 import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
-import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { m, AnimatePresence } from 'framer-motion';
-import { BrainCircuit, LayoutDashboard, History, LogOut, LogIn, Menu, X } from 'lucide-react';
-import { getDemoProfile } from '@/lib/demo-store';
+import { CalendarDays, BarChart2, SlidersHorizontal, LogOut, LogIn } from 'lucide-react';
 import { getCurrentUser, signOut } from '@/actions/auth';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 import PushNotificationToggle from '@/components/fcm/push-notification-toggle';
 
-// Paths that require authentication
 const PROTECTED_PATHS = ['/dashboard', '/history', '/onboarding'];
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isLowEnd } = usePerformanceTier();
-  const [userName, setUserName] = useState('Demo Student');
+  const [userName, setUserName] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Close mobile menu on route change
-  // eslint-disable-next-line
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    // Check for real Supabase auth user first
     getCurrentUser().then((user) => {
       if (user && user.full_name) {
         setUserName(`${user.full_name.split(' ')[0]} (${user.unique_id})`);
@@ -39,213 +33,181 @@ export default function Navbar() {
       } else {
         setUserId(null);
         setIsLoggedIn(false);
-        const prof = getDemoProfile();
-        if (prof.full_name) setUserName(prof.full_name.split(' ')[0]);
+        setUserName('');
       }
     });
   }, [pathname]);
 
   const navItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'History & Audit', href: '/history', icon: History },
-    { name: 'AI Onboarding', href: '/onboarding', icon: BrainCircuit },
+    { name: 'Schedule', href: '/dashboard', icon: CalendarDays },
+    { name: 'Attendance audit', href: '/history', icon: BarChart2 },
+    { name: 'Setup', href: '/onboarding', icon: SlidersHorizontal },
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-slate-950/50 backdrop-blur-3xl border-b border-white/[0.08] shadow-sm hover:border-white/[0.12] transition-colors duration-300">
-      <div 
-        className="max-w-7xl mx-auto h-[72px] flex items-center justify-between gap-4"
-        style={{
-          paddingLeft: 'max(1rem, env(safe-area-inset-left))',
-          paddingRight: 'max(1rem, env(safe-area-inset-right))'
-        }}
-      >
-        {/* Logo */}
-        <NextLink href="/" className="shrink-0 p-1 -ml-1 rounded-2xl outline-none group focus-visible:ring-2 ring-[#5EEAD4] block">
-          <m.div 
-            whileHover="hover"
-            whileTap="tap"
-            variants={{
-              hover: {},
-              tap: { scale: 0.98 }
-            }}
-            className="flex items-center gap-3 sm:gap-4"
-          >
-            {/* Logo Container */}
-            <m.div 
-              variants={{
-                hover: { y: -2, scale: 1.03 }
-              }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="relative w-10 h-10 sm:w-14 sm:h-14 shrink-0 flex items-center justify-center"
-            >
-              {/* Static Ambient Glow */}
-              <div 
-                className="absolute inset-[-20%] bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)] rounded-full pointer-events-none" 
-              />
-              
-              {/* App Icon Container */}
-              <div className="relative w-full h-full rounded-[12px] sm:rounded-[16px] flex items-center justify-center border border-black/[0.04] shadow-[inset_0_1px_2px_rgba(255,255,255,0.8),inset_0_-1px_1px_rgba(0,0,0,0.05),0_4px_10px_rgba(0,0,0,0.25)] bg-[#F6F8FB] z-10 overflow-hidden transition-shadow duration-200 group-hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(0,0,0,0.05),0_6px_14px_rgba(0,0,0,0.35)]">
-                <Image src="/nav-logo.png" alt="Skiply Icon" width={64} height={64} className="w-full h-full object-contain" />
-              </div>
-            </m.div>
-            
-            {/* Text block */}
-            <div className="flex flex-col justify-center">
-              <span className="text-xl sm:text-[28px] md:text-[32px] font-bold tracking-[-0.02em] text-white group-hover:brightness-110 transition-all leading-[1.05]">
-                Skiply
-              </span>
-              <span className="text-[11px] sm:text-[12px] font-medium text-slate-400 tracking-[0.15em] opacity-70 group-hover:opacity-90 transition-opacity hidden sm:block leading-none mt-0.5 uppercase">
-                Smart Attendance Platform
-              </span>
-            </div>
-          </m.div>
-        </NextLink>
+    <header className="sticky top-0 z-50 bg-[#0B0C0E] border-b border-white/[0.06] w-full">
+      <div className="max-w-7xl mx-auto h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Wordmark */}
+        <div className="flex items-center gap-6">
+          <NextLink href="/" className="text-xl font-bold tracking-tight text-white hover:text-slate-200 transition-colors">
+            Skiply
+          </NextLink>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800/80 shrink-0 relative">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            const isProtected = PROTECTED_PATHS.includes(item.href);
-            return (
-              <NextLink
-                key={item.href}
-                href={item.href}
-                onClick={(e) => {
-                  if (isProtected && !isLoggedIn) {
-                    e.preventDefault();
-                    router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
-                  }
-                }}
-                className={`relative px-3 py-1.5 rounded-xl text-base font-semibold flex items-center gap-2 transition-colors duration-200 ${
-                  isActive ? 'text-white' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {isActive && (
-                  <m.div
-                    layoutId="activeNavIndicator"
-                    className="absolute inset-0 bg-slate-800/80 rounded-xl border border-white/5"
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                  />
-                )}
-                <div className="relative z-10 flex items-center gap-2">
-                  <Icon className="w-4 h-4" />
-                  <span>{item.name}</span>
-                </div>
-              </NextLink>
-            );
-          })}
-        </nav>
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              const isProtected = PROTECTED_PATHS.includes(item.href);
+              return (
+                <NextLink
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => {
+                    if (isProtected && !isLoggedIn) {
+                      e.preventDefault();
+                      router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive ? 'text-white bg-white/[0.06]' : 'text-slate-400 hover:text-white hover:bg-white/[0.03]'
+                  }`}
+                >
+                  {item.name}
+                </NextLink>
+              );
+            })}
+          </nav>
+        </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-transparent border border-slate-800 hover:bg-slate-800/50 transition-colors cursor-default text-xs text-slate-300">
-            <div className={`w-1.5 h-1.5 rounded-full ${isLoggedIn ? 'bg-emerald-400' : 'bg-slate-500'}`} />
-            <span className="font-medium text-slate-400">{isLoggedIn ? 'ID:' : 'Student:'}</span>
-            <span className="font-semibold text-slate-100">{userName}</span>
-          </div>
-
-          <div className="hidden md:block">
+        {/* Right Controls */}
+        <div className="flex items-center gap-3">
+          {/* Desktop User Info & Auth */}
+          <div className="hidden md:flex items-center gap-3">
             {isLoggedIn ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-400">{userName}</span>
                 {userId && <PushNotificationToggle userId={userId} />}
                 <button
                   onClick={() => signOut()}
-                  className="btn-interactive px-3 py-1.5 rounded-xl bg-transparent text-slate-400 hover:text-rose-400 border border-transparent flex items-center justify-center min-h-[44px] gap-1.5 text-base font-semibold shrink-0"
-                  title="Sign Out"
+                  className="text-xs text-slate-400 hover:text-rose-400 transition-colors p-1"
+                  title="Sign out"
                 >
-                  <LogOut className="w-4 h-4 shrink-0" />
-                  <span className="whitespace-nowrap">Sign Out</span>
+                  <LogOut strokeWidth={1.65} className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <NextLink
                 href="/login"
-                className="btn-interactive px-3 py-1.5 rounded-xl bg-slate-800 text-slate-100 border border-slate-700 flex items-center justify-center min-h-[44px] gap-1.5 text-base font-semibold shadow-sm shrink-0"
-                title="Sign In"
+                className="text-xs font-medium text-slate-400 hover:text-white transition-colors px-2 py-1"
               >
-                <LogIn className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">Sign In</span>
+                Sign in
               </NextLink>
             )}
           </div>
 
-          {/* Mobile Hamburger Button */}
-          <button 
-            className="md:hidden p-2 text-slate-300 hover:text-white transition-colors focus:outline-none flex items-center justify-center min-h-[44px] min-w-[44px]"
+          {/* Mobile Menu Button: Text "Menu" */}
+          <button
+            type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle Menu"
+            className="md:hidden text-sm font-medium text-slate-300 hover:text-white px-2 py-1 transition-colors cursor-pointer select-none"
+            aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? 'Close' : 'Menu'}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Nav Drawer: Fully Opaque Solid Panel + Plain Scrim */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <m.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="md:hidden absolute top-[72px] left-0 right-0 bg-slate-950/95 backdrop-blur-3xl border-b border-white/[0.08] shadow-2xl z-40"
-          >
-            <div className="px-4 py-6 flex flex-col gap-4">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                const isProtected = PROTECTED_PATHS.includes(item.href);
-                return (
-                  <NextLink
-                    key={item.href}
-                    href={item.href}
-                    onClick={(e) => {
-                      setIsMobileMenuOpen(false);
-                      if (isProtected && !isLoggedIn) {
-                        e.preventDefault();
-                        router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
-                      }
-                    }}
-                    className={`flex items-center gap-3 p-3.5 rounded-xl transition-colors ${
-                      isActive ? 'bg-slate-800/80 text-white' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-semibold text-base">{item.name}</span>
-                  </NextLink>
-                );
-              })}
-              
-              <div className="h-px bg-slate-800/50 my-2" />
-              
-              {isLoggedIn ? (
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 px-3 py-2 text-sm text-slate-400">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span>Logged in as </span>
-                    <span className="font-semibold text-slate-100">{userName}</span>
-                  </div>
-                  <button
-                    onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
-                    className="flex items-center gap-3 p-3.5 rounded-xl text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors text-left"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span className="font-semibold text-base">Sign Out</span>
-                  </button>
-                </div>
-              ) : (
-                <NextLink
-                  href="/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 p-3.5 mt-2 rounded-xl bg-slate-800 text-white font-semibold border border-slate-700 hover:bg-slate-700 transition-colors"
-                >
-                  <LogIn className="w-5 h-5" />
-                  <span className="text-base">Sign In</span>
-                </NextLink>
-              )}
-            </div>
-          </m.div>
+          <div className="md:hidden">
+            {/* Plain Scrim */}
+            <m.div
+              initial={isLowEnd ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={isLowEnd ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/80 z-40"
+              aria-hidden="true"
+            />
+
+            {/* Fully Opaque Solid Panel (#0B0C0E) */}
+            <m.div
+              initial={isLowEnd ? false : { opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={isLowEnd ? undefined : { opacity: 0, y: -8 }}
+              transition={isLowEnd ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }}
+              className="fixed top-16 inset-x-0 bottom-0 bg-[#0B0C0E] z-50 flex flex-col justify-between p-6 border-t border-white/[0.06] overflow-y-auto"
+            >
+              {/* Large Nav Items, Generous Spacing */}
+              <div className="flex flex-col gap-6 pt-4">
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  const isProtected = PROTECTED_PATHS.includes(item.href);
+                  return (
+                    <NextLink
+                      key={item.href}
+                      href={item.href}
+                      onClick={(e) => {
+                        setIsMobileMenuOpen(false);
+                        if (isProtected && !isLoggedIn) {
+                          e.preventDefault();
+                          router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
+                        }
+                      }}
+                      className={`text-xl font-medium transition-colors ${
+                        isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {item.name}
+                    </NextLink>
+                  );
+                })}
+              </div>
+
+              {/* Bottom Actions: Sign in as text link; Get started as only filled button */}
+              <div className="pt-6 border-t border-white/[0.06] flex flex-col gap-4 mt-auto">
+                {isLoggedIn ? (
+                  <>
+                    <div className="text-xs text-slate-500">
+                      Signed in as <span className="text-slate-300 font-medium">{userName}</span>
+                    </div>
+                    <button
+                      onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
+                      className="text-left py-2 text-sm text-slate-400 hover:text-rose-400 transition-colors"
+                    >
+                      Sign out
+                    </button>
+                    <NextLink
+                      href="/dashboard"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="h-12 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-sm flex items-center justify-center transition-colors"
+                    >
+                      Open dashboard
+                    </NextLink>
+                  </>
+                ) : (
+                  <>
+                    <NextLink
+                      href="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-center py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                    >
+                      Sign in
+                    </NextLink>
+                    <NextLink
+                      href="/onboarding"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="h-12 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-sm flex items-center justify-center transition-colors"
+                    >
+                      Get started
+                    </NextLink>
+                  </>
+                )}
+              </div>
+            </m.div>
+          </div>
         )}
       </AnimatePresence>
     </header>

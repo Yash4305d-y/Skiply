@@ -1,77 +1,85 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { m, AnimatePresence } from 'framer-motion';
 import { 
-  UploadCloud, BrainCircuit, Wand2, CheckCircle2, AlertTriangle, 
-  Calendar, Clock, BookOpen, ArrowRight, ArrowLeft, 
-  Plus, Trash2, Edit3, Check, RefreshCw, Layers, FileText, Loader2
+  FileText, ChevronRight, Trash2, AlertTriangle, Check, 
+  Plus, BookOpen, Clock, Calendar, ArrowRight 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { 
-  AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday, 
-  Subject, TimetableSlot, AcademicHoliday 
+  AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday 
 } from '@/types';
-import { saveConfirmedScheduleToDemo, updateDemoSemesterConfig } from '@/lib/demo-store';
 import { saveOnboardingData, getUserProfile, updateSemesterConfig } from '@/actions/db';
+import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+type WizardStep = 1 | 2 | 3 | 4;
+
+function formatReadableDate(isoDateStr: string): string {
+  if (!isoDateStr) return '';
+  const [y, m, d] = isoDateStr.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  if (isNaN(date.getTime())) return isoDateStr;
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 export default function OnboardingWizard() {
   const router = useRouter();
-  const [step, setStep] = useState<'UPLOAD' | 'PROCESSING' | 'REVIEW' | 'SUCCESS'>('UPLOAD');
+  const { isLowEnd } = usePerformanceTier();
+  const [currentStep, setCurrentStep] = useState<WizardStep>(1);
+  const [isExtracting, setIsExtracting] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  
-  // Form State
+
+  // Form State: Semester Configuration
   const [targetPercentage, setTargetPercentage] = useState<number>(75);
-  const [startDate, setStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState<string>(
-    new Date(new Date().getTime() + 86400000 * 120).toISOString().split('T')[0]
-  );
-  const [initialTarget, setInitialTarget] = useState<number>(75);
-  const [initialStart, setInitialStart] = useState<string>(startDate);
-  const [initialEnd, setInitialEnd] = useState<string>(endDate);
+  const [startDate, setStartDate] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState<string>(() => {
+    return new Date(Date.now() + 86400000 * 120).toISOString().split('T')[0];
+  });
+
+  // Files State
+  const [timetableFile, setTimetableFile] = useState<File | null>(null);
+  const [calendarFile, setCalendarFile] = useState<File | null>(null);
+  const [timetablePreview, setTimetablePreview] = useState<string | null>(null);
+  const [calendarPreview, setCalendarPreview] = useState<string | null>(null);
+
+  const timetableInputRef = useRef<HTMLInputElement>(null);
+  const calendarInputRef = useRef<HTMLInputElement>(null);
+
+  // AI Extraction Results
+  const [extractionResult, setExtractionResult] = useState<AIParsingResult | null>(null);
+  const [activeTab, setActiveTab] = useState<'SUBJECTS' | 'SLOTS' | 'HOLIDAYS'>('SUBJECTS');
+  
+  // Editable Lists in Review Step
+  const [subjects, setSubjects] = useState<AIExtractedSubject[]>([]);
+  const [slots, setSlots] = useState<AIExtractedSlot[]>([]);
+  const [holidays, setHolidays] = useState<AIExtractedHoliday[]>([]);
 
   // Load saved preferences on mount
   useEffect(() => {
     async function loadPreferences() {
       if (typeof window !== 'undefined') {
         const savedTarget = localStorage.getItem('skiply_onboarding_target');
-        if (savedTarget) {
-          setTargetPercentage(Number(savedTarget));
-          setInitialTarget(Number(savedTarget));
-        }
+        if (savedTarget) setTargetPercentage(Number(savedTarget));
         const savedStart = localStorage.getItem('skiply_onboarding_start');
-        if (savedStart) {
-          setStartDate(savedStart);
-          setInitialStart(savedStart);
-        }
+        if (savedStart) setStartDate(savedStart);
         const savedEnd = localStorage.getItem('skiply_onboarding_end');
-        if (savedEnd) {
-          setEndDate(savedEnd);
-          setInitialEnd(savedEnd);
-        }
+        if (savedEnd) setEndDate(savedEnd);
       }
       
       try {
         const profile = await getUserProfile();
         if (profile) {
-          if (profile.target_attendance_percentage) {
-            setTargetPercentage(Number(profile.target_attendance_percentage));
-            setInitialTarget(Number(profile.target_attendance_percentage));
-          }
-          if (profile.semester_start_date) {
-            setStartDate(profile.semester_start_date);
-            setInitialStart(profile.semester_start_date);
-          }
-          if (profile.semester_end_date) {
-            setEndDate(profile.semester_end_date);
-            setInitialEnd(profile.semester_end_date);
-          }
+          if (profile.target_attendance_percentage) setTargetPercentage(Number(profile.target_attendance_percentage));
+          if (profile.semester_start_date) setStartDate(profile.semester_start_date);
+          if (profile.semester_end_date) setEndDate(profile.semester_end_date);
         }
-      } catch (e) {
+      } catch {
         // Ignore auth errors on mount
       }
     }
@@ -87,52 +95,8 @@ export default function OnboardingWizard() {
     }
   }, [targetPercentage, startDate, endDate]);
 
-  const [isUpdatingConfig, setIsUpdatingConfig] = useState(false);
-  const handleUpdateConfig = async () => {
-    setIsUpdatingConfig(true);
-    setToastMessage(null);
-    try {
-      const profile = await getUserProfile();
-      if (profile) {
-        await updateSemesterConfig(targetPercentage, startDate, endDate);
-      } else {
-        updateDemoSemesterConfig(targetPercentage, startDate, endDate);
-      }
-      setInitialTarget(targetPercentage);
-      setInitialStart(startDate);
-      setInitialEnd(endDate);
-      setToastMessage('Semester configuration updated successfully!');
-      setTimeout(() => setToastMessage(null), 3000);
-    } catch (e: unknown) {
-      const errMsg = e instanceof Error ? e.message : 'Failed to update configuration.';
-      alert(errMsg);
-    } finally {
-      setIsUpdatingConfig(false);
-    }
-  };
-
-  const hasConfigChanges = targetPercentage !== initialTarget || startDate !== initialStart || endDate !== initialEnd;
-
-  const [timetableFile, setTimetableFile] = useState<File | null>(null);
-  const [calendarFile, setCalendarFile] = useState<File | null>(null);
-  const [timetablePreview, setTimetablePreview] = useState<string | null>(null);
-  const [calendarPreview, setCalendarPreview] = useState<string | null>(null);
-  
-  // AI Extraction State
-  const [isMocking, setIsMocking] = useState<boolean>(false);
-  const [extractionResult, setExtractionResult] = useState<AIParsingResult | null>(null);
-  const [activeTab, setActiveTab] = useState<'SUBJECTS' | 'SLOTS' | 'HOLIDAYS'>('SUBJECTS');
-  
-  // Editable Lists in Review Step
-  const [subjects, setSubjects] = useState<AIExtractedSubject[]>([]);
-  const [slots, setSlots] = useState<AIExtractedSlot[]>([]);
-  const [holidays, setHolidays] = useState<AIExtractedHoliday[]>([]);
-
-  // Handle File Upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'TIMETABLE' | 'CALENDAR') => {
-    const file = e.target.files?.[0];
+  const handleFileSelect = (file: File | undefined, type: 'TIMETABLE' | 'CALENDAR') => {
     if (!file) return;
-    
     const reader = new FileReader();
     reader.onloadend = () => {
       const b64 = reader.result as string;
@@ -147,10 +111,22 @@ export default function OnboardingWizard() {
     reader.readAsDataURL(file);
   };
 
-  // Trigger AI Extraction
-  const startAIProcessing = async (useMock = false) => {
-    setIsMocking(useMock);
-    setStep('PROCESSING');
+  const removeFile = (e: React.MouseEvent, type: 'TIMETABLE' | 'CALENDAR') => {
+    e.stopPropagation();
+    if (type === 'TIMETABLE') {
+      setTimetableFile(null);
+      setTimetablePreview(null);
+      if (timetableInputRef.current) timetableInputRef.current.value = '';
+    } else {
+      setCalendarFile(null);
+      setCalendarPreview(null);
+      if (calendarInputRef.current) calendarInputRef.current.value = '';
+    }
+  };
+
+  const runAIExtraction = async () => {
+    if (!timetablePreview) return;
+    setIsExtracting(true);
 
     try {
       const response = await fetch('/api/extract-schedule', {
@@ -159,7 +135,7 @@ export default function OnboardingWizard() {
         body: JSON.stringify({
           timetableImage: timetablePreview,
           calendarImage: calendarPreview,
-          useMock: useMock || (!timetablePreview && !calendarPreview)
+          useMock: false,
         }),
       });
 
@@ -169,63 +145,19 @@ export default function OnboardingWizard() {
       setSlots(data.timetable_slots || []);
       setHolidays(data.academic_holidays || []);
 
-      // Transition to Review step after a short aesthetic animation delay
-      setTimeout(() => {
-        setStep('REVIEW');
-      }, 1500);
-
+      setIsExtracting(false);
+      setCurrentStep(2);
     } catch (err) {
       console.error(err);
       alert('Failed to parse schedule. Please try again.');
-      setStep('UPLOAD');
+      setIsExtracting(false);
     }
   };
 
-  // Save Confirmed Schedule
   const handleConfirmAndSave = async () => {
     setIsSaving(true);
     setToastMessage(null);
 
-    // Map AI extracted items to permanent UI entities
-    const finalSubjects: Subject[] = subjects.map(s => ({
-      id: s.temp_id,
-      user_id: 'demo-user-id-1234',
-      subject_code: s.subject_code,
-      subject_name: s.subject_name,
-      is_lab: s.is_lab,
-      credit_hours: s.credit_hours,
-      color_hex: s.is_lab ? '#8b5cf6' : '#6366f1',
-    }));
-
-    const finalSlots: TimetableSlot[] = slots.map((sl, idx) => ({
-      id: `slot-${idx + 1}`,
-      user_id: 'demo-user-id-1234',
-      subject_id: sl.subject_temp_id,
-      day_of_week: sl.day_of_week,
-      start_time: sl.start_time,
-      end_time: sl.end_time,
-      room_number: sl.room_number || 'TBA',
-    }));
-
-    const finalHolidays: AcademicHoliday[] = holidays.map((h, idx) => ({
-      id: `hol-${idx + 1}`,
-      user_id: 'demo-user-id-1234',
-      holiday_date: h.holiday_date,
-      description: h.description,
-      is_exam_day: h.is_exam_day,
-    }));
-
-    // Save to demo store as local fallback
-    saveConfirmedScheduleToDemo(
-      finalSubjects,
-      finalSlots,
-      finalHolidays,
-      targetPercentage,
-      startDate,
-      endDate
-    );
-
-    // Prepare payload for Supabase cloud DB
     const payload = {
       subjects: subjects.map(s => ({
         code: s.subject_code,
@@ -252,647 +184,545 @@ export default function OnboardingWizard() {
 
     try {
       await saveOnboardingData(payload);
-    } catch (e: unknown) {
-      // If student is testing in Demo Mode without cloud auth, quietly proceed with local demo save
-      console.log('Cloud DB save skipped (Demo Mode or unauthenticated):', e);
-      const errMsg = e instanceof Error ? e.message : String(e);
-      if (!errMsg.includes('Not authenticated')) {
-        console.error('Supabase save error during AI onboarding:', errMsg);
-      }
+      await updateSemesterConfig(targetPercentage, startDate, endDate);
+    } catch (err) {
+      console.error('Failed to save onboarding data:', err);
     }
 
     setIsSaving(false);
-    setToastMessage('Schedule saved successfully!');
-    setStep('SUCCESS');
+    setCurrentStep(4);
     
-    // Celebrate with confetti!
     confetti({
-      particleCount: 100,
-      spread: 70,
+      particleCount: 60,
+      spread: 50,
       origin: { y: 0.6 }
     });
 
     setTimeout(() => {
       router.push('/dashboard');
-    }, 2000);
+    }, 1600);
   };
 
-  // Edit Subject Field
   const updateSubject = (id: string, field: keyof AIExtractedSubject, val: string | number | boolean) => {
     setSubjects(prev => prev.map(s => s.temp_id === id ? { ...s, [field]: val } : s));
   };
-
-  // Edit Slot Field
   const updateSlot = (id: string, field: keyof AIExtractedSlot, val: string | number) => {
     setSlots(prev => prev.map(sl => sl.temp_id === id ? { ...sl, [field]: val } : sl));
   };
-
-  // Edit Holiday Field
   const updateHoliday = (id: string, field: keyof AIExtractedHoliday, val: string | number | boolean) => {
     setHolidays(prev => prev.map(h => h.temp_id === id ? { ...h, [field]: val } : h));
   };
-
-  // Add new rows
   const addSubject = () => {
     setSubjects(prev => [...prev, { temp_id: `new-sub-${Date.now()}`, subject_code: '', subject_name: '', is_lab: false, credit_hours: 3, confidence_score: 100 }]);
   };
-
   const addSlot = () => {
     setSlots(prev => [...prev, { temp_id: `new-slot-${Date.now()}`, subject_temp_id: subjects[0]?.temp_id || '', day_of_week: 1, start_time: '09:00', end_time: '10:00', room_number: '', confidence_score: 100 }]);
   };
-
   const addHoliday = () => {
     setHolidays(prev => [...prev, { temp_id: `new-hol-${Date.now()}`, holiday_date: new Date().toISOString().split('T')[0], description: '', is_exam_day: false, confidence_score: 100 }]);
   };
 
+  const stepTitles = [
+    'Upload schedule',
+    'Semester configuration',
+    'Verify schedule',
+    'Ready'
+  ];
+
+  const todayIso = new Date().toISOString().split('T')[0];
+  const isEndDateInPast = Boolean(endDate && endDate < todayIso);
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* Floating Toast Notification */}
-      <AnimatePresence>
-        {toastMessage && (
-          <m.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl bg-success text-white font-bold text-sm shadow-2xl flex items-center gap-2.5 border border-emerald-400"
-          >
-            <CheckCircle2 className="w-5 h-5" />
-            <span>{toastMessage}</span>
-          </m.div>
-        )}
-      </AnimatePresence>
-
-      {/* Wizard Header */}
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-medium mb-4">
-          <BrainCircuit className="w-3.5 h-3.5" />
-          <span>AI Onboarding Wizard</span>
+    <div className="max-w-xl mx-auto px-4 pb-40 sm:pb-12 pt-2 select-none">
+      {/* Step Indicator: "Step 1 of 4" + Thin 4-Segment Progress Line */}
+      <div className="space-y-2 mb-6">
+        <div className="flex items-center justify-between text-xs font-mono">
+          <span className="text-slate-400">Step {currentStep} of 4</span>
+          <span className="text-white font-medium">{stepTitles[currentStep - 1]}</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
-          Set Up Your Semester in 60 Seconds
-        </h1>
-        <p className="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
-          Upload your timetable and calendar. Vision AI will extract subjects, timings, and holidays automatically so you never do manual data entry.
-        </p>
+        <div className="grid grid-cols-4 gap-1.5 h-1 w-full">
+          {[1, 2, 3, 4].map(num => (
+            <div 
+              key={num} 
+              className={`h-full rounded-full transition-colors duration-200 ${
+                num <= currentStep ? 'bg-teal-400' : 'bg-white/10'
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Progress Steps Bar */}
-      <div className="flex items-center justify-center gap-2 sm:gap-4 mb-10">
-        {[
-          { id: 'UPLOAD', label: '1. Upload Schedule' },
-          { id: 'PROCESSING', label: '2. AI Extraction' },
-          { id: 'REVIEW', label: '3. Verify Grid' },
-          { id: 'SUCCESS', label: '4. Ready!' }
-        ].map((item, idx) => {
-          const isActive = step === item.id;
-          const isDone = (step === 'PROCESSING' && idx === 0) || 
-                         (step === 'REVIEW' && idx <= 1) || 
-                         (step === 'SUCCESS' && idx <= 2);
-          return (
-            <div key={item.id} className="flex items-center gap-2">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                isActive ? 'bg-slate-100 text-slate-900 shadow-sm' :
-                isDone ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' :
-                'bg-slate-800 text-slate-400'
-              }`}>
-                {isDone && <Check className="w-3 h-3" />}
-                <span>{item.label}</span>
-              </div>
-              {idx < 3 && <div className="w-4 h-0.5 bg-surface-secondary" />}
-            </div>
-          );
-        })}
-      </div>
+      {/* STEP 1: UPLOAD SCHEDULE */}
+      {currentStep === 1 && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="font-serif text-2xl sm:text-3xl text-white tracking-[-0.02em] [text-wrap:balance]">
+              Upload schedule
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Upload your timetable image. We automatically extract courses, timings, and rooms.
+            </p>
+          </div>
 
-      <AnimatePresence mode="wait">
-        {/* STEP 1: UPLOAD */}
-        {step === 'UPLOAD' && (
-          <m.div 
-            key="step-upload"
-            initial={{ opacity: 0, y: 15 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -15 }}
-            className="space-y-6"
-          >
-
-
-            {/* Upload Grids */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Timetable Upload Zone */}
-              <div className="glass-card card-interactive p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-teal-500/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
-                <input 
-                  type="file" 
-                  aria-label="Upload class timetable"
-                  accept="image/png, image/jpeg, image/jpg"
-                  onChange={(e) => handleFileChange(e, 'TIMETABLE')} 
-                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                />
-                {timetablePreview ? (
-                  <div className="space-y-3 w-full">
-                    {timetablePreview.startsWith('data:application/pdf') || timetableFile?.type === 'application/pdf' ? (
-                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-teal-300">
-                        <FileText className="w-10 h-10 text-teal-400" />
-                        <span className="text-xs font-semibold truncate max-w-full text-white">{timetableFile?.name || 'Timetable PDF'}</span>
-                        <span className="px-2 py-0.5 rounded bg-teal-500/20 text-teal-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
-                      </div>
-                    ) : (
-                      <img src={timetablePreview} alt="Timetable preview" className="h-40 w-full object-cover rounded-xl border border-border" />
-                    )}
-                    <p className="text-xs font-semibold text-success flex items-center justify-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> Timetable document ready
-                    </p>
-                  </div>
-                ) : (
-                  <div className="py-8 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-teal-400 group-hover:scale-110 transition-transform">
-                      <UploadCloud className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white text-sm">Upload Class Timetable</h4>
-                      <p className="text-xs text-slate-400 mt-1">PNG or JPG image of notice board</p>
-                    </div>
-                  </div>
-                )}
+          {/* Two Compact Upload Rows */}
+          <div className="space-y-2.5">
+            {/* Timetable Row */}
+            <div 
+              onClick={() => timetableInputRef.current?.click()}
+              className={`p-3.5 rounded-lg border transition-colors cursor-pointer flex items-center justify-between gap-3 ${
+                timetableFile 
+                  ? 'bg-[#181B1F] border-teal-500/30' 
+                  : 'bg-[#121417] hover:bg-[#181B1F] border-white/[0.06]'
+              }`}
+            >
+              <input 
+                ref={timetableInputRef}
+                type="file" 
+                aria-label="Upload class timetable"
+                accept="image/png, image/jpeg, image/jpg"
+                onChange={(e) => handleFileSelect(e.target.files?.[0], 'TIMETABLE')} 
+                className="hidden"
+              />
+              
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 rounded bg-white/[0.06] text-slate-400 shrink-0">
+                  <FileText strokeWidth={1.65} className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-white truncate">
+                    {timetableFile ? timetableFile.name : 'Class timetable'}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {timetableFile ? 'Ready to extract' : 'PNG or JPG'}
+                  </p>
+                </div>
               </div>
 
-              {/* Academic Calendar Upload Zone */}
-              <div className="glass-card card-interactive p-6 rounded-2xl border-dashed border-2 border-slate-700 hover:border-teal-500/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
-                <input 
-                  type="file" 
-                  aria-label="Upload academic calendar"
-                  accept="image/png, image/jpeg, image/jpg"
-                  onChange={(e) => handleFileChange(e, 'CALENDAR')} 
-                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                />
-                {calendarPreview ? (
-                  <div className="space-y-3 w-full">
-                    {calendarPreview.startsWith('data:application/pdf') || calendarFile?.type === 'application/pdf' ? (
-                      <div className="h-40 w-full rounded-xl border border-slate-700 bg-slate-900/80 flex flex-col items-center justify-center gap-2 p-4 text-sky-300">
-                        <FileText className="w-10 h-10 text-sky-400" />
-                        <span className="text-xs font-semibold truncate max-w-full text-white">{calendarFile?.name || 'Calendar PDF'}</span>
-                        <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 text-[10px] font-bold uppercase">PDF Ready for AI</span>
-                      </div>
-                    ) : (
-                      <img src={calendarPreview} alt="Calendar preview" className="h-40 w-full object-cover rounded-xl border border-border" />
-                    )}
-                    <p className="text-xs font-semibold text-success flex items-center justify-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> Academic calendar ready
-                    </p>
-                  </div>
+              <div className="shrink-0">
+                {timetableFile ? (
+                  <button
+                    type="button"
+                    onClick={(e) => removeFile(e, 'TIMETABLE')}
+                    className="p-1.5 rounded text-slate-400 hover:text-rose-400 hover:bg-white/[0.06] transition-colors"
+                    title="Remove file"
+                  >
+                    <Trash2 strokeWidth={1.65} className="w-4 h-4" />
+                  </button>
                 ) : (
-                  <div className="py-8 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-sky-400 group-hover:scale-110 transition-transform">
-                      <Calendar className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white text-sm">Upload Holiday List</h4>
-                      <p className="text-xs text-slate-400 mt-1">PNG or JPG image of college calendar</p>
-                    </div>
-                  </div>
+                  <ChevronRight strokeWidth={1.65} className="w-4 h-4 text-slate-500" />
                 )}
               </div>
             </div>
 
-            {/* Semester Parameters Card */}
-            <div className="card bg-surface shadow-sm p-6 rounded-2xl space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h3 className="font-semibold text-white text-sm flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-teal-400" />
-                  <span>Semester Configuration</span>
-                </h3>
-                <button
-                  onClick={handleUpdateConfig}
-                  disabled={!hasConfigChanges || isUpdatingConfig}
-                  className={`btn-interactive px-4 py-2 rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-2
-                    ${(!hasConfigChanges && !isUpdatingConfig) 
-                      ? 'bg-slate-800 text-slate-400 border border-slate-700' 
-                      : 'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700'
-                    }
-                  `}
-                >
-                  {isUpdatingConfig ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Updating...</span>
-                    </>
-                  ) : hasConfigChanges ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Update Config</span>
-                    </>
-                  ) : (
-                    <span>No Changes</span>
-                  )}
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Start Date */}
-                <div className="space-y-2">
-                  <label htmlFor="onboardingStartDate" className="text-xs font-medium text-slate-300">Semester Start Date</label>
-                  <input 
-                    id="onboardingStartDate"
-                    type="date" 
-                    value={startDate} 
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="input-interactive w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs"
-                  />
+            {/* Academic Calendar Row */}
+            <div 
+              onClick={() => calendarInputRef.current?.click()}
+              className={`p-3.5 rounded-lg border transition-colors cursor-pointer flex items-center justify-between gap-3 ${
+                calendarFile 
+                  ? 'bg-[#181B1F] border-teal-500/30' 
+                  : 'bg-[#121417] hover:bg-[#181B1F] border-white/[0.06]'
+              }`}
+            >
+              <input 
+                ref={calendarInputRef}
+                type="file" 
+                aria-label="Upload academic calendar"
+                accept="image/png, image/jpeg, image/jpg"
+                onChange={(e) => handleFileSelect(e.target.files?.[0], 'CALENDAR')} 
+                className="hidden"
+              />
+              
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 rounded bg-white/[0.06] text-slate-400 shrink-0">
+                  <FileText strokeWidth={1.65} className="w-4 h-4" />
                 </div>
-
-                {/* End Date */}
-                <div className="space-y-2">
-                  <label htmlFor="onboardingEndDate" className="text-xs font-medium text-slate-300">Semester End Date</label>
-                  <input 
-                    id="onboardingEndDate"
-                    type="date" 
-                    value={endDate} 
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="input-interactive w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs"
-                  />
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-white truncate">
+                    {calendarFile ? calendarFile.name : 'Holiday list (optional)'}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {calendarFile ? 'Ready to extract' : 'PNG or JPG'}
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Submit Action */}
-            <div className="flex justify-end">
-              <button 
-                onClick={() => startAIProcessing(false)}
-                disabled={!timetablePreview && !calendarPreview}
-                className={`btn-interactive px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm ${
-                  (!timetablePreview && !calendarPreview) 
-                    ? 'bg-slate-800 text-slate-400 border border-slate-700' 
-                    : 'bg-slate-50 text-slate-950'
-                }`}
-              >
-                <Wand2 className="w-4 h-4" />
-                <span>Extract With AI</span>
-              </button>
-            </div>
-          </m.div>
-        )}
-
-        {/* STEP 2: PROCESSING */}
-        {step === 'PROCESSING' && (
-          <m.div 
-            key="step-processing"
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="glass-card p-12 rounded-2xl text-center space-y-6 max-w-md mx-auto my-12 border-white/5"
-          >
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 rounded-full border border-teal-500/20 animate-pulse" />
-              <div className="w-16 h-16 rounded-full bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400">
-                <RefreshCw className="w-8 h-8 animate-spin" />
+              <div className="shrink-0">
+                {calendarFile ? (
+                  <button
+                    type="button"
+                    onClick={(e) => removeFile(e, 'CALENDAR')}
+                    className="p-1.5 rounded text-slate-400 hover:text-rose-400 hover:bg-white/[0.06] transition-colors"
+                    title="Remove file"
+                  >
+                    <Trash2 strokeWidth={1.65} className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <ChevronRight strokeWidth={1.65} className="w-4 h-4 text-slate-500" />
+                )}
               </div>
             </div>
+          </div>
+
+          {/* Extraction Loading State: Thin progress line with short status text */}
+          {isExtracting && (
+            <div className="p-4 rounded-lg bg-[#121417] border border-white/[0.06] space-y-2">
+              <div className="flex items-center justify-between text-xs text-slate-300 font-mono">
+                <span>Extracting schedule...</span>
+                <span className="text-teal-400">Processing</span>
+              </div>
+              <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-teal-400 rounded-full w-2/3 animate-pulse" />
+              </div>
+            </div>
+          )}
+
+          {/* Sticky Bottom Primary Button */}
+          <div className="fixed bottom-[calc(3.5rem+max(0.5rem,env(safe-area-inset-bottom,0.5rem)))] inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-30 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0">
+            <button 
+              onClick={runAIExtraction}
+              disabled={!timetableFile || isExtracting}
+              className={`w-full h-12 px-5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                !timetableFile || isExtracting
+                  ? 'bg-[#181B1F] text-slate-500 cursor-not-allowed border border-white/[0.06]' 
+                  : 'bg-teal-600 hover:bg-teal-500 text-white cursor-pointer'
+              }`}
+            >
+              <span>{isExtracting ? 'Extracting schedule...' : 'Extract with AI'}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 2: SEMESTER CONFIGURATION */}
+      {currentStep === 2 && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="font-serif text-2xl sm:text-3xl text-white tracking-[-0.02em] [text-wrap:balance]">
+              Semester configuration
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Configure your semester dates and required minimum attendance target.
+            </p>
+          </div>
+
+          <div className="bg-[#121417] p-5 rounded-xl border border-white/[0.06] space-y-4">
+            {/* Start Date */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <label htmlFor="startDate" className="font-medium text-slate-300">
+                  Semester start date
+                </label>
+                <span className="text-slate-400 font-mono">
+                  {formatReadableDate(startDate)}
+                </span>
+              </div>
+              <input 
+                id="startDate"
+                type="date" 
+                value={startDate} 
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-[#181B1F] border border-white/[0.06] text-white text-xs font-mono focus:outline-none"
+              />
+            </div>
+
+            {/* End Date */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <label htmlFor="endDate" className="font-medium text-slate-300">
+                  Semester end date
+                </label>
+                <span className="text-slate-400 font-mono">
+                  {formatReadableDate(endDate)}
+                </span>
+              </div>
+              <input 
+                id="endDate"
+                type="date" 
+                value={endDate} 
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-[#181B1F] border border-white/[0.06] text-white text-xs font-mono focus:outline-none"
+              />
+              {isEndDateInPast && (
+                <p className="text-xs text-amber-400 font-medium flex items-center gap-1.5 pt-1">
+                  <AlertTriangle strokeWidth={1.65} className="w-3.5 h-3.5 shrink-0" />
+                  <span>End date is before today ({formatReadableDate(todayIso)})</span>
+                </p>
+              )}
+            </div>
+
+            {/* Target Attendance */}
+            <div className="space-y-2 pt-3 border-t border-white/[0.06]">
+              <div className="flex items-center justify-between text-xs">
+                <label htmlFor="targetAttendance" className="font-medium text-slate-300">
+                  Target attendance percentage
+                </label>
+                <span className="font-mono font-bold text-teal-400 tabular-nums">
+                  {targetPercentage}%
+                </span>
+              </div>
+              <input 
+                id="targetAttendance"
+                type="range"
+                min="50"
+                max="90"
+                step="1"
+                value={targetPercentage} 
+                onChange={(e) => setTargetPercentage(Number(e.target.value))}
+                className="w-full accent-teal-500 bg-white/10 h-1 rounded-lg cursor-pointer"
+              />
+            </div>
+          </div>
+
+          {/* Sticky Bottom Actions */}
+          <div className="fixed bottom-[calc(3.5rem+max(0.5rem,env(safe-area-inset-bottom,0.5rem)))] inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-30 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setCurrentStep(1)}
+              className="h-12 px-4 rounded-lg text-xs font-medium bg-[#181B1F] text-slate-300 hover:text-white transition-colors"
+            >
+              Back
+            </button>
+            <button 
+              type="button"
+              onClick={() => setCurrentStep(3)}
+              className="flex-1 h-12 px-5 rounded-lg text-sm font-medium bg-teal-600 hover:bg-teal-500 text-white transition-colors cursor-pointer"
+            >
+              Continue to verification
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 3: VERIFY GRID */}
+      {currentStep === 3 && (
+        <div className="space-y-6">
+          <div>
+            <h2 className="font-serif text-2xl sm:text-3xl text-white tracking-[-0.02em] [text-wrap:balance]">
+              Verify schedule
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              {extractionResult?.summary_message || 'Review courses and timetable slots before finalizing.'}
+            </p>
+          </div>
+
+          {/* Tab Navigators */}
+          <div className="flex border-b border-white/[0.06] gap-2">
+            <button 
+              onClick={() => setActiveTab('SUBJECTS')}
+              className={`px-3 py-2 text-xs font-medium flex items-center gap-1.5 border-b-2 transition-colors ${
+                activeTab === 'SUBJECTS' ? 'border-teal-400 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
+              }`}
+            >
+              <BookOpen strokeWidth={1.65} className="w-3.5 h-3.5" />
+              <span>Subjects ({subjects.length})</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('SLOTS')}
+              className={`px-3 py-2 text-xs font-medium flex items-center gap-1.5 border-b-2 transition-colors ${
+                activeTab === 'SLOTS' ? 'border-teal-400 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
+              }`}
+            >
+              <Clock strokeWidth={1.65} className="w-3.5 h-3.5" />
+              <span>Slots ({slots.length})</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveTab('HOLIDAYS')}
+              className={`px-3 py-2 text-xs font-medium flex items-center gap-1.5 border-b-2 transition-colors ${
+                activeTab === 'HOLIDAYS' ? 'border-teal-400 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
+              }`}
+            >
+              <Calendar strokeWidth={1.65} className="w-3.5 h-3.5" />
+              <span>Holidays ({holidays.length})</span>
+            </button>
+          </div>
+
+          {/* TAB: SUBJECTS */}
+          {activeTab === 'SUBJECTS' && (
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-white">Vision AI is Parsing Schedule</h3>
-              <p className="text-xs text-slate-400">
-                {isMocking ? 'Simulating extraction of 5 subjects, 11 weekly slots, and 3 holidays...' : 'Analyzing grid columns, resolving course abbreviations, and mapping lab hours...'}
-              </p>
-            </div>
-          </m.div>
-        )}
-
-        {/* STEP 3: INTERACTIVE REVIEW GRID */}
-        {step === 'REVIEW' && (
-          <m.div 
-            key="step-review"
-            initial={{ opacity: 0, y: 15 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -15 }}
-            className="space-y-6"
-          >
-            {/* Banner */}
-            <div className="glass-card p-4 rounded-2xl bg-teal-500/5 border-teal-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                  <CheckCircle2 className="w-5 h-5" />
+              {subjects.map(s => (
+                <div key={s.temp_id} className="p-3 rounded-lg bg-[#121417] border border-white/[0.06] space-y-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="text" 
+                      aria-label="Subject code"
+                      value={s.subject_code} 
+                      onChange={(e) => updateSubject(s.temp_id, 'subject_code', e.target.value)}
+                      placeholder="Code"
+                      className="w-24 bg-[#181B1F] px-2.5 py-1.5 rounded border border-white/[0.06] text-white font-mono uppercase"
+                    />
+                    <input 
+                      type="text" 
+                      aria-label="Subject name"
+                      value={s.subject_name} 
+                      onChange={(e) => updateSubject(s.temp_id, 'subject_name', e.target.value)}
+                      placeholder="Subject name"
+                      className="flex-1 bg-[#181B1F] px-2.5 py-1.5 rounded border border-white/[0.06] text-white"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] pt-1">
+                    <button 
+                      type="button"
+                      onClick={() => updateSubject(s.temp_id, 'is_lab', !s.is_lab)}
+                      className={`px-2 py-0.5 rounded font-medium border ${
+                        s.is_lab ? 'bg-white/10 text-white border-white/20' : 'bg-transparent text-slate-400 border-white/[0.06]'
+                      }`}
+                    >
+                      {s.is_lab ? 'Lab course' : 'Theory lecture'}
+                    </button>
+                    <span className="text-slate-500 font-mono">
+                      {s.confidence_score}% match
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-teal-300 text-sm">{extractionResult?.summary_message}</h4>
-                  <p className="text-xs text-teal-500/70">Please review and edit any cells below before finalizing your semester.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Tab Navigators */}
-            <div className="flex border-b border-border gap-2">
+              ))}
               <button 
-                onClick={() => setActiveTab('SUBJECTS')}
-                className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'SUBJECTS' ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
-                }`}
+                type="button"
+                onClick={addSubject}
+                className="w-full py-2.5 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5"
               >
-                <BookOpen className="w-4 h-4" />
-                <span>Subjects ({subjects.length})</span>
-              </button>
-
-              <button 
-                onClick={() => setActiveTab('SLOTS')}
-                className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'SLOTS' ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
-                }`}
-              >
-                <Clock className="w-4 h-4" />
-                <span>Weekly Schedule ({slots.length})</span>
-              </button>
-
-              <button 
-                onClick={() => setActiveTab('HOLIDAYS')}
-                className={`px-4 py-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all ${
-                  activeTab === 'HOLIDAYS' ? 'border-teal-500 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Academic Holidays ({holidays.length})</span>
+                <Plus strokeWidth={1.75} className="w-3.5 h-3.5" />
+                <span>Add subject</span>
               </button>
             </div>
+          )}
 
-            {/* TAB CONTENT: SUBJECTS */}
-            {activeTab === 'SUBJECTS' && (
-              <div className="card bg-surface shadow-sm rounded-2xl overflow-hidden border border-border">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-surface/60 text-slate-400 text-xs uppercase tracking-wider border-b border-border">
-                        <th className="p-4 font-semibold">Subject Code</th>
-                        <th className="p-4 font-semibold">Subject Name</th>
-                        <th className="p-4 font-semibold">Type</th>
-                        <th className="p-4 font-semibold">Credits</th>
-                        <th className="p-4 font-semibold">Confidence</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800 text-xs">
+          {/* TAB: SLOTS */}
+          {activeTab === 'SLOTS' && (
+            <div className="space-y-2">
+              {slots.map(sl => (
+                <div key={sl.temp_id} className="p-3 rounded-lg bg-[#121417] border border-white/[0.06] space-y-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <select 
+                      aria-label="Day of week"
+                      value={sl.day_of_week}
+                      onChange={(e) => updateSlot(sl.temp_id, 'day_of_week', Number(e.target.value))}
+                      className="bg-[#181B1F] px-2 py-1.5 rounded border border-white/[0.06] text-white text-xs"
+                    >
+                      {DAYS_OF_WEEK.map((day, idx) => (
+                        <option key={idx} value={idx}>{day}</option>
+                      ))}
+                    </select>
+                    <select 
+                      aria-label="Select subject"
+                      value={sl.subject_temp_id}
+                      onChange={(e) => updateSlot(sl.temp_id, 'subject_temp_id', e.target.value)}
+                      className="flex-1 bg-[#181B1F] px-2 py-1.5 rounded border border-white/[0.06] text-white text-xs truncate"
+                    >
                       {subjects.map(s => (
-                        <tr key={s.temp_id} className="hover:bg-surface-secondary/40 transition-colors">
-                          <td className="p-4">
-                            <input 
-                              type="text" 
-                              aria-label="Subject code"
-                              value={s.subject_code} 
-                              onChange={(e) => updateSubject(s.temp_id, 'subject_code', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <input 
-                              type="text" 
-                              aria-label="Subject name"
-                              value={s.subject_name} 
-                              onChange={(e) => updateSubject(s.temp_id, 'subject_name', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-teal-500 focus:outline-none"
-                            />
-                            {s.warning && (
-                              <p className="text-[11px] text-warning mt-1 flex items-center gap-1 font-medium">
-                                <AlertTriangle className="w-3.5 h-3.5" /> {s.warning}
-                              </p>
-                            )}
-                          </td>
-                          <td className="p-4">
-                            <button 
-                              onClick={() => updateSubject(s.temp_id, 'is_lab', !s.is_lab)}
-                              className={`px-2.5 py-1 rounded font-semibold transition-all ${
-                                s.is_lab ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'
-                              }`}
-                            >
-                              {s.is_lab ? '🧪 Lab / Practical' : '📖 Theory Lecture'}
-                            </button>
-                          </td>
-                          <td className="p-4">
-                            <input 
-                              type="number" 
-                              aria-label="Credit hours"
-                              value={s.credit_hours} 
-                              onChange={(e) => updateSubject(s.temp_id, 'credit_hours', Number(e.target.value))}
-                              className="w-16 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white text-center focus:border-teal-500 focus:outline-none"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                              s.confidence_score > 90 ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
-                            }`}>
-                              {s.confidence_score}%
-                            </span>
-                          </td>
-                        </tr>
+                        <option key={s.temp_id} value={s.temp_id}>{s.subject_code} — {s.subject_name}</option>
                       ))}
-                    </tbody>
-                  </table>
-                  <div className="p-4 border-t border-border flex justify-center bg-surface-secondary/20">
-                    <button 
-                      onClick={addSubject}
-                      className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium transition-colors bg-teal-500/10 px-4 py-2 rounded-lg border border-teal-500/20 hover:bg-teal-500/20"
-                    >
-                      <Plus className="w-4 h-4" /> Add Subject
-                    </button>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-2 font-mono text-[11px]">
+                    <input 
+                      type="text" 
+                      aria-label="Start time"
+                      value={sl.start_time} 
+                      onChange={(e) => updateSlot(sl.temp_id, 'start_time', e.target.value)}
+                      className="w-20 bg-[#181B1F] px-2 py-1.5 rounded border border-white/[0.06] text-white"
+                      placeholder="09:00"
+                    />
+                    <span className="text-slate-500">-</span>
+                    <input 
+                      type="text" 
+                      aria-label="End time"
+                      value={sl.end_time} 
+                      onChange={(e) => updateSlot(sl.temp_id, 'end_time', e.target.value)}
+                      className="w-20 bg-[#181B1F] px-2 py-1.5 rounded border border-white/[0.06] text-white"
+                      placeholder="10:00"
+                    />
+                    <input 
+                      type="text" 
+                      aria-label="Room"
+                      value={sl.room_number || ''} 
+                      onChange={(e) => updateSlot(sl.temp_id, 'room_number', e.target.value)}
+                      placeholder="Room"
+                      className="flex-1 bg-[#181B1F] px-2 py-1.5 rounded border border-white/[0.06] text-white"
+                    />
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* TAB CONTENT: SLOTS */}
-            {activeTab === 'SLOTS' && (
-              <div className="card bg-surface shadow-sm rounded-2xl overflow-hidden border border-border">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-surface/60 text-slate-400 text-xs uppercase tracking-wider border-b border-border">
-                        <th className="p-4 font-semibold">Day</th>
-                        <th className="p-4 font-semibold">Subject</th>
-                        <th className="p-4 font-semibold">Start Time</th>
-                        <th className="p-4 font-semibold">End Time</th>
-                        <th className="p-4 font-semibold">Room</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800 text-xs">
-                      {slots.map(sl => {
-                        const subj = subjects.find(s => s.temp_id === sl.subject_temp_id);
-                        return (
-                          <tr key={sl.temp_id} className="hover:bg-surface-secondary/40 transition-colors">
-                            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                              <select 
-                                aria-label="Day of week"
-                                value={sl.day_of_week}
-                                onChange={(e) => updateSlot(sl.temp_id, 'day_of_week', Number(e.target.value))}
-                                className="bg-slate-900 px-2 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-teal-500"
-                              >
-                                {DAYS_OF_WEEK.map((day, idx) => (
-                                  <option key={idx} value={idx}>{day}</option>
-                                ))}
-                              </select>
-                            </td>
-                            <td className="p-4">
-                              <select 
-                                aria-label="Select subject"
-                                value={sl.subject_temp_id}
-                                onChange={(e) => updateSlot(sl.temp_id, 'subject_temp_id', e.target.value)}
-                                className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:outline-none focus:border-teal-500"
-                              >
-                                {subjects.map(s => (
-                                  <option key={s.temp_id} value={s.temp_id}>{s.subject_code} — {s.subject_name}</option>
-                                ))}
-                              </select>
-                              {sl.warning && (
-                                <p className="text-[11px] text-warning mt-1 flex items-center gap-1 font-medium">
-                                  <AlertTriangle className="w-3.5 h-3.5" /> {sl.warning}
-                                </p>
-                              )}
-                            </td>
-                            <td className="p-4">
-                              <input 
-                                type="text" 
-                                aria-label="Start time"
-                                value={sl.start_time} 
-                                onChange={(e) => updateSlot(sl.temp_id, 'start_time', e.target.value)}
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
-                              />
-                            </td>
-                            <td className="p-4">
-                              <input 
-                                type="text" 
-                                aria-label="End time"
-                                value={sl.end_time} 
-                                onChange={(e) => updateSlot(sl.temp_id, 'end_time', e.target.value)}
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
-                              />
-                            </td>
-                            <td className="p-4">
-                              <input 
-                                type="text" 
-                                aria-label="Room number"
-                                value={sl.room_number || ''} 
-                                onChange={(e) => updateSlot(sl.temp_id, 'room_number', e.target.value)}
-                                placeholder="LT-101"
-                                className="w-24 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-teal-500 focus:outline-none"
-                              />
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  <div className="p-4 border-t border-border flex justify-center bg-surface-secondary/20">
-                    <button 
-                      onClick={addSlot}
-                      className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium transition-colors bg-teal-500/10 px-4 py-2 rounded-lg border border-teal-500/20 hover:bg-teal-500/20"
-                    >
-                      <Plus className="w-4 h-4" /> Add Slot
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB CONTENT: HOLIDAYS */}
-            {activeTab === 'HOLIDAYS' && (
-              <div className="card bg-surface shadow-sm rounded-2xl overflow-hidden border border-border">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-surface/60 text-slate-400 text-xs uppercase tracking-wider border-b border-border">
-                        <th className="p-4 font-semibold">Date</th>
-                        <th className="p-4 font-semibold">Description</th>
-                        <th className="p-4 font-semibold">Exam / Assessment Day?</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800 text-xs">
-                      {holidays.map(h => (
-                        <tr key={h.temp_id} className="hover:bg-surface-secondary/40 transition-colors">
-                          <td className="p-4">
-                            <input 
-                              type="date" 
-                              value={h.holiday_date} 
-                              onChange={(e) => updateHoliday(h.temp_id, 'holiday_date', e.target.value)}
-                              className="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white font-mono focus:border-teal-500 focus:outline-none"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <input 
-                              type="text" 
-                              value={h.description} 
-                              onChange={(e) => updateHoliday(h.temp_id, 'description', e.target.value)}
-                              className="w-full bg-slate-900 px-2.5 py-1.5 rounded border border-slate-700 text-white focus:border-teal-500 focus:outline-none"
-                            />
-                          </td>
-                          <td className="p-4">
-                            <button 
-                              onClick={() => updateHoliday(h.temp_id, 'is_exam_day', !h.is_exam_day)}
-                              className={`px-2.5 py-1 rounded font-semibold transition-all ${
-                                h.is_exam_day ? 'bg-warning/20 text-warning border border-warning/30' : 'bg-surface-secondary text-slate-700 dark:text-slate-300 border border-border'
-                              }`}
-                            >
-                              {h.is_exam_day ? '📝 Yes (Exam Prep)' : '🏖️ No (Holiday)'}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="p-4 border-t border-border flex justify-center bg-surface-secondary/20">
-                    <button 
-                      onClick={addHoliday}
-                      className="flex items-center gap-2 text-sm text-teal-400 hover:text-teal-300 font-medium transition-colors bg-teal-500/10 px-4 py-2 rounded-lg border border-teal-500/20 hover:bg-teal-500/20"
-                    >
-                      <Plus className="w-4 h-4" /> Add Holiday
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Actions Footer */}
-            <div className="flex items-center justify-between pt-4">
+              ))}
               <button 
-                onClick={() => setStep('UPLOAD')}
-                className="px-5 py-2.5 rounded-xl bg-surface-secondary hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-xs flex items-center gap-2 transition-all"
+                type="button"
+                onClick={addSlot}
+                className="w-full py-2.5 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back to Upload</span>
-              </button>
-
-              <button 
-                onClick={handleConfirmAndSave}
-                disabled={isSaving}
-                className="px-8 py-3 rounded-xl bg-slate-50 hover:bg-white text-slate-950 font-bold text-sm shadow-sm flex items-center gap-2 transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Saving to Database...</span>
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4" />
-                    <span>Confirm & Build Schedule</span>
-                  </>
-                )}
+                <Plus strokeWidth={1.75} className="w-3.5 h-3.5" />
+                <span>Add slot</span>
               </button>
             </div>
-          </m.div>
-        )}
+          )}
 
-        {/* STEP 4: SUCCESS */}
-        {step === 'SUCCESS' && (
-          <m.div 
-            key="step-success"
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            className="glass-card p-12 rounded-2xl text-center space-y-6 max-w-md mx-auto my-12 border-white/5 bg-slate-900"
-          >
-            <div className="w-20 h-20 rounded-xl bg-slate-800 border border-white/5 flex items-center justify-center text-teal-400 mx-auto">
-              <Check className="w-10 h-10" />
-            </div>
+          {/* TAB: HOLIDAYS */}
+          {activeTab === 'HOLIDAYS' && (
             <div className="space-y-2">
-              <h3 className="text-xl sm:text-2xl font-bold text-white">Semester Schedule Ready!</h3>
-              <p className="text-sm text-slate-300">
-                Redirecting you to your daily dashboard and safe skip calculator...
-              </p>
+              {holidays.map(h => (
+                <div key={h.temp_id} className="p-3 rounded-lg bg-[#121417] border border-white/[0.06] space-y-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="date" 
+                      value={h.holiday_date} 
+                      onChange={(e) => updateHoliday(h.temp_id, 'holiday_date', e.target.value)}
+                      className="bg-[#181B1F] px-2 py-1.5 rounded border border-white/[0.06] text-white font-mono text-xs"
+                    />
+                    <input 
+                      type="text" 
+                      value={h.description} 
+                      onChange={(e) => updateHoliday(h.temp_id, 'description', e.target.value)}
+                      placeholder="Description"
+                      className="flex-1 bg-[#181B1F] px-2 py-1.5 rounded border border-white/[0.06] text-white"
+                    />
+                  </div>
+                </div>
+              ))}
+              <button 
+                type="button"
+                onClick={addHoliday}
+                className="w-full py-2.5 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5"
+              >
+                <Plus strokeWidth={1.75} className="w-3.5 h-3.5" />
+                <span>Add holiday</span>
+              </button>
             </div>
-          </m.div>
-        )}
-      </AnimatePresence>
+          )}
+
+          {/* Sticky Bottom Actions */}
+          <div className="fixed bottom-[calc(3.5rem+max(0.5rem,env(safe-area-inset-bottom,0.5rem)))] inset-x-0 p-4 bg-[#0B0C0E] border-t border-white/[0.06] z-30 max-w-xl mx-auto sm:static sm:bg-transparent sm:border-0 sm:p-0 flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={() => setCurrentStep(2)}
+              className="h-12 px-4 rounded-lg text-xs font-medium bg-[#181B1F] text-slate-300 hover:text-white transition-colors"
+            >
+              Back
+            </button>
+            <button 
+              type="button"
+              onClick={handleConfirmAndSave}
+              disabled={isSaving}
+              className="flex-1 h-12 px-5 rounded-lg text-sm font-medium bg-teal-600 hover:bg-teal-500 text-white transition-colors cursor-pointer"
+            >
+              {isSaving ? 'Building schedule...' : 'Confirm & save schedule'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 4: SUCCESS */}
+      {currentStep === 4 && (
+        <div className="p-8 rounded-xl text-center space-y-4 max-w-md mx-auto my-8 border border-white/[0.06] bg-[#121417]">
+          <div className="w-10 h-10 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center mx-auto">
+            <Check strokeWidth={1.8} className="w-5 h-5" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-serif text-2xl text-white">Semester ready</h3>
+            <p className="text-xs text-slate-400">
+              Schedule saved. Redirecting to your dashboard...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

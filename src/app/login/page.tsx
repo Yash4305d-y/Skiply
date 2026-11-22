@@ -64,43 +64,35 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-white relative overflow-x-hidden overflow-y-auto pt-24 pb-12 px-4 items-center">
+    <div className="min-h-screen flex flex-col bg-[#0B0C0E] text-slate-100 relative overflow-x-hidden overflow-y-auto pt-24 pb-12 px-4 items-center">
       {/* Refined flat background without orbs */}
 
       {/* Top Back Link */}
       <div className="absolute top-6 left-6 z-20">
         <NextLink
           href="/"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-transform active:scale-95 border border-transparent hover:border-white/5"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#181B1F] text-slate-400 hover:text-white text-xs font-medium transition-colors border border-white/[0.06]"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Home</span>
+          <ArrowLeft strokeWidth={1.65} className="w-4 h-4" />
+          <span>Back to home</span>
         </NextLink>
       </div>
 
-      <m.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-md z-10 space-y-6 m-auto"
-      >
+      <div className="w-full max-w-md z-10 space-y-6 m-auto">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 border border-white/5 text-teal-400 mb-2">
-            <Fingerprint className="w-6 h-6" />
-          </div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white">
+          <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-white">
             {activeTab === 'login' ? 'Welcome back to Skiply' : 'Create your Skiply ID'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400">
             {activeTab === 'login'
-              ? 'Log in with your Username / Student ID and password'
+              ? 'Log in with your username or student ID and password'
               : 'Set up your unique campus identity in seconds'}
           </p>
         </div>
 
         {/* Auth Card */}
-        <div className="glass-card rounded-2xl p-6 sm:p-8 border border-white/5 bg-slate-900 shadow-lg space-y-6">
+        <div className="bg-[#121417] rounded-xl p-6 sm:p-8 border border-white/[0.06] space-y-6">
           {/* Tab Switcher */}
           <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-slate-950/80 border border-slate-800/80">
             <button
@@ -157,7 +149,7 @@ function LoginContent() {
                 exit={{ opacity: 0, height: 0, y: -10 }}
                 className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm flex items-start gap-2.5"
               >
-                <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                <AlertCircle strokeWidth={1.65} className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
               </m.div>
             )}
@@ -169,11 +161,11 @@ function LoginContent() {
             <div className="space-y-1.5">
               <label htmlFor="username" className="text-xs font-semibold text-slate-300 flex items-center justify-between">
                 <span>Username / Student ID</span>
-                <span className="text-[10px] text-teal-400 font-normal">Alphanumeric</span>
+                <span className="text-[10px] text-slate-400 font-normal">Alphanumeric</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <User className="w-4 h-4" />
+                  <User strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <input
                   id="username"
@@ -187,7 +179,7 @@ function LoginContent() {
                 />
               </div>
               <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                <HelpCircle className="w-3 h-3 text-slate-400" />
+                <HelpCircle strokeWidth={1.65} className="w-3 h-3 text-slate-400" />
                 <span>We map this to your secure internal virtual identifier automatically.</span>
               </p>
             </div>
@@ -208,7 +200,7 @@ function LoginContent() {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <ShieldCheck className="w-4 h-4" />
+                        <ShieldCheck strokeWidth={1.65} className="w-4 h-4" />
                       </div>
                       <input
                         id="fullName"
@@ -264,7 +256,7 @@ function LoginContent() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-4 h-4" />
+                  <Lock strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <input
                   id="password"
@@ -284,42 +276,30 @@ function LoginContent() {
             <button
               type="submit"
               disabled={isPending}
-              className="btn-interactive w-full py-3 px-6 rounded-xl bg-slate-50 hover:bg-white text-slate-950 font-bold text-sm flex items-center justify-center gap-2 mt-2"
+              className="w-full h-12 px-6 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-sm flex items-center justify-center gap-2 mt-2 transition-colors cursor-pointer"
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{activeTab === 'login' ? 'Authenticating...' : 'Creating Identity...'}</span>
+                  <Loader2 strokeWidth={1.65} className="w-4 h-4 animate-spin" />
+                  <span>{activeTab === 'login' ? 'Authenticating...' : 'Creating identity...'}</span>
                 </>
               ) : (
                 <>
-                  <span>{activeTab === 'login' ? 'Sign In to Dashboard' : 'Register & Continue'}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>{activeTab === 'login' ? 'Sign in to dashboard' : 'Register and continue'}</span>
+                  <ArrowRight strokeWidth={1.75} className="w-4 h-4" />
                 </>
               )}
             </button>
           </form>
         </div>
-
-        {/* Bottom Guest Mode Footer */}
-        <div className="text-center pt-2">
-          <NextLink
-            href="/dashboard?demo=true"
-            className="text-xs text-slate-400 hover:text-teal-400 transition-colors font-medium inline-flex items-center gap-1.5 group"
-          >
-            <span>Want to test without an account?</span>
-            <span className="font-bold underline decoration-teal-500/50 group-hover:decoration-teal-400">Try Demo Dashboard</span>
-            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-          </NextLink>
-        </div>
-      </m.div>
+      </div>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0B0C0E]" />}>
       <LoginContent />
     </Suspense>
   );
