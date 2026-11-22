@@ -411,7 +411,7 @@ export default function BottomNav() {
                     className="flex items-center justify-center"
                   >
                     <Icon 
-                      strokeWidth={isActive ? 1.8 : 1.5}
+                      strokeWidth={isActive ? 1.8 : 1.65}
                       className={`w-[18px] h-[18px] transition-colors duration-200 ${
                         isActive ? 'text-teal-400' : 'text-slate-400 group-hover:text-slate-200'
                       }`} 

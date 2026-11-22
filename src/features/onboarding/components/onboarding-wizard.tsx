@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
   FileText, ChevronRight, Trash2, AlertTriangle, Check, 
-  Plus, BookOpen, Clock, Calendar 
+  Plus, BookOpen, Clock, Calendar, ArrowRight 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { 
@@ -331,7 +331,7 @@ export default function OnboardingWizard() {
               
               <div className="flex items-center gap-3 min-w-0">
                 <div className="p-2 rounded bg-white/[0.06] text-slate-400 shrink-0">
-                  <FileText className="w-4 h-4" />
+                  <FileText strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-white truncate">
@@ -351,10 +351,10 @@ export default function OnboardingWizard() {
                     className="p-1.5 rounded text-slate-400 hover:text-rose-400 hover:bg-white/[0.06] transition-colors"
                     title="Remove file"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 strokeWidth={1.65} className="w-4 h-4" />
                   </button>
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-500" />
+                  <ChevronRight strokeWidth={1.65} className="w-4 h-4 text-slate-500" />
                 )}
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function OnboardingWizard() {
               
               <div className="flex items-center gap-3 min-w-0">
                 <div className="p-2 rounded bg-white/[0.06] text-slate-400 shrink-0">
-                  <FileText className="w-4 h-4" />
+                  <FileText strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-white truncate">
@@ -399,10 +399,10 @@ export default function OnboardingWizard() {
                     className="p-1.5 rounded text-slate-400 hover:text-rose-400 hover:bg-white/[0.06] transition-colors"
                     title="Remove file"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 strokeWidth={1.65} className="w-4 h-4" />
                   </button>
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-500" />
+                  <ChevronRight strokeWidth={1.65} className="w-4 h-4 text-slate-500" />
                 )}
               </div>
             </div>
@@ -414,9 +414,10 @@ export default function OnboardingWizard() {
               <button
                 type="button"
                 onClick={loadSampleTimetable}
-                className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
+                className="group text-xs text-slate-400 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
               >
-                <span>Use sample university timetable (Demo) →</span>
+                <span>Use sample university timetable (Demo)</span>
+                <ArrowRight strokeWidth={1.65} className="w-3 h-3 text-slate-500 group-hover:text-white transition-colors" />
               </button>
             </div>
           )}
@@ -502,7 +503,7 @@ export default function OnboardingWizard() {
               />
               {isEndDateInPast && (
                 <p className="text-xs text-amber-400 font-medium flex items-center gap-1.5 pt-1">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <AlertTriangle strokeWidth={1.65} className="w-3.5 h-3.5 shrink-0" />
                   <span>End date is before today ({formatReadableDate(todayIso)})</span>
                 </p>
               )}
@@ -571,7 +572,7 @@ export default function OnboardingWizard() {
                 activeTab === 'SUBJECTS' ? 'border-teal-400 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
               }`}
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <BookOpen strokeWidth={1.65} className="w-3.5 h-3.5" />
               <span>Subjects ({subjects.length})</span>
             </button>
 
@@ -581,7 +582,7 @@ export default function OnboardingWizard() {
                 activeTab === 'SLOTS' ? 'border-teal-400 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
               }`}
             >
-              <Clock className="w-3.5 h-3.5" />
+              <Clock strokeWidth={1.65} className="w-3.5 h-3.5" />
               <span>Slots ({slots.length})</span>
             </button>
 
@@ -591,7 +592,7 @@ export default function OnboardingWizard() {
                 activeTab === 'HOLIDAYS' ? 'border-teal-400 text-teal-400' : 'border-transparent text-slate-400 hover:text-white'
               }`}
             >
-              <Calendar className="w-3.5 h-3.5" />
+              <Calendar strokeWidth={1.65} className="w-3.5 h-3.5" />
               <span>Holidays ({holidays.length})</span>
             </button>
           </div>
@@ -640,7 +641,7 @@ export default function OnboardingWizard() {
                 onClick={addSubject}
                 className="w-full py-2.5 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus strokeWidth={1.75} className="w-3.5 h-3.5" />
                 <span>Add subject</span>
               </button>
             </div>
@@ -707,7 +708,7 @@ export default function OnboardingWizard() {
                 onClick={addSlot}
                 className="w-full py-2.5 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus strokeWidth={1.75} className="w-3.5 h-3.5" />
                 <span>Add slot</span>
               </button>
             </div>
@@ -740,7 +741,7 @@ export default function OnboardingWizard() {
                 onClick={addHoliday}
                 className="w-full py-2.5 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus strokeWidth={1.75} className="w-3.5 h-3.5" />
                 <span>Add holiday</span>
               </button>
             </div>
@@ -771,7 +772,7 @@ export default function OnboardingWizard() {
       {currentStep === 4 && (
         <div className="p-8 rounded-xl text-center space-y-4 max-w-md mx-auto my-8 border border-white/[0.06] bg-[#121417]">
           <div className="w-10 h-10 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center mx-auto">
-            <Check className="w-5 h-5" />
+            <Check strokeWidth={1.8} className="w-5 h-5" />
           </div>
           <div className="space-y-1">
             <h3 className="font-serif text-2xl text-white">Semester ready</h3>

@@ -61,9 +61,9 @@ export default function PushNotificationToggle({ userId }: { userId: string }) {
       <button 
         title="Notifications Blocked"
         disabled
-        className="p-2 text-slate-500 rounded-xl bg-slate-900/30 border border-transparent cursor-not-allowed flex items-center justify-center min-h-[44px] min-w-[44px]"
+        className="p-2 text-slate-500 rounded-lg bg-[#181B1F] border border-white/[0.06] cursor-not-allowed flex items-center justify-center min-h-[36px] min-w-[36px]"
       >
-        <BellOff className="w-5 h-5" />
+        <BellOff strokeWidth={1.65} className="w-4 h-4" />
       </button>
     );
   }
@@ -73,9 +73,9 @@ export default function PushNotificationToggle({ userId }: { userId: string }) {
       <button 
         title="Notifications Enabled"
         disabled
-        className="p-2 text-emerald-400 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center min-h-[44px] min-w-[44px]"
+        className="p-2 text-teal-400 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center min-h-[36px] min-w-[36px]"
       >
-        <BellRing className="w-5 h-5" />
+        <BellRing strokeWidth={1.65} className="w-4 h-4" />
       </button>
     );
   }
@@ -86,9 +86,9 @@ export default function PushNotificationToggle({ userId }: { userId: string }) {
       onClick={handleSubscribe}
       disabled={isSubscribing}
       title="Enable Push Notifications"
-      className="btn-interactive p-2 text-slate-300 hover:text-white rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center min-h-[44px] min-w-[44px] transition-colors"
+      className="btn-interactive p-2 text-slate-400 hover:text-white rounded-lg bg-[#181B1F] border border-white/[0.06] flex items-center justify-center min-h-[36px] min-w-[36px] transition-colors"
     >
-      <Bell className={`w-5 h-5 ${isSubscribing ? 'animate-pulse' : ''}`} />
+      <Bell strokeWidth={1.65} className={`w-4 h-4 ${isSubscribing ? 'animate-pulse text-teal-400' : ''}`} />
     </button>
   );
 }

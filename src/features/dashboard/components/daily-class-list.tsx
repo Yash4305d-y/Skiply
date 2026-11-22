@@ -117,7 +117,7 @@ export default function DailyClassList({
             aria-label="Previous day"
             title="Previous day"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft strokeWidth={1.65} className="w-4 h-4" />
           </button>
 
           <button
@@ -161,7 +161,7 @@ export default function DailyClassList({
               aria-label="Pick date from calendar"
               title="Pick date"
             >
-              <CalendarIcon className="w-3.5 h-3.5" />
+              <CalendarIcon strokeWidth={1.65} className="w-3.5 h-3.5" />
             </button>
           </div>
 
@@ -171,7 +171,7 @@ export default function DailyClassList({
             aria-label="Next day"
             title="Next day"
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight strokeWidth={1.65} className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -179,7 +179,7 @@ export default function DailyClassList({
       {/* Holiday Banner if present */}
       {activeHoliday && (
         <div className="p-4 rounded-xl border border-white/[0.06] flex items-center gap-3 bg-[#121417]">
-          <Sun className="w-5 h-5 text-amber-400 shrink-0" />
+          <Sun strokeWidth={1.65} className="w-5 h-5 text-amber-400 shrink-0" />
           <div>
             <h4 className="text-sm font-semibold text-white">{activeHolidayName}</h4>
             <p className="text-xs text-slate-400 mt-0.5">

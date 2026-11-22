@@ -143,7 +143,7 @@ export default function HistoryView({
                 viewMode === 'CALENDAR' ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Grid className="w-3.5 h-3.5" />
+              <Grid strokeWidth={1.65} className="w-3.5 h-3.5" />
               <span>Calendar</span>
             </button>
             <button
@@ -152,7 +152,7 @@ export default function HistoryView({
                 viewMode === 'TABLE' ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-white'
               }`}
             >
-              <List className="w-3.5 h-3.5" />
+              <List strokeWidth={1.65} className="w-3.5 h-3.5" />
               <span>Table</span>
             </button>
           </div>
@@ -285,7 +285,7 @@ export default function HistoryView({
       <div className="bg-[#121417] p-3.5 rounded-xl border border-white/[0.06] flex flex-col md:flex-row gap-3">
         {viewMode === 'TABLE' && (
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search strokeWidth={1.65} className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
               type="text"
               aria-label="Search history"
@@ -299,7 +299,7 @@ export default function HistoryView({
 
         {/* Subject Filter */}
         <div className="flex items-center gap-2 flex-1 justify-end">
-          <Filter className="w-4 h-4 text-slate-400 hidden sm:block" />
+          <Filter strokeWidth={1.65} className="w-4 h-4 text-slate-400 hidden sm:block" />
           <select 
             aria-label="Filter by subject"
             value={filterSubject}
@@ -342,7 +342,7 @@ export default function HistoryView({
                 className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-[#181B1F] transition-colors"
                 aria-label="Previous month"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft strokeWidth={1.65} className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => {
@@ -359,7 +359,7 @@ export default function HistoryView({
                 className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-[#181B1F] transition-colors"
                 aria-label="Next month"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight strokeWidth={1.65} className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -500,7 +500,7 @@ export default function HistoryView({
                   onClick={() => setSelectedDayModal(null)}
                   className="p-1 rounded text-slate-400 hover:text-white"
                 >
-                  <X className="w-5 h-5" />
+                  <X strokeWidth={1.65} className="w-5 h-5" />
                 </button>
               </div>
 

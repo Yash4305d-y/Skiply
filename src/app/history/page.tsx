@@ -97,7 +97,7 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen min-h-dvh bg-[#0B0C0E] flex items-center justify-center text-slate-400">
         <div className="flex items-center gap-2">
-          <LoaderCircle className="w-5 h-5 text-slate-400 animate-spin" />
+          <LoaderCircle strokeWidth={1.65} className="w-5 h-5 text-slate-400 animate-spin" />
           <span className="text-sm">Loading attendance audit logs...</span>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function HistoryPage() {
                 className="btn-interactive inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-slate-950 px-5 py-2.5 rounded-xl font-semibold text-sm"
               >
                 <span>Set up timetable</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight strokeWidth={1.75} className="w-4 h-4" />
               </NextLink>
             </div>
           </div>

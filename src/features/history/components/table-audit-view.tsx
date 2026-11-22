@@ -34,10 +34,10 @@ export function TableAuditView({
 
   const getStatusBadge = (status: AttendanceStatus) => {
     switch(status) {
-      case 'PRESENT': return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-teal-500/10 text-teal-400 border-teal-500/20"><Check className="w-3 h-3" /> Present</span>;
-      case 'ABSENT': return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-rose-500/10 text-rose-400 border-rose-500/20"><X className="w-3 h-3" /> Absent</span>;
-      case 'CANCELLED': return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-white/[0.06] text-slate-400 border-white/10"><Ban className="w-3 h-3" /> Cancelled</span>;
-      default: return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-white/[0.06] text-slate-300 border-white/10"><ArrowRightLeft className="w-3 h-3" /> Swapped</span>;
+      case 'PRESENT': return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-teal-500/10 text-teal-400 border-teal-500/20"><Check strokeWidth={1.8} className="w-3 h-3" /> Present</span>;
+      case 'ABSENT': return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-rose-500/10 text-rose-400 border-rose-500/20"><X strokeWidth={1.8} className="w-3 h-3" /> Absent</span>;
+      case 'CANCELLED': return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-white/[0.06] text-slate-400 border-white/10"><Ban strokeWidth={1.65} className="w-3 h-3" /> Cancelled</span>;
+      default: return <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium border bg-white/[0.06] text-slate-300 border-white/10"><ArrowRightLeft strokeWidth={1.65} className="w-3 h-3" /> Swapped</span>;
     }
   };
 
@@ -45,7 +45,7 @@ export function TableAuditView({
     <div className="bg-[#121417] rounded-xl overflow-hidden border border-white/[0.06]">
       {filteredLogs.length === 0 ? (
         <div className="p-8 text-center text-slate-400 space-y-1.5">
-          <CalendarIcon className="w-5 h-5 mx-auto text-slate-500" />
+          <CalendarIcon strokeWidth={1.65} className="w-5 h-5 mx-auto text-slate-500" />
           <p className="text-sm font-semibold text-slate-200">No matching attendance records</p>
           <p className="text-xs text-slate-400">Try adjusting your filters or search keywords</p>
         </div>
@@ -133,14 +133,14 @@ export function TableAuditView({
                         className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
                         title={isEditing ? 'Cancel edit' : 'Edit status'}
                       >
-                        <Edit2 className="w-3.5 h-3.5" />
+                        <Edit2 strokeWidth={1.65} className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => onDeleteLog(log.timetable_slot_id || '', log.log_date)}
                         className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-white/[0.06] transition-colors"
                         title="Delete log"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <X strokeWidth={1.8} className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>

@@ -63,7 +63,7 @@ export default function Home() {
                 className="h-12 px-5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-sm inline-flex items-center gap-2 transition-colors cursor-pointer select-none"
               >
                 <span>Get started</span>
-                <ArrowRight className="w-4 h-4 text-white" />
+                <ArrowRight strokeWidth={1.75} className="w-4 h-4 text-white" />
               </button>
             </NextLink>
 
@@ -73,10 +73,10 @@ export default function Home() {
                 setDemoModeActive(true);
                 seedDemoData();
               }}
-              className="text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer py-2 inline-flex items-center gap-1.5 select-none"
+              className="group text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer py-2 inline-flex items-center gap-1.5 select-none"
             >
               <span>Launch demo mode</span>
-              <span className="text-slate-500">→</span>
+              <ArrowRight strokeWidth={1.65} className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
             </NextLink>
           </div>
 

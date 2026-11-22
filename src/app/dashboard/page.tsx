@@ -22,7 +22,7 @@ import {
   AttendanceLog, AttendanceStatus, DailyClassItem 
 } from '@/types';
 import NextLink from 'next/link';
-import { ArrowRight, Calendar as CalendarIcon, Check, Settings, LogOut, Loader2, Link2, Database, Shield } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
 import { updateSemesterConfig } from '@/actions/db';
 import { updateDemoSemesterConfig } from '@/lib/demo-store';
@@ -228,7 +228,7 @@ export default function DashboardPage() {
                 className="btn-interactive inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 text-slate-950 px-5 py-2.5 rounded-xl font-semibold text-sm"
               >
                 <span>Set up timetable</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight strokeWidth={1.75} className="w-4 h-4" />
               </NextLink>
             </div>
           </div>

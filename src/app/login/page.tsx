@@ -74,7 +74,7 @@ function LoginContent() {
           href="/"
           className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#181B1F] text-slate-400 hover:text-white text-xs font-medium transition-colors border border-white/[0.06]"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft strokeWidth={1.65} className="w-4 h-4" />
           <span>Back to home</span>
         </NextLink>
       </div>
@@ -150,7 +150,7 @@ function LoginContent() {
                 exit={{ opacity: 0, height: 0, y: -10 }}
                 className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm flex items-start gap-2.5"
               >
-                <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                <AlertCircle strokeWidth={1.65} className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
               </m.div>
             )}
@@ -166,7 +166,7 @@ function LoginContent() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <User className="w-4 h-4" />
+                  <User strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <input
                   id="username"
@@ -180,7 +180,7 @@ function LoginContent() {
                 />
               </div>
               <p className="text-[11px] text-slate-400 flex items-center gap-1">
-                <HelpCircle className="w-3 h-3 text-slate-400" />
+                <HelpCircle strokeWidth={1.65} className="w-3 h-3 text-slate-400" />
                 <span>We map this to your secure internal virtual identifier automatically.</span>
               </p>
             </div>
@@ -201,7 +201,7 @@ function LoginContent() {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <ShieldCheck className="w-4 h-4" />
+                        <ShieldCheck strokeWidth={1.65} className="w-4 h-4" />
                       </div>
                       <input
                         id="fullName"
@@ -257,7 +257,7 @@ function LoginContent() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Lock className="w-4 h-4" />
+                  <Lock strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <input
                   id="password"
@@ -281,13 +281,13 @@ function LoginContent() {
             >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 strokeWidth={1.65} className="w-4 h-4 animate-spin" />
                   <span>{activeTab === 'login' ? 'Authenticating...' : 'Creating identity...'}</span>
                 </>
               ) : (
                 <>
                   <span>{activeTab === 'login' ? 'Sign in to dashboard' : 'Register and continue'}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight strokeWidth={1.75} className="w-4 h-4" />
                 </>
               )}
             </button>

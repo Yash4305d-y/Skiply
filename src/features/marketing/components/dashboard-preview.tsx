@@ -156,7 +156,7 @@ export function DashboardPreview() {
             <m.div variants={itemVariants} className="p-5 rounded-xl bg-slate-900/60 border border-white/5 flex flex-col justify-between transition-colors duration-500">
               <div className="flex items-start justify-between">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400' : 'bg-teal-500/10 text-teal-400'}`}>
-                  <TrendingUp className="w-4 h-4" />
+                  <TrendingUp strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <span className={`px-2 py-0.5 rounded-lg text-[10px] font-medium border transition-colors duration-500 ${isWarning ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 'bg-teal-500/10 text-teal-400 border-teal-500/20'}`}>
                   {isWarning ? 'Danger zone' : 'On track'}
@@ -240,7 +240,7 @@ export function DashboardPreview() {
           {/* AI Insight Card */}
           <m.div variants={itemVariants} className="p-4 rounded-xl bg-slate-900/40 border border-white/5 relative flex flex-col">
             <div className="flex items-center gap-2 mb-3">
-              <Lightbulb className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-slate-400'}`} />
+              <Lightbulb strokeWidth={1.65} className={`w-4 h-4 transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-slate-400'}`} />
               <h3 className={`text-xs font-semibold transition-colors duration-500 ${isWarning ? 'text-rose-400' : 'text-slate-300'}`}>Skiply insight</h3>
             </div>
             <p className="text-sm text-slate-300 leading-relaxed font-medium relative z-10 transition-all duration-300">
@@ -286,17 +286,17 @@ export function DashboardPreview() {
                   {/* Status Indicator */}
                   {cls.status === "PRESENT" && (
                     <div className="w-7 h-7 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center transition-colors">
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 strokeWidth={1.8} className="w-4 h-4" />
                     </div>
                   )}
                   {cls.status === "ABSENT" && (
                     <div className="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center justify-center transition-colors">
-                      <XCircle className="w-4 h-4" />
+                      <XCircle strokeWidth={1.8} className="w-4 h-4" />
                     </div>
                   )}
                   {cls.status === "PENDING" && (
                     <div className="w-7 h-7 rounded-lg bg-slate-800/50 text-slate-400 border border-slate-700 flex items-center justify-center transition-colors group-hover:text-slate-400">
-                      <CircleDashed className="w-4 h-4" />
+                      <CircleDashed strokeWidth={1.65} className="w-4 h-4" />
                     </div>
                   )}
                 </m.button>

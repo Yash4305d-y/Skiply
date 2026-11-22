@@ -122,7 +122,7 @@ export default function Navbar() {
                   className="text-xs text-slate-400 hover:text-rose-400 transition-colors p-1"
                   title="Sign out"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut strokeWidth={1.65} className="w-4 h-4" />
                 </button>
               </div>
             ) : (

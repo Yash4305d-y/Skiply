@@ -35,7 +35,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
       {/* Top row: Status badge + Target */}
       <div className="flex items-center justify-between">
         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border ${badgeColor}`}>
-          <Icon className="w-3.5 h-3.5" />
+          <Icon strokeWidth={1.65} className="w-3.5 h-3.5" />
           <span>{badgeText}</span>
         </span>
         <span className="text-xs text-slate-400">Target: {stats.target_percentage}%</span>
@@ -110,7 +110,7 @@ export default function HeroWidget({ stats, onUpdateTarget }: HeroWidgetProps) {
       {/* Target adjustment slider */}
       {onUpdateTarget && (
         <div className="flex items-center gap-2.5 pt-3 border-t border-white/[0.06]">
-          <Target className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <Target strokeWidth={1.65} className="w-3.5 h-3.5 text-slate-500 shrink-0" />
           <input 
             type="range" 
             aria-label="Target attendance percentage"

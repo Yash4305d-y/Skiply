@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, X, Ban, RefreshCw, MapPin, ArrowRightLeft } from 'lucide-react';
+import { Check, X, Ban, RotateCcw, MapPin, ArrowRightLeft } from 'lucide-react';
 import { DailyClassItem, AttendanceStatus, Subject } from '@/types';
 
 interface ClassCardProps {
@@ -70,7 +70,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
               )}
               {item.room_number && (
                 <span className="flex items-center gap-0.5 text-[11px] text-slate-400">
-                  <MapPin className="w-3 h-3 text-slate-500" />
+                  <MapPin strokeWidth={1.65} className="w-3 h-3 text-slate-500" />
                   {item.room_number}
                 </span>
               )}
@@ -105,10 +105,10 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 currentStatus === 'CANCELLED' ? 'bg-white/[0.06] text-slate-400 border-white/10' :
                 'bg-white/[0.06] text-slate-300 border-white/10'
               }`}>
-                {currentStatus === 'PRESENT' && <Check className="w-3.5 h-3.5" />}
-                {currentStatus === 'ABSENT' && <X className="w-3.5 h-3.5" />}
-                {currentStatus === 'CANCELLED' && <Ban className="w-3.5 h-3.5" />}
-                {currentStatus === 'SWAPPED' && <ArrowRightLeft className="w-3.5 h-3.5" />}
+                {currentStatus === 'PRESENT' && <Check strokeWidth={1.8} className="w-3.5 h-3.5" />}
+                {currentStatus === 'ABSENT' && <X strokeWidth={1.8} className="w-3.5 h-3.5" />}
+                {currentStatus === 'CANCELLED' && <Ban strokeWidth={1.65} className="w-3.5 h-3.5" />}
+                {currentStatus === 'SWAPPED' && <ArrowRightLeft strokeWidth={1.65} className="w-3.5 h-3.5" />}
                 <span>
                   {currentStatus === 'PRESENT' ? 'Present' : currentStatus === 'ABSENT' ? 'Absent' : currentStatus === 'CANCELLED' ? 'Cancelled' : 'Swapped'}
                 </span>
@@ -119,7 +119,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 className="p-1.5 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
                 title="Undo attendance"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RotateCcw strokeWidth={1.65} className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
@@ -129,7 +129,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 onClick={() => handleTap('PRESENT')}
                 className="px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-medium text-xs flex items-center gap-1 transition-colors"
               >
-                <Check className="w-3.5 h-3.5" />
+                <Check strokeWidth={1.8} className="w-3.5 h-3.5" />
                 <span>Present</span>
               </button>
               <button
@@ -137,7 +137,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 onClick={() => handleTap('ABSENT')}
                 className="px-2.5 py-1.5 rounded-lg bg-[#181B1F] hover:bg-white/10 text-slate-300 border border-white/[0.06] font-medium text-xs flex items-center gap-1 transition-colors"
               >
-                <X className="w-3.5 h-3.5" />
+                <X strokeWidth={1.8} className="w-3.5 h-3.5" />
                 <span>Absent</span>
               </button>
               <button
@@ -146,7 +146,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
                 title="Mark Cancelled"
               >
-                <Ban className="w-3.5 h-3.5" />
+                <Ban strokeWidth={1.65} className="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
@@ -154,7 +154,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
                 className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.06] transition-colors"
                 title="Swap Subject"
               >
-                <ArrowRightLeft className="w-3.5 h-3.5" />
+                <ArrowRightLeft strokeWidth={1.65} className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
