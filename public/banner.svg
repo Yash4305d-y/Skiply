@@ -1,0 +1,120 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap');
+      .serif-headline {
+        font-family: 'Instrument Serif', Georgia, serif;
+        letter-spacing: -0.03em;
+      }
+      .sans-text {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      }
+      .mono-text {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+  </defs>
+
+  <!-- Near-Black Editorial Canvas (#0B0C0E) -->
+  <rect width="1200" height="630" fill="#0B0C0E"/>
+
+  <!-- Subtle Hairline Architectural Grid Lines -->
+  <line x1="80" y1="0" x2="80" y2="630" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
+  <line x1="1120" y1="0" x2="1120" y2="630" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
+  <line x1="0" y1="76" x2="1200" y2="76" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
+  <line x1="0" y1="554" x2="1200" y2="554" stroke="rgba(255,255,255,0.035)" stroke-width="1"/>
+
+  <!-- Top Header Navigation Row -->
+  <g transform="translate(80, 76)">
+    <!-- Wordmark + Glyph -->
+    <rect width="36" height="36" rx="10" fill="#121417"/>
+    <rect x="0.5" y="0.5" width="35" height="35" rx="9.5" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+    <g transform="translate(6, 6) scale(0.0468)">
+      <path d="M 156 180 C 156 142 186 114 230 114 L 324 114 C 352 114 370 132 370 160 C 370 188 352 206 324 206 L 246 206 C 228 206 218 216 218 230 C 218 238 222 248 232 258 L 292 318 L 254 356 L 176 278 C 160 262 156 244 156 222 Z" fill="#FFFFFF"/>
+      <path d="M 356 332 C 356 370 326 398 282 398 L 188 398 C 160 398 142 380 142 352 C 142 324 160 306 188 306 L 266 306 C 284 306 294 296 294 282 C 294 274 290 264 280 254 L 220 194 L 258 156 L 336 234 C 352 250 356 268 356 290 Z" fill="#FFFFFF"/>
+      <circle cx="340" cy="160" r="16" fill="#2DD4BF"/>
+    </g>
+    <text x="48" y="24" class="sans-text" font-size="20" font-weight="700" letter-spacing="-0.02em" fill="#FFFFFF">Skiply</text>
+    <text x="122" y="24" class="sans-text" font-size="13" font-weight="500" fill="#64748B">— Attendance planner</text>
+
+    <!-- Top-Right Category Pill -->
+    <g transform="translate(860, 0)">
+      <rect width="180" height="36" rx="8" fill="#121417" stroke="rgba(255,255,255,0.08)"/>
+      <circle cx="20" cy="18" r="4" fill="#2DD4BF"/>
+      <text x="34" y="23" class="sans-text" font-size="12" font-weight="600" fill="#E2E8F0">AI Margin Engine</text>
+    </g>
+  </g>
+
+  <!-- Left Editorial Hero: Display Serif Headline -->
+  <g transform="translate(80, 206)">
+    <text class="serif-headline" font-size="64" fill="#94A3B8">
+      Know exactly
+    </text>
+    <text y="76" class="serif-headline" font-size="64" fill="#94A3B8">
+      when you can
+    </text>
+    <text y="154" class="serif-headline" font-size="70" fill="#FFFFFF">
+      safely skip.
+    </text>
+
+    <!-- Subtitle -->
+    <text y="218" class="sans-text" font-size="16" font-weight="400" fill="#94A3B8">
+      Upload your timetable once. Track your classes and know
+    </text>
+    <text y="244" class="sans-text" font-size="16" font-weight="400" fill="#94A3B8">
+      your exact safe skip margins before every lecture.
+    </text>
+
+    <!-- Feature Tags -->
+    <g transform="translate(0, 276)">
+      <text class="mono-text" font-size="11" fill="#64748B">
+        SINGLE-TAP ATTENDANCE  ·  CALENDAR SYNC  ·  PRIVACY FIRST
+      </text>
+    </g>
+  </g>
+
+  <!-- Right Visual Stage: The Emblem Tile + Precision Telemetry Readout -->
+  <g transform="translate(740, 164)">
+    <!-- Main Emblem Tile (210x210) -->
+    <g transform="translate(45, 0)">
+      <rect width="210" height="210" rx="48" fill="#121417" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+      <rect x="16" y="16" width="178" height="178" rx="36" fill="#181B1F" stroke="rgba(255,255,255,0.04)"/>
+      
+      <!-- Scaled Mark -->
+      <g transform="translate(39, 39) scale(0.26)">
+        <path d="M 156 180 C 156 142 186 114 230 114 L 324 114 C 352 114 370 132 370 160 C 370 188 352 206 324 206 L 246 206 C 228 206 218 216 218 230 C 218 238 222 248 232 258 L 292 318 L 254 356 L 176 278 C 160 262 156 244 156 222 Z" fill="#FFFFFF"/>
+        <path d="M 356 332 C 356 370 326 398 282 398 L 188 398 C 160 398 142 380 142 352 C 142 324 160 306 188 306 L 266 306 C 284 306 294 296 294 282 C 294 274 290 264 280 254 L 220 194 L 258 156 L 336 234 C 352 250 356 268 356 290 Z" fill="#FFFFFF"/>
+        <circle cx="340" cy="160" r="16" fill="#2DD4BF"/>
+      </g>
+    </g>
+
+    <!-- Iconic Margin Readout Card (Directly underneath) -->
+    <g transform="translate(0, 246)">
+      <rect width="300" height="98" rx="14" fill="#121417" stroke="rgba(255,255,255,0.08)"/>
+      
+      <!-- Subject & Margin readout -->
+      <text x="20" y="32" class="mono-text" font-size="11" fill="#64748B">Example ·</text>
+      <text x="88" y="32" class="sans-text" font-size="13" font-weight="600" fill="#F1F5F9">IoT</text>
+      <text x="188" y="32" class="sans-text" font-size="13" font-weight="700" fill="#FFFFFF">78%</text>
+      <text x="226" y="32" class="sans-text" font-size="12" font-weight="600" fill="#2DD4BF">3 safe skips</text>
+
+      <!-- Progress bar with 75% threshold tick -->
+      <rect x="20" y="48" width="260" height="4" rx="2" fill="rgba(255,255,255,0.08)"/>
+      <rect x="20" y="48" width="202" height="4" rx="2" fill="#E2E8F0"/>
+      <!-- 75% tick mark extending above and below -->
+      <line x1="215" y1="44" x2="215" y2="56" stroke="#94A3B8" stroke-width="1.5"/>
+
+      <!-- Scale Labels -->
+      <text x="20" y="74" class="mono-text" font-size="9" fill="#475569">0%</text>
+      <text x="188" y="74" class="mono-text" font-size="9" fill="#64748B">75% min</text>
+      <text x="254" y="74" class="mono-text" font-size="9" fill="#475569">100%</text>
+    </g>
+  </g>
+
+  <!-- Bottom Brand Footer -->
+  <g transform="translate(80, 584)">
+    <text class="mono-text" font-size="11" fill="#475569">
+      skiply.app  ·  Automated college attendance planner  ·  Near-black editorial direction
+    </text>
+  </g>
+</svg>

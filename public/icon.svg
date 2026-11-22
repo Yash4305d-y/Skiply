@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Flat Near-Black Base Background -->
+  <rect width="512" height="512" rx="112" fill="#0B0C0E"/>
+  
+  <!-- Subtle Hairline Inner Border -->
+  <rect x="1.5" y="1.5" width="509" height="509" rx="110.5" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+  
+  <!-- Flat Dark Slate Surface Tile -->
+  <rect x="36" y="36" width="440" height="440" rx="84" fill="#121417" stroke="rgba(255,255,255,0.04)" stroke-width="2"/>
+
+  <!-- Minimal Forward Skip Glyph (Kinetic Architectural S with 45deg Notch) -->
+  <g transform="translate(0, 0) scale(1)">
+    <!-- Upper Leap Wing (White) -->
+    <path d="M 156 180 C 156 142 186 114 230 114 L 324 114 C 352 114 370 132 370 160 C 370 188 352 206 324 206 L 246 206 C 228 206 218 216 218 230 C 218 238 222 248 232 258 L 292 318 L 254 356 L 176 278 C 160 262 156 244 156 222 Z" fill="#FFFFFF"/>
+    
+    <!-- Lower Leap Wing (White) -->
+    <path d="M 356 332 C 356 370 326 398 282 398 L 188 398 C 160 398 142 380 142 352 C 142 324 160 306 188 306 L 266 306 C 284 306 294 296 294 282 C 294 274 290 264 280 254 L 220 194 L 258 156 L 336 234 C 352 250 356 268 356 290 Z" fill="#FFFFFF"/>
+
+    <!-- Signature Precision Teal Pivot Point (#2DD4BF) -->
+    <circle cx="340" cy="160" r="16" fill="#2DD4BF"/>
+  </g>
+</svg>

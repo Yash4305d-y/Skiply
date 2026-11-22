@@ -137,3 +137,28 @@ All interactive elements use subtle, fast transitions (150–200ms). Never use h
 - Low-spec devices are detected via `PerformanceTierProvider`.
 - Under `.low-perf`, transitions and animations are collapsed to `0.01ms` and blurs are disabled to guarantee 60fps on low-end hardware.
 - `@media (prefers-reduced-motion: reduce)` disables all transforms and keyframes globally.
+
+---
+
+## 7. Brand Identity & Vector Assets
+
+### 7.1 Visual Concept: The Minimal Forward Skip
+- **Metaphor**: A razor-sharp architectural geometric 'S' constructed from two interlocking kinetic facets.
+- **The Diagonal Notch**: A precise 45° negative-space diagonal slit cutting through the spine, symbolizing a student's calculated forward leap over a scheduled class.
+- **The Teal Pivot Point**: A single vivid teal circle (`#2DD4BF`) positioned at the upper apex, representing the anchored safety threshold and math engine precision.
+- **Surface**: Set upon a flat near-black `#0B0C0E` base with a `#121417` dark slate tile and hairline border (`rgba(255,255,255,0.08)`).
+
+### 7.2 Core Asset Manifest
+- **Mobile App Icon**:
+  - `public/icon.svg`: Master scalable vector icon.
+  - `public/icon-512.png`: 512x512 high-resolution icon.
+  - `public/icon-192.png`: 192x192 PWA mobile icon.
+  - `public/icon-512-maskable.png` / `public/icon-192-maskable.png`: Android adaptive safe-zone maskable icons.
+  - `public/apple-touch-icon.png`: 180x180 iOS home screen icon.
+  - `public/favicon.svg`: Standalone vector glyph favicon.
+- **Logo Lockup**:
+  - `public/logo.svg`: Primary horizontal lockup (88px Minimal Forward Skip tile + "Skiply" Wordmark in Plus Jakarta Sans Bold + "— Attendance planner").
+  - `public/logo-mark.svg`: Standalone vector glyph (transparent background).
+  - `public/logo.png` / `public/nav-logo.png`: High-density raster logo lockups.
+- **Brand Feature Banner**:
+  - `public/banner.svg` / `public/banner.png`: 1200x630 OpenGraph / Social / App Store promotional banner featuring the editorial headline in Instrument Serif, the hero emblem tile, and the live 75% threshold telemetry margin card.
