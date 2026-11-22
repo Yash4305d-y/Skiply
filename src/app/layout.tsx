@@ -31,8 +31,14 @@ export const metadata: Metadata = {
   authors: [{ name: "Skiply Team" }],
   manifest: "/manifest.json",
   icons: {
-    icon: "/icon-192.png",
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   openGraph: {
     title: "Skiply — AI Attendance Planner & Safe Skip Calculator",
