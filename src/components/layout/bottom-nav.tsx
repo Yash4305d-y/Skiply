@@ -427,19 +427,23 @@ export default function BottomNav() {
                     {tab.name}
                   </span>
 
-                  {/* Subtle active status pip with reserved height */}
+                  {/* Active status indicator: expands from a dot into a wide pill when arriving */}
                   <span className="h-1 flex items-center justify-center">
                     {isActive && (
                       <m.span
                         layoutId="bottomNavPip"
-                        className="w-1.5 h-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.5)]"
+                        initial={isLowEnd ? false : { width: 6, scaleX: 0.4, opacity: 0.8 }}
+                        animate={isLowEnd ? undefined : { width: 18, scaleX: 1, opacity: 1 }}
+                        exit={{ width: 6, scaleX: 0.4, opacity: 0 }}
+                        className="h-1 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(45,212,191,0.6)]"
                         transition={
                           isLowEnd
                             ? { duration: 0 }
                             : {
                                 type: 'spring',
-                                stiffness: 380,
-                                damping: 30,
+                                stiffness: 420,
+                                damping: 24,
+                                mass: 0.6,
                               }
                         }
                       />
