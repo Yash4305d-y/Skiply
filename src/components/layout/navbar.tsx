@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { m, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, History, Sparkles, LogOut, LogIn } from 'lucide-react';
+import { CalendarDays, BarChart2, SlidersHorizontal, LogOut, LogIn } from 'lucide-react';
 import { getDemoProfile, isDemoModeActive, setDemoModeActive, seedDemoData } from '@/lib/demo-store';
 import { getCurrentUser, signOut } from '@/actions/auth';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
@@ -49,9 +49,9 @@ export default function Navbar() {
   }, [pathname]);
 
   const navItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Attendance audit', href: '/history', icon: History },
-    { name: 'AI onboarding', href: '/onboarding', icon: Sparkles },
+    { name: 'Schedule', href: '/dashboard', icon: CalendarDays },
+    { name: 'Attendance audit', href: '/history', icon: BarChart2 },
+    { name: 'Setup', href: '/onboarding', icon: SlidersHorizontal },
   ];
 
   return (

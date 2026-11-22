@@ -4,16 +4,16 @@ import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { m } from 'framer-motion';
-import { Home, LayoutDashboard, History, Sparkles } from 'lucide-react';
+import { Home, CalendarDays, BarChart2, SlidersHorizontal } from 'lucide-react';
 import { getCurrentUser } from '@/actions/auth';
 import { isDemoModeActive } from '@/lib/demo-store';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 const NAV_TABS = [
   { id: 'home', name: 'Home', href: '/', icon: Home },
-  { id: 'dashboard', name: 'Schedule', href: '/dashboard', icon: LayoutDashboard },
-  { id: 'history', name: 'Audit', href: '/history', icon: History },
-  { id: 'onboarding', name: 'Setup', href: '/onboarding', icon: Sparkles },
+  { id: 'dashboard', name: 'Schedule', href: '/dashboard', icon: CalendarDays },
+  { id: 'history', name: 'Audit', href: '/history', icon: BarChart2 },
+  { id: 'onboarding', name: 'Setup', href: '/onboarding', icon: SlidersHorizontal },
 ];
 
 const PROTECTED_PATHS = ['/dashboard', '/history', '/onboarding'];
@@ -73,57 +73,75 @@ export default function BottomNav() {
               className="relative py-1 px-2.5 rounded-xl flex flex-col items-center justify-center flex-1 max-w-[84px] group outline-none"
             >
               <m.div
-                whileTap={isLowEnd ? undefined : { scale: 0.90 }}
+                whileTap={isLowEnd ? undefined : { scale: 0.92 }}
                 transition={{ duration: 0.12, ease: [0.2, 0, 0, 1] }}
                 className="relative flex flex-col items-center gap-0.5 w-full py-1"
               >
-                {/* Active Sliding Indicator Pill with Spring Physics */}
+                {/* Active Sliding Indicator Pill with Fluid Spring Physics */}
                 {isActive && (
                   <m.div
                     layoutId="bottomNavPill"
-                    className="absolute inset-0 bg-white/[0.06] border border-white/[0.08] rounded-xl -z-10"
+                    className="absolute inset-0 bg-white/[0.06] border border-white/[0.08] rounded-xl -z-10 shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
                     transition={
                       isLowEnd
                         ? { duration: 0 }
                         : {
                             type: 'spring',
-                            stiffness: 420,
-                            damping: 30,
-                            mass: 0.8,
+                            stiffness: 360,
+                            damping: 32,
+                            mass: 0.85,
                           }
                     }
                   />
                 )}
 
-                {/* Tab Icon */}
-                <Icon 
-                  className={`w-4 h-4 transition-colors duration-150 ${
-                    isActive ? 'text-teal-400' : 'text-slate-400 group-hover:text-slate-200'
-                  }`} 
-                />
+                {/* Tab Icon with Subtle Active Spring Elevation */}
+                <m.div
+                  animate={
+                    isLowEnd
+                      ? undefined
+                      : {
+                          scale: isActive ? 1.08 : 1,
+                          y: isActive ? -1 : 0,
+                        }
+                  }
+                  transition={{
+                    type: 'spring',
+                    stiffness: 380,
+                    damping: 26,
+                  }}
+                  className="flex items-center justify-center"
+                >
+                  <Icon 
+                    strokeWidth={isActive ? 1.8 : 1.5}
+                    className={`w-[18px] h-[18px] transition-colors duration-200 ${
+                      isActive ? 'text-teal-400' : 'text-slate-400 group-hover:text-slate-200'
+                    }`} 
+                  />
+                </m.div>
 
                 {/* Tab Label */}
                 <span 
-                  className={`text-[10px] leading-tight transition-colors duration-150 ${
+                  className={`text-[10px] leading-tight tracking-tight transition-colors duration-200 ${
                     isActive ? 'text-white font-semibold' : 'text-slate-400 group-hover:text-slate-200 font-medium'
                   }`}
                 >
                   {tab.name}
                 </span>
 
-                {/* Subtle active status pip with reserved height to keep tabs level */}
+                {/* Subtle active status pip with reserved height to keep tabs perfectly level */}
                 <span className="h-1 flex items-center justify-center">
                   {isActive && (
                     <m.span
                       layoutId="bottomNavPip"
-                      className="w-1 h-1 rounded-full bg-teal-400"
+                      className="w-1.5 h-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.5)]"
                       transition={
                         isLowEnd
                           ? { duration: 0 }
                           : {
                               type: 'spring',
-                              stiffness: 450,
-                              damping: 32,
+                              stiffness: 380,
+                              damping: 30,
                             }
                       }
                     />
