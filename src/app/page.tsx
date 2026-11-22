@@ -32,7 +32,7 @@ export default function Home() {
       <Navbar />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col justify-start px-6 sm:px-12 md:px-16 max-w-4xl w-full mx-auto pt-16 sm:pt-20 pb-16">
+      <main className="flex-1 flex flex-col justify-start px-6 sm:px-12 md:px-16 max-w-4xl w-full mx-auto pt-16 sm:pt-20 pb-28 sm:pb-32 md:pb-16">
         <div className="flex flex-col items-start text-left w-full">
           {/* Headline: Instrument Serif with deliberate 3-line break & muted/white contrast */}
           <h1 

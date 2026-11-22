@@ -426,7 +426,7 @@ export default function DashboardPage() {
       </div>
 
       <main 
-        className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full"
+        className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 sm:pb-32 md:py-8 w-full"
       >
         {isDemoMode && (
           <div className="mb-6 p-3 sm:px-4 rounded-lg bg-[#121417] border border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">

@@ -25,7 +25,7 @@ export default function AboutPage() {
     <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
       <Navbar />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 sm:px-8 py-12 sm:py-16 space-y-12">
+      <main className="flex-1 max-w-3xl w-full mx-auto px-6 sm:px-8 pt-12 pb-28 sm:pb-32 md:py-16 space-y-12">
         {/* Header Hero */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 flex-wrap">

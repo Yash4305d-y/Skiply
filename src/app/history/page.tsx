@@ -221,7 +221,7 @@ export default function HistoryPage() {
         )}
       </div>
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 sm:pb-32 md:py-8 w-full">
         {isDemoMode && (
           <div className="mb-6 p-3 sm:px-4 rounded-xl bg-slate-900/60 border border-teal-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2 text-slate-300">

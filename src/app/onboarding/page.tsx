@@ -12,7 +12,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E]">
       <Navbar />
-      <main className="flex-1 py-8">
+      <main className="flex-1 pt-8 pb-28 sm:pb-32 md:py-8">
         <OnboardingWizard />
       </main>
     </div>
