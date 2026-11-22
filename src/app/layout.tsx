@@ -5,6 +5,7 @@ import NavigationHandler from "@/components/providers/navigation-handler";
 import { PerformanceTierProvider } from "@/lib/utils/use-performance-tier";
 import PerformanceClassApplier from "@/components/providers/performance-class-applier";
 import BottomNav from "@/components/layout/bottom-nav";
+import RubberBandContainer from "@/components/ui/rubber-band-container";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -56,7 +57,9 @@ export default function RootLayout({
           <PerformanceClassApplier />
           <NavigationHandler />
           <LazyMotion features={domAnimation} strict>
-            {children}
+            <RubberBandContainer className="flex-1 flex flex-col min-h-full">
+              {children}
+            </RubberBandContainer>
             <BottomNav />
           </LazyMotion>
         </PerformanceTierProvider>
