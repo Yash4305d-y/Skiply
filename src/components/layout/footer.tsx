@@ -10,8 +10,8 @@ export default function Footer() {
           <span className="text-slate-500">— Attendance planner</span>
         </div>
         <div className="flex items-center gap-5">
-          <NextLink href="/onboarding" className="text-slate-400 hover:text-white transition-colors">
-            Onboarding
+          <NextLink href="/about" className="text-slate-400 hover:text-white transition-colors">
+            About
           </NextLink>
           <NextLink href="/dashboard" className="text-slate-400 hover:text-white transition-colors">
             Dashboard

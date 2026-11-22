@@ -7,7 +7,8 @@ import { m, AnimatePresence } from 'framer-motion';
 import { 
   Home, CalendarDays, BarChart2, Plus, 
   CheckCircle2, Calendar, SlidersHorizontal, 
-  Download, RotateCcw, Check 
+  Download, RotateCcw, Check, Info, ChevronRight, 
+  ExternalLink, ShieldCheck, Code2 
 } from 'lucide-react';
 import { getCurrentUser } from '@/actions/auth';
 import { 
@@ -33,6 +34,7 @@ export default function BottomNav() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,6 +53,7 @@ export default function BottomNav() {
   // Close sheet on route navigation
   useEffect(() => {
     setIsActionsOpen(false);
+    setIsAboutOpen(false);
   }, [pathname]);
 
   const showToast = (msg: string) => {
@@ -308,26 +311,227 @@ export default function BottomNav() {
                 </div>
               </m.button>
 
-              {/* Reset Demo Data (If in demo mode) */}
-              {isDemo && (
-                <m.button
-                  type="button"
-                  whileTap={isLowEnd ? undefined : { scaleX: 1.02, scaleY: 0.94 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                  onClick={handleResetDemo}
-                  className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center gap-3 text-left transition-colors cursor-pointer"
-                >
-                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 shrink-0">
-                    <RotateCcw strokeWidth={1.65} className="w-4 h-4" />
+              {/* About Skiply Action (Replaces Reset Demo Data) */}
+              <m.button
+                type="button"
+                whileTap={isLowEnd ? undefined : { scaleX: 1.02, scaleY: 0.94 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                onClick={() => {
+                  setIsActionsOpen(false);
+                  setIsAboutOpen(true);
+                }}
+                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center gap-3 text-left transition-colors cursor-pointer"
+              >
+                <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400 shrink-0">
+                  <Info strokeWidth={1.65} className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-semibold text-white">About</p>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/[0.06] text-slate-300 font-mono">v2.4.2</span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-white">Reset demo data</p>
-                    <p className="text-[11px] text-slate-400">Restore default demo semester and sample logs</p>
-                  </div>
-                </m.button>
-              )}
+                  <p className="text-[11px] text-slate-400">Open source, architecture & creators</p>
+                </div>
+                <ChevronRight strokeWidth={1.65} className="w-4 h-4 text-slate-500 shrink-0" />
+              </m.button>
             </div>
           </m.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile About Skiply Bottom Sheet Modal */}
+      <AnimatePresence>
+        {isAboutOpen && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center select-none">
+            {/* Backdrop with Multiply Blending */}
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              onClick={() => setIsAboutOpen(false)}
+              className="fixed inset-0 bg-[#0B0C0E]/85 mix-blend-multiply backdrop-blur-[2px] z-40"
+              aria-hidden="true"
+            />
+
+            {/* Floating Bottom Sheet */}
+            <m.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={
+                isLowEnd
+                  ? { duration: 0 }
+                  : {
+                      type: 'spring',
+                      stiffness: 380,
+                      damping: 34,
+                      mass: 0.85,
+                    }
+              }
+              className="fixed inset-x-0 bottom-0 z-50 bg-[#121417] border-t border-white/[0.10] rounded-t-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom,0.5rem))] px-5 pt-3 max-w-md mx-auto max-h-[88dvh] overflow-y-auto shadow-[0_-16px_48px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
+            >
+              {/* Grabber Handle */}
+              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-3" />
+
+              {/* Top Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/[0.06] mb-4">
+                <span className="text-[11px] font-mono tracking-wider text-slate-400 uppercase">About</span>
+                <button
+                  type="button"
+                  onClick={() => setIsAboutOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                  aria-label="Close about sheet"
+                >
+                  <Plus strokeWidth={1.65} className="w-4 h-4 rotate-45" />
+                </button>
+              </div>
+
+              {/* Brand Hero Card */}
+              <div className="text-center pb-4 mb-4 border-b border-white/[0.06]">
+                {/* Logo Mark Tile */}
+                <div className="w-12 h-12 rounded-xl bg-[#181B1F] border border-white/[0.08] shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_0_0_rgba(255,255,255,0.06)] flex items-center justify-center mx-auto mb-2.5">
+                  <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 14C12 10.6863 14.6863 8 18 8H30C33.3137 8 36 10.6863 36 14V17C36 19.2091 34.2091 21 32 21H18C15.7909 21 14 22.7909 14 25V34C14 37.3137 16.6863 40 20 40H32C35.3137 40 38 37.3137 38 34V31" stroke="white" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1="16" y1="32" x2="32" y2="16" stroke="white" strokeWidth="2.4" strokeLinecap="round" opacity="0.4" />
+                    <circle cx="36" cy="12" r="3.5" fill="#2DD4BF" />
+                  </svg>
+                </div>
+
+                <h2 className="text-xl font-bold text-white tracking-tight">Skiply</h2>
+                
+                <div className="flex items-center justify-center gap-1.5 mt-1.5 flex-wrap">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-teal-500/10 text-teal-400 border border-teal-500/20">
+                    Open Source
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-white/[0.06] border border-white/[0.06]">
+                    MIT License
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-400 bg-white/[0.04]">
+                    v2.4.2
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed mt-2.5 max-w-xs mx-auto">
+                  Intelligent attendance safety margin calculator. Converts complex lecture criteria into single-tap logging and mathematically verified safe skips.
+                </p>
+              </div>
+
+              {/* Professional Architecture Highlights */}
+              <div className="space-y-2 mb-4">
+                <p className="text-[11px] font-mono uppercase tracking-wider text-slate-400 px-0.5">Architecture & Principles</p>
+                
+                <div className="bg-[#181B1F] border border-white/[0.06] rounded-xl divide-y divide-white/[0.06] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+                  {/* Open Source */}
+                  <div className="p-3 flex items-start gap-3">
+                    <div className="p-1.5 rounded-lg bg-white/[0.06] text-slate-300 shrink-0 mt-0.5">
+                      <Code2 strokeWidth={1.65} className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-white">Free & Open Source</p>
+                      <p className="text-[11px] text-slate-400 leading-normal">
+                        Community-governed under MIT license. 100% transparent deterministic calculations with zero paywalls.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Offline-First */}
+                  <div className="p-3 flex items-start gap-3">
+                    <div className="p-1.5 rounded-lg bg-white/[0.06] text-slate-300 shrink-0 mt-0.5">
+                      <ShieldCheck strokeWidth={1.65} className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-white">Privacy & Offline Resilience</p>
+                      <p className="text-[11px] text-slate-400 leading-normal">
+                        Engineered for low-connectivity lecture halls. Zero student tracking, zero third-party ads, and client-side encryption.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Calendar Integration */}
+                  <div className="p-3 flex items-start gap-3">
+                    <div className="p-1.5 rounded-lg bg-white/[0.06] text-slate-300 shrink-0 mt-0.5">
+                      <Calendar strokeWidth={1.65} className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-white">Universal Schedule Sync</p>
+                      <p className="text-[11px] text-slate-400 leading-normal">
+                        RFC 5545 `.ics` export support for seamless integration with Apple Calendar, Google Calendar, and Outlook.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Creators & Engineering Section */}
+              <div className="space-y-2 mb-4">
+                <p className="text-[11px] font-mono uppercase tracking-wider text-slate-400 px-0.5">Created By</p>
+                
+                <div className="space-y-2">
+                  {/* Yash Vinay Kalyani */}
+                  <a
+                    href="https://yashkalyani.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center justify-between gap-3 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 font-bold text-xs flex items-center justify-center shrink-0">
+                        YK
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-semibold text-white group-hover:text-teal-400 transition-colors">
+                            Yash Vinay Kalyani
+                          </p>
+                        </div>
+                        <p className="text-[11px] text-slate-400">Co-creator • Engineering & Architecture</p>
+                        <span className="text-[10px] font-mono text-slate-500 group-hover:text-slate-400 transition-colors">
+                          yashkalyani.vercel.app
+                        </span>
+                      </div>
+                    </div>
+                    <ExternalLink strokeWidth={1.65} className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors shrink-0" />
+                  </a>
+
+                  {/* Kyush Kumar */}
+                  <a
+                    href="https://kyush-portfolio.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center justify-between gap-3 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 font-bold text-xs flex items-center justify-center shrink-0">
+                        KK
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-semibold text-white group-hover:text-teal-400 transition-colors">
+                            Kyush Kumar
+                          </p>
+                        </div>
+                        <p className="text-[11px] text-slate-400">Co-creator • Product & Development</p>
+                        <span className="text-[10px] font-mono text-slate-500 group-hover:text-slate-400 transition-colors">
+                          kyush-portfolio.vercel.app
+                        </span>
+                      </div>
+                    </div>
+                    <ExternalLink strokeWidth={1.65} className="w-4 h-4 text-slate-500 group-hover:text-teal-400 transition-colors shrink-0" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Done / Dismiss Button */}
+              <button
+                type="button"
+                onClick={() => setIsAboutOpen(false)}
+                className="w-full h-11 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.08] text-white text-xs font-medium transition-colors cursor-pointer flex items-center justify-center mt-2"
+              >
+                Done
+              </button>
+            </m.div>
+          </div>
         )}
       </AnimatePresence>
 
