@@ -27,7 +27,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B0C0E] text-slate-100 overflow-x-hidden w-full">
+    <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100 overflow-x-hidden w-full">
       {/* Editorial Header */}
       <Navbar />
 

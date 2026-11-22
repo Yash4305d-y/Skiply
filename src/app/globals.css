@@ -23,12 +23,17 @@
 
 @layer base {
   html {
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100%;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
   }
 
   body {
+    min-height: 100vh;
+    min-height: 100dvh;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -43,6 +48,38 @@
 }
 
 @layer utilities {
+  /* --- DARK MODE DEPTH SYSTEM --- */
+  .depth-surface {
+    background-color: #121417;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .depth-raised {
+    background-color: #181B1F;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .depth-floating {
+    background-color: #16191E;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .depth-recessed {
+    background-color: #0B0C0E;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6),
+                0 1px 0 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /* Scrim using multiply blending for deep optical sink */
+  .scrim-multiply {
+    background-color: rgba(11, 12, 14, 0.85);
+    mix-blend-mode: multiply;
+  }
   /* Flat Solid Cards (replacing glassmorphism across all existing and new cards) */
   .glass-card, .flat-card {
     background: #121417;

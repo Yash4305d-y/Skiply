@@ -175,15 +175,15 @@ export default function BottomNav() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#181B1F] border border-white/[0.12] text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2 select-none pointer-events-none"
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#181B1F] border border-white/[0.12] text-white text-xs px-4 py-2 rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.08)] flex items-center gap-2 select-none pointer-events-none"
           >
-            <Check className="w-3.5 h-3.5 text-teal-400" />
+            <Check strokeWidth={1.75} className="w-3.5 h-3.5 text-teal-400" />
             <span>{toastMessage}</span>
           </m.div>
         )}
       </AnimatePresence>
 
-      {/* Secondary Actions Bottom Sheet Backdrop */}
+      {/* Secondary Actions Bottom Sheet Backdrop with Multiply Blending */}
       <AnimatePresence>
         {isActionsOpen && (
           <m.div
@@ -192,12 +192,12 @@ export default function BottomNav() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => setIsActionsOpen(false)}
-            className="md:hidden fixed inset-0 bg-black/75 z-40"
+            className="md:hidden fixed inset-0 bg-[#0B0C0E]/80 mix-blend-multiply z-40 backdrop-blur-[2px]"
           />
         )}
       </AnimatePresence>
 
-      {/* Secondary Actions Spring Sheet */}
+      {/* Secondary Actions Spring Sheet with Dark Mode Depth & 85dvh Max Height */}
       <AnimatePresence>
         {isActionsOpen && (
           <m.div
@@ -214,7 +214,7 @@ export default function BottomNav() {
                     mass: 0.85,
                   }
             }
-            className="md:hidden fixed inset-x-0 bottom-0 z-50 bg-[#121417] border-t border-white/[0.08] rounded-t-2xl pb-[calc(1rem+env(safe-area-inset-bottom,0.5rem))] px-4 pt-3 max-w-md mx-auto select-none"
+            className="md:hidden fixed inset-x-0 bottom-0 z-50 bg-[#121417] border-t border-white/[0.10] rounded-t-2xl pb-[calc(1.25rem+env(safe-area-inset-bottom,0.5rem))] px-4 pt-3 max-w-md mx-auto select-none max-h-[85dvh] overflow-y-auto shadow-[0_-16px_48px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]"
           >
             {/* Grabber Handle */}
             <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
@@ -231,11 +231,11 @@ export default function BottomNav() {
                 className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
                 aria-label="Close actions"
               >
-                <Plus className="w-4 h-4 rotate-45" />
+                <Plus strokeWidth={1.65} className="w-4 h-4 rotate-45" />
               </button>
             </div>
 
-            {/* Secondary Action Items with Squash and Squeeze tap feedback */}
+            {/* Secondary Action Items with Matched Icon Weights & Dark Mode Depth */}
             <div className="space-y-1.5">
               {/* Quick Mark All Present */}
               <m.button
@@ -243,10 +243,10 @@ export default function BottomNav() {
                 whileTap={isLowEnd ? undefined : { scaleX: 1.02, scaleY: 0.94 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                 onClick={handleQuickMarkTodayPresent}
-                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] flex items-center gap-3 text-left transition-colors cursor-pointer"
+                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center gap-3 text-left transition-colors cursor-pointer"
               >
                 <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400 shrink-0">
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-white">Mark today present</p>
@@ -260,10 +260,10 @@ export default function BottomNav() {
                 whileTap={isLowEnd ? undefined : { scaleX: 1.02, scaleY: 0.94 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                 onClick={handleJumpToToday}
-                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] flex items-center gap-3 text-left transition-colors cursor-pointer"
+                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center gap-3 text-left transition-colors cursor-pointer"
               >
                 <div className="p-2 rounded-lg bg-white/[0.06] text-slate-300 shrink-0">
-                  <Calendar className="w-4 h-4" />
+                  <Calendar strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-white">Jump to today</p>
@@ -280,10 +280,10 @@ export default function BottomNav() {
                   setIsActionsOpen(false);
                   router.push('/onboarding');
                 }}
-                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] flex items-center gap-3 text-left transition-colors cursor-pointer"
+                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center gap-3 text-left transition-colors cursor-pointer"
               >
                 <div className="p-2 rounded-lg bg-white/[0.06] text-slate-300 shrink-0">
-                  <SlidersHorizontal className="w-4 h-4" />
+                  <SlidersHorizontal strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-white">Semester setup & targets</p>
@@ -297,10 +297,10 @@ export default function BottomNav() {
                 whileTap={isLowEnd ? undefined : { scaleX: 1.02, scaleY: 0.94 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                 onClick={handleExportIcs}
-                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] flex items-center gap-3 text-left transition-colors cursor-pointer"
+                className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center gap-3 text-left transition-colors cursor-pointer"
               >
                 <div className="p-2 rounded-lg bg-white/[0.06] text-slate-300 shrink-0">
-                  <Download className="w-4 h-4" />
+                  <Download strokeWidth={1.65} className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold text-white">Export calendar (.ics)</p>
@@ -315,10 +315,10 @@ export default function BottomNav() {
                   whileTap={isLowEnd ? undefined : { scaleX: 1.02, scaleY: 0.94 }}
                   transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                   onClick={handleResetDemo}
-                  className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] flex items-center gap-3 text-left transition-colors cursor-pointer"
+                  className="w-full p-3 rounded-xl bg-[#181B1F] hover:bg-[#1E2228] border border-white/[0.06] shadow-[0_2px_8px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.03)] flex items-center gap-3 text-left transition-colors cursor-pointer"
                 >
                   <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 shrink-0">
-                    <RotateCcw className="w-4 h-4" />
+                    <RotateCcw strokeWidth={1.65} className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold text-white">Reset demo data</p>
@@ -331,10 +331,10 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Primary Fixed Bottom Navigation Bar */}
+      {/* Primary Fixed Bottom Navigation Bar with Dark Mode Depth */}
       <nav 
         aria-label="Mobile navigation" 
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0B0C0E] border-t border-white/[0.08] select-none"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#0B0C0E]/98 border-t border-white/[0.08] shadow-[0_-4px_24px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.06)] select-none"
         style={{
           paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 0.5rem))',
         }}

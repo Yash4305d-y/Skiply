@@ -95,7 +95,7 @@ export default function HistoryPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400">
+      <div className="min-h-screen min-h-dvh bg-[#0B0C0E] flex items-center justify-center text-slate-400">
         <div className="flex items-center gap-2">
           <LoaderCircle className="w-5 h-5 text-slate-400 animate-spin" />
           <span className="text-sm">Loading attendance audit logs...</span>
@@ -106,7 +106,7 @@ export default function HistoryPage() {
 
   if (subjects.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+      <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
         <Navbar />
         <main className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="max-w-md w-full glass-card border border-white/5 bg-slate-900/60 rounded-2xl p-6 sm:p-8 space-y-4">
@@ -204,7 +204,7 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B0C0E] text-slate-100">
+    <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
       <Navbar />
 
       {/* Floating Offline & Sync Toast Banners */}

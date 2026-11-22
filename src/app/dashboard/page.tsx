@@ -408,7 +408,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B0C0E] text-slate-100">
+    <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
       <Navbar />
 
       {/* Floating Offline & Sync Toast Banners */}
