@@ -164,7 +164,7 @@ export default function AboutPage() {
           <div>
             <h3 className="text-sm font-semibold text-white">Ready to plan your classes?</h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Get started with onboarding or launch instant demo mode.
+              Get started with onboarding and set up your semester schedule.
             </p>
           </div>
           <div className="flex items-center gap-2">

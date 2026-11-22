@@ -8,12 +8,6 @@ const HistoryView = dynamic(() => import('@/features/history/components/history-
   ssr: false,
   loading: () => <div className="animate-pulse h-96 bg-slate-900 rounded-2xl border border-slate-800" />
 });
-import { 
-  getDemoSubjects, getDemoTimetableSlots, getDemoAttendanceLogs, 
-  getDemoHolidays, getDemoProfile,
-  saveDemoAttendanceLog, removeDemoAttendanceLog,
-  isDemoModeActive, resetDemoData, seedDemoData
-} from '@/lib/demo-store';
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { LoaderCircle, ArrowRight } from 'lucide-react';
 import NextLink from 'next/link';
@@ -27,7 +21,6 @@ export default function HistoryPage() {
   const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isDemoMode, setIsDemoMode] = useState(false);
   const [offlineToast, setOfflineToast] = useState<string | null>(null);
   const [syncToast, setSyncToast] = useState<string | null>(null);
 
@@ -54,28 +47,10 @@ export default function HistoryPage() {
           setHolidays(cloudData.holidays);
           setLogs(cloudData.logs);
           setIsLoaded(true);
-          setIsDemoMode(false);
           return;
         }
       } catch (e) {
         console.log('Cloud getSemesterData error:', e);
-      }
-
-      const isUrlDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === 'true';
-      if (isDemoModeActive() || isUrlDemo) {
-        const dProf = getDemoProfile();
-        const dSubs = getDemoSubjects();
-        const dSlots = getDemoTimetableSlots();
-        const dHols = getDemoHolidays();
-        const dLogs = getDemoAttendanceLogs();
-        setProfile(dProf);
-        setSubjects(dSubs);
-        setSlots(dSlots);
-        setHolidays(dHols);
-        setLogs(dLogs);
-        setIsLoaded(true);
-        setIsDemoMode(true);
-        return;
       }
 
       setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
@@ -84,13 +59,8 @@ export default function HistoryPage() {
       setHolidays([]);
       setLogs([]);
       setIsLoaded(true);
-      setIsDemoMode(false);
     }
     initData();
-
-    const handleDemoState = () => initData();
-    window.addEventListener('skiply_demo_state_changed', handleDemoState);
-    return () => window.removeEventListener('skiply_demo_state_changed', handleDemoState);
   }, []);
 
   if (!isLoaded) {
@@ -137,12 +107,7 @@ export default function HistoryPage() {
     if (!existingLog) return;
 
     const updatedLog: AttendanceLog = { ...existingLog, status: newStatus };
-    if (isDemoMode) {
-      const updatedList = saveDemoAttendanceLog(updatedLog);
-      setLogs([...updatedList]);
-    } else {
-      setLogs(prev => prev.map(l => l.id === logId ? updatedLog : l));
-    }
+    setLogs(prev => prev.map(l => l.id === logId ? updatedLog : l));
 
     if (newStatus === 'PRESENT' || newStatus === 'ABSENT' || newStatus === 'CANCELLED') {
       // Check if browser is offline
@@ -184,22 +149,17 @@ export default function HistoryPage() {
   };
 
   const handleDeleteLog = async (slotId: string, dateStr: string) => {
-    if (isDemoMode) {
-      const updatedList = removeDemoAttendanceLog(slotId, dateStr);
-      setLogs([...updatedList]);
-    } else {
-      const logToRemove = logs.find(l => l.timetable_slot_id === slotId && l.log_date === dateStr);
-      if (!logToRemove) return;
-      setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === dateStr)));
-      try {
-        await removeAttendance({
-          subjectId: logToRemove.subject_id,
-          timetableSlotId: slotId,
-          logDate: dateStr
-        });
-      } catch (e) {
-        console.log('Delete log failed:', e);
-      }
+    const logToRemove = logs.find(l => l.timetable_slot_id === slotId && l.log_date === dateStr);
+    if (!logToRemove) return;
+    setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === dateStr)));
+    try {
+      await removeAttendance({
+        subjectId: logToRemove.subject_id,
+        timetableSlotId: slotId,
+        logDate: dateStr
+      });
+    } catch (e) {
+      console.log('Delete log failed:', e);
     }
   };
 
@@ -222,26 +182,6 @@ export default function HistoryPage() {
       </div>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 sm:pb-32 md:py-8 w-full">
-        {isDemoMode && (
-          <div className="mb-6 p-3 sm:px-4 rounded-xl bg-slate-900/60 border border-teal-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-teal-400 shrink-0" />
-              <span><strong>Demo mode active:</strong> Testing visual attendance calendar, 3-dot telemetry, and audit table. All changes persist in your browser.</span>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  resetDemoData();
-                  window.location.reload();
-                }}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-              >
-                Reset demo data
-              </button>
-            </div>
-          </div>
-        )}
 
         <HistoryView
           logs={logs}

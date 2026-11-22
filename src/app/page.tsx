@@ -7,7 +7,6 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import { getCurrentUser } from '@/actions/auth';
-import { setDemoModeActive, seedDemoData } from '@/lib/demo-store';
 
 const instrumentSerif = Instrument_Serif({
   weight: '400',
@@ -52,8 +51,8 @@ export default function Home() {
             Upload your timetable once. Track your classes and know your exact safe skip margins before every lecture.
           </p>
 
-          {/* Actions: Content-width CTA + Secondary text button, no divider */}
-          <div className="flex flex-col sm:flex-row sm:items-center items-start gap-4 w-full">
+          {/* Actions: Content-width CTA */}
+          <div className="flex items-center gap-4 w-full">
             <NextLink 
               href={isLoggedIn ? "/dashboard" : "/login"} 
               className="w-fit"
@@ -65,18 +64,6 @@ export default function Home() {
                 <span>Get started</span>
                 <ArrowRight strokeWidth={1.75} className="w-4 h-4 text-white" />
               </button>
-            </NextLink>
-
-            <NextLink
-              href="/dashboard?demo=true"
-              onClick={() => {
-                setDemoModeActive(true);
-                seedDemoData();
-              }}
-              className="group text-sm font-medium text-slate-400 hover:text-white transition-colors cursor-pointer py-2 inline-flex items-center gap-1.5 select-none"
-            >
-              <span>Launch demo mode</span>
-              <ArrowRight strokeWidth={1.65} className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors" />
             </NextLink>
           </div>
 

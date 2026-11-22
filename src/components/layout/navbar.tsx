@@ -5,7 +5,6 @@ import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { m, AnimatePresence } from 'framer-motion';
 import { CalendarDays, BarChart2, SlidersHorizontal, LogOut, LogIn } from 'lucide-react';
-import { getDemoProfile, isDemoModeActive, setDemoModeActive, seedDemoData } from '@/lib/demo-store';
 import { getCurrentUser, signOut } from '@/actions/auth';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 import PushNotificationToggle from '@/components/fcm/push-notification-toggle';
@@ -16,22 +15,14 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isLowEnd } = usePerformanceTier();
-  const [userName, setUserName] = useState('Demo Student');
+  const [userName, setUserName] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isDemo, setIsDemo] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
-
-  useEffect(() => {
-    setIsDemo(isDemoModeActive());
-    const handleDemo = () => setIsDemo(isDemoModeActive());
-    window.addEventListener('skiply_demo_state_changed', handleDemo);
-    return () => window.removeEventListener('skiply_demo_state_changed', handleDemo);
-  }, []);
 
   useEffect(() => {
     getCurrentUser().then((user) => {
@@ -42,8 +33,7 @@ export default function Navbar() {
       } else {
         setUserId(null);
         setIsLoggedIn(false);
-        const prof = getDemoProfile();
-        if (prof.full_name) setUserName(prof.full_name.split(' ')[0]);
+        setUserName('');
       }
     });
   }, [pathname]);
@@ -73,7 +63,7 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={(e) => {
-                    if (isProtected && !isLoggedIn && !isDemo) {
+                    if (isProtected && !isLoggedIn) {
                       e.preventDefault();
                       router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
                     }
@@ -91,26 +81,6 @@ export default function Navbar() {
 
         {/* Right Controls */}
         <div className="flex items-center gap-3">
-          {/* Demo Mode Toggle Badge */}
-          <button
-            type="button"
-            onClick={() => {
-              const next = !isDemo;
-              setDemoModeActive(next);
-              if (next) seedDemoData();
-              setIsDemo(next);
-            }}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer flex items-center gap-1.5 ${
-              isDemo 
-                ? 'bg-white/[0.06] text-white border-white/20' 
-                : 'bg-transparent text-slate-400 border-white/[0.06] hover:text-slate-200'
-            }`}
-            title="Toggle demo mode"
-          >
-            <span className={`w-1.5 h-1.5 rounded-full ${isDemo ? 'bg-teal-400' : 'bg-slate-600'}`} />
-            <span>Demo: {isDemo ? 'On' : 'Off'}</span>
-          </button>
-
           {/* Desktop User Info & Auth */}
           <div className="hidden md:flex items-center gap-3">
             {isLoggedIn ? (
@@ -181,7 +151,7 @@ export default function Navbar() {
                       href={item.href}
                       onClick={(e) => {
                         setIsMobileMenuOpen(false);
-                        if (isProtected && !isLoggedIn && !isDemo) {
+                        if (isProtected && !isLoggedIn) {
                           e.preventDefault();
                           router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
                         }

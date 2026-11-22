@@ -8,10 +8,8 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { 
-  AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday, 
-  Subject, TimetableSlot, AcademicHoliday 
+  AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday 
 } from '@/types';
-import { saveConfirmedScheduleToDemo, updateDemoSemesterConfig } from '@/lib/demo-store';
 import { saveOnboardingData, getUserProfile, updateSemesterConfig } from '@/actions/db';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
@@ -126,12 +124,6 @@ export default function OnboardingWizard() {
     }
   };
 
-  const loadSampleTimetable = () => {
-    const fakeFile = new File(['mock'], 'sample_university_timetable.png', { type: 'image/png' });
-    setTimetableFile(fakeFile);
-    setTimetablePreview('data:image/png;base64,mock');
-  };
-
   const runAIExtraction = async () => {
     if (!timetablePreview) return;
     setIsExtracting(true);
@@ -166,43 +158,6 @@ export default function OnboardingWizard() {
     setIsSaving(true);
     setToastMessage(null);
 
-    const finalSubjects: Subject[] = subjects.map(s => ({
-      id: s.temp_id,
-      user_id: 'user-default',
-      subject_code: s.subject_code,
-      subject_name: s.subject_name,
-      is_lab: s.is_lab,
-      credit_hours: s.credit_hours,
-      color_hex: '#2DD4BF',
-    }));
-
-    const finalSlots: TimetableSlot[] = slots.map((sl, idx) => ({
-      id: `slot-${idx + 1}`,
-      user_id: 'user-default',
-      subject_id: sl.subject_temp_id,
-      day_of_week: sl.day_of_week,
-      start_time: sl.start_time,
-      end_time: sl.end_time,
-      room_number: sl.room_number || '',
-    }));
-
-    const finalHolidays: AcademicHoliday[] = holidays.map((h, idx) => ({
-      id: `hol-${idx + 1}`,
-      user_id: 'user-default',
-      holiday_date: h.holiday_date,
-      description: h.description,
-      is_exam_day: h.is_exam_day,
-    }));
-
-    saveConfirmedScheduleToDemo(
-      finalSubjects,
-      finalSlots,
-      finalHolidays,
-      targetPercentage,
-      startDate,
-      endDate
-    );
-
     const payload = {
       subjects: subjects.map(s => ({
         code: s.subject_code,
@@ -230,8 +185,8 @@ export default function OnboardingWizard() {
     try {
       await saveOnboardingData(payload);
       await updateSemesterConfig(targetPercentage, startDate, endDate);
-    } catch {
-      updateDemoSemesterConfig(targetPercentage, startDate, endDate);
+    } catch (err) {
+      console.error('Failed to save onboarding data:', err);
     }
 
     setIsSaving(false);
@@ -407,20 +362,6 @@ export default function OnboardingWizard() {
               </div>
             </div>
           </div>
-
-          {/* Quick Demo Helper */}
-          {!timetableFile && !isExtracting && (
-            <div>
-              <button
-                type="button"
-                onClick={loadSampleTimetable}
-                className="group text-xs text-slate-400 hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5"
-              >
-                <span>Use sample university timetable (Demo)</span>
-                <ArrowRight strokeWidth={1.65} className="w-3 h-3 text-slate-500 group-hover:text-white transition-colors" />
-              </button>
-            </div>
-          )}
 
           {/* Extraction Loading State: Thin progress line with short status text */}
           {isExtracting && (

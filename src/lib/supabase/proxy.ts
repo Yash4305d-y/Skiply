@@ -10,7 +10,6 @@ export async function updateSession(request: NextRequest) {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // If Supabase cloud credentials are not configured, skip auth checks
-  // so the application can run in offline Demo/Guest mode seamlessly.
   if (!url || !url.startsWith('http') || !key || key.length <= 20) {
     return supabaseResponse;
   }
@@ -40,12 +39,6 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Allow explicit demo mode via query param or cookie
-  const isDemo = request.nextUrl.searchParams.get('demo') === 'true' || request.cookies.get('demo_mode')?.value === 'true';
-  if (request.nextUrl.searchParams.get('demo') === 'true') {
-    supabaseResponse.cookies.set('demo_mode', 'true', { path: '/', maxAge: 60 * 60 * 24 });
-  }
-
   const isProtectedRoute = 
     pathname.startsWith('/dashboard') || 
     pathname.startsWith('/calendar') || 
@@ -53,7 +46,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/onboarding');
 
   // Redirect unauthenticated users away from protected routes back to /login
-  if (!user && !isDemo && isProtectedRoute) {
+  if (!user && isProtectedRoute) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     loginUrl.searchParams.set('redirect', pathname + request.nextUrl.search);

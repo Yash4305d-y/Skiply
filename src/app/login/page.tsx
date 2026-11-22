@@ -7,7 +7,6 @@ import { Fingerprint, User, Lock, ArrowRight, AlertCircle, Loader2, ArrowLeft, S
 import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { signInWithUniqueId, signUpWithUniqueId } from '@/actions/auth';
-import { setDemoModeActive, seedDemoData } from '@/lib/demo-store';
 
 function LoginContent() {
   const searchParams = useSearchParams();
@@ -292,21 +291,6 @@ function LoginContent() {
               )}
             </button>
           </form>
-        </div>
-
-        {/* Bottom Guest Mode Footer */}
-        <div className="text-center pt-2">
-          <NextLink
-            href="/dashboard?demo=true"
-            onClick={() => {
-              setDemoModeActive(true);
-              seedDemoData();
-            }}
-            className="text-xs text-slate-400 hover:text-white transition-colors font-medium inline-flex items-center gap-1.5"
-          >
-            <span>Want to test without an account?</span>
-            <span className="text-slate-200 underline">Try demo dashboard →</span>
-          </NextLink>
         </div>
       </div>
     </div>

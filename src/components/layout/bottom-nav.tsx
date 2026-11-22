@@ -11,10 +11,7 @@ import {
   ExternalLink, ShieldCheck, Code2 
 } from 'lucide-react';
 import { getCurrentUser } from '@/actions/auth';
-import { 
-  isDemoModeActive, getDemoSubjects, getDemoTimetableSlots, 
-  saveDemoAttendanceLog, resetDemoData 
-} from '@/lib/demo-store';
+import { getDailySchedule, markAttendance, getSemesterData } from '@/actions/db';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 
 // Hick's Law: 3 primary daily destinations + 1 dedicated action trigger
@@ -32,17 +29,9 @@ export default function BottomNav() {
   const router = useRouter();
   const { isLowEnd } = usePerformanceTier();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isDemo, setIsDemo] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    setIsDemo(isDemoModeActive());
-    const handleDemo = () => setIsDemo(isDemoModeActive());
-    window.addEventListener('skiply_demo_state_changed', handleDemo);
-    return () => window.removeEventListener('skiply_demo_state_changed', handleDemo);
-  }, []);
 
   useEffect(() => {
     getCurrentUser().then(user => {
@@ -62,12 +51,14 @@ export default function BottomNav() {
   };
 
   // 1. Secondary Action: Quick Mark All Today's Classes Present
-  const handleQuickMarkTodayPresent = () => {
+  const handleQuickMarkTodayPresent = async () => {
     try {
       const now = new Date();
-      const currentDay = now.getDay(); // 0 is Sun, 1 is Mon...
+      const currentDay = now.getDay();
       const todayIso = now.toISOString().split('T')[0];
-      const slots = getDemoTimetableSlots().filter(s => s.day_of_week === currentDay);
+      const res = await getDailySchedule(currentDay, todayIso);
+      const slots = res?.slots || [];
+      const unmarked = slots.filter((s: any) => !s.currentStatus);
 
       if (slots.length === 0) {
         showToast('No classes scheduled for today');
@@ -75,21 +66,25 @@ export default function BottomNav() {
         return;
       }
 
-      slots.forEach(slot => {
-        saveDemoAttendanceLog({
-          id: `demo-log-${Date.now()}-${slot.id}`,
-          user_id: 'demo-user-id-1234',
-          subject_id: slot.subject_id,
-          timetable_slot_id: slot.id,
-          log_date: todayIso,
+      if (unmarked.length === 0) {
+        showToast('All classes for today are already marked');
+        setIsActionsOpen(false);
+        return;
+      }
+
+      for (const slot of unmarked) {
+        await markAttendance({
+          subjectId: slot.subject_id,
+          timetableSlotId: slot.id,
+          logDate: todayIso,
           status: 'PRESENT',
         });
-      });
+      }
 
-      showToast(`Marked ${slots.length} classes present for today`);
+      showToast(`Marked ${unmarked.length} class${unmarked.length > 1 ? 'es' : ''} present`);
       setIsActionsOpen(false);
     } catch {
-      showToast('Attendance logged');
+      showToast('Could not mark attendance');
       setIsActionsOpen(false);
     }
   };
@@ -101,10 +96,16 @@ export default function BottomNav() {
   };
 
   // 3. Secondary Action: Export Timetable to .ics Calendar
-  const handleExportIcs = () => {
+  const handleExportIcs = async () => {
     try {
-      const slots = getDemoTimetableSlots();
-      const subjects = getDemoSubjects();
+      const data = await getSemesterData();
+      const slots = data?.slots || [];
+      const subjects = data?.subjects || [];
+      if (slots.length === 0) {
+        showToast('No timetable found to export');
+        setIsActionsOpen(false);
+        return;
+      }
       const subMap = new Map(subjects.map(s => [s.id, s]));
 
       let icsContent = [
@@ -154,13 +155,6 @@ export default function BottomNav() {
       showToast('Failed to export calendar');
       setIsActionsOpen(false);
     }
-  };
-
-  // 4. Secondary Action: Reset Demo Data
-  const handleResetDemo = () => {
-    resetDemoData();
-    showToast('Demo data reset to fresh state');
-    setIsActionsOpen(false);
   };
 
   // Hide bottom nav on specific fullscreen flows (like login)
@@ -311,7 +305,7 @@ export default function BottomNav() {
                 </div>
               </m.button>
 
-              {/* About Skiply Action (Replaces Reset Demo Data) */}
+              {/* About Skiply Action */}
               <m.button
                 type="button"
                 whileTap={isLowEnd ? undefined : { scaleX: 1.02, scaleY: 0.94 }}
@@ -557,7 +551,7 @@ export default function BottomNav() {
                 key={tab.id}
                 href={tab.href}
                 onClick={(e) => {
-                  if (isProtected && !isLoggedIn && !isDemo) {
+                  if (isProtected && !isLoggedIn) {
                     e.preventDefault();
                     router.push(`/login?redirect=${encodeURIComponent(tab.href)}`);
                   }

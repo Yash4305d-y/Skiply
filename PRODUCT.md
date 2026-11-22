@@ -29,9 +29,8 @@ Unlike conventional attendance trackers that merely display raw attendance count
 - Single-tap daily attendance marking (Present, Absent, Cancelled).
 - Automated AI timetable extraction from PNG/JPG schedule images.
 - Precise safe-skip margin calculator with tabular percentage telemetry.
-- Guest / Demo mode for instant client-side testing without mandatory registration.
-- RFC 5545 `.ics` timetable export for Apple Calendar, Google Calendar, and Outlook.
 - Strict low-end hardware tier with zero-GPU fallbacks and flat near-black rendering.
+- RFC 5545 `.ics` timetable export for Apple Calendar, Google Calendar, and Outlook.
 
 ## Brand Commitments
 

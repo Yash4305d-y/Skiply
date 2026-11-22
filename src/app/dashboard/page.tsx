@@ -8,13 +8,7 @@ import Footer from '@/components/layout/footer';
 const HeroWidget = dynamic(() => import('@/features/dashboard/components/hero-widget'), { ssr: false });
 const DailyClassList = dynamic(() => import('@/features/dashboard/components/daily-class-list'), { ssr: false });
 const AttendanceReminder = dynamic(() => import('@/features/dashboard/components/attendance-reminder'), { ssr: false });
-import { 
-  getDemoProfile, getDemoSubjects, getDemoTimetableSlots, 
-  getDemoHolidays, getDemoAttendanceLogs, saveDemoAttendanceLog, 
-  removeDemoAttendanceLog, isOnboardedInDemo, isDemoModeActive, 
-  resetDemoData, seedDemoData 
-} from '@/lib/demo-store';
-import { getSemesterData, getDailySchedule, markAttendance } from '@/actions/db';
+import { getSemesterData, getDailySchedule, markAttendance, removeAttendance, updateSemesterConfig } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 import { calculateOverallSemesterStats } from '@/lib/math-engine';
 import { 
@@ -24,8 +18,6 @@ import {
 import NextLink from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
-import { updateSemesterConfig } from '@/actions/db';
-import { updateDemoSemesterConfig } from '@/lib/demo-store';
 
 export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -34,7 +26,6 @@ export default function DashboardPage() {
   const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
   const [logs, setLogs] = useState<AttendanceLog[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isDemoMode, setIsDemoMode] = useState(false);
 
   // Selected Date State (YYYY-MM-DD)
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -65,7 +56,6 @@ export default function DashboardPage() {
   useEffect(() => {
     async function initData() {
       try {
-        // Try fetching live Supabase data from Server Action
         const cloudData = await getSemesterData();
         if (cloudData && cloudData.profile) {
           setProfile(cloudData.profile);
@@ -74,46 +64,21 @@ export default function DashboardPage() {
           setHolidays(cloudData.holidays);
           setLogs(cloudData.logs);
           setIsLoaded(true);
-          setIsDemoMode(false);
           return;
         }
       } catch (e) {
         console.log('Cloud getSemesterData error:', e);
       }
 
-      // Check if demo mode is enabled or requested via URL
-      const isUrlDemo = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('demo') === 'true';
-      if (isDemoModeActive() || isUrlDemo) {
-        const dProf = getDemoProfile();
-        const dSubs = getDemoSubjects();
-        const dSlots = getDemoTimetableSlots();
-        const dHols = getDemoHolidays();
-        const dLogs = getDemoAttendanceLogs();
-        setProfile(dProf);
-        setSubjects(dSubs);
-        setSlots(dSlots);
-        setHolidays(dHols);
-        setLogs(dLogs);
-        setIsLoaded(true);
-        setIsDemoMode(true);
-        return;
-      }
-
-      // If no data exists and demo mode is disabled, show empty state
       setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
       setSubjects([]);
       setSlots([]);
       setHolidays([]);
       setLogs([]);
       setIsLoaded(true);
-      setIsDemoMode(false);
     }
 
     initData();
-
-    const handleDemoState = () => initData();
-    window.addEventListener('skiply_demo_state_changed', handleDemoState);
-    return () => window.removeEventListener('skiply_demo_state_changed', handleDemoState);
   }, []);
 
   // Effect to query getDailySchedule whenever selectedDate changes
@@ -124,17 +89,15 @@ export default function DashboardPage() {
     const dayOfWeek = selectedDateObj.getDay();
 
     async function checkDailySchedule() {
-      if (!isDemoMode) {
-        try {
-          const res = await getDailySchedule(dayOfWeek, selectedDate);
-          if (res) {
-            setDailyHoliday(res.isHoliday);
-            setDailyHolidayName(res.holidayName);
-            return;
-          }
-        } catch (e) {
-          console.log('getDailySchedule error:', e);
+      try {
+        const res = await getDailySchedule(dayOfWeek, selectedDate);
+        if (res) {
+          setDailyHoliday(res.isHoliday);
+          setDailyHolidayName(res.holidayName);
+          return;
         }
+      } catch (e) {
+        console.log('getDailySchedule error:', e);
       }
 
       // Fallback local holiday check
@@ -144,29 +107,25 @@ export default function DashboardPage() {
     }
 
     checkDailySchedule();
-  }, [selectedDate, holidays, isLoaded, isDemoMode]);
+  }, [selectedDate, holidays, isLoaded]);
 
   // Debounced save to backend for target percentage updates
   useEffect(() => {
     if (!profile || !isLoaded || profile.id === 'new') return;
     
     const handler = setTimeout(async () => {
-      if (isDemoMode) {
-        updateDemoSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
-      } else {
-        try {
-          const res = await updateSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
-          if (res?.error) {
-            console.log('Semester config save notice:', res.error);
-          }
-        } catch (e) {
-          console.error('Failed to save target:', e);
+      try {
+        const res = await updateSemesterConfig(profile.target_attendance_percentage, profile.semester_start_date, profile.semester_end_date);
+        if (res?.error) {
+          console.log('Semester config save notice:', res.error);
         }
+      } catch (e) {
+        console.error('Failed to save target:', e);
       }
     }, 500);
 
     return () => clearTimeout(handler);
-  }, [profile, profile?.target_attendance_percentage, isLoaded, isDemoMode]);
+  }, [profile, profile?.target_attendance_percentage, isLoaded]);
 
   // Calculate live deterministic math stats across semester using useMemo
   const { overall, subjectStats } = useMemo(() => calculateOverallSemesterStats(
@@ -329,22 +288,17 @@ export default function DashboardPage() {
     };
 
     // 1. INSTANT OPTIMISTIC UI UPDATE
-    if (isDemoMode) {
-      const updatedLogs = saveDemoAttendanceLog(newLog);
-      setLogs([...updatedLogs]);
-    } else {
-      setLogs(prev => {
-        const existingIdx = prev.findIndex(
-          l => l.subject_id === subjectId && l.timetable_slot_id === slotId && l.log_date === selectedDate
-        );
-        if (existingIdx >= 0) {
-          const newArr = [...prev];
-          newArr[existingIdx] = newLog;
-          return newArr;
-        }
-        return [...prev, newLog];
-      });
-    }
+    setLogs(prev => {
+      const existingIdx = prev.findIndex(
+        l => l.subject_id === subjectId && l.timetable_slot_id === slotId && l.log_date === selectedDate
+      );
+      if (existingIdx >= 0) {
+        const newArr = [...prev];
+        newArr[existingIdx] = newLog;
+        return newArr;
+      }
+      return [...prev, newLog];
+    });
 
     // Check if browser is offline
     if (typeof window !== 'undefined' && !navigator.onLine && (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED')) {
@@ -359,8 +313,8 @@ export default function DashboardPage() {
       return;
     }
 
-    // 2. QUIET BACKGROUND SERVER ACTION
-    if (!isDemoMode && (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED')) {
+    // 2. BACKGROUND SERVER ACTION
+    if (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED') {
       try {
         await markAttendance({
           subjectId,
@@ -380,30 +334,24 @@ export default function DashboardPage() {
           setOfflineToast('Offline — attendance queued to sync');
           setTimeout(() => setOfflineToast(null), 3500);
         } else {
-          console.log('Background markAttendance skipped or failed (Demo Mode or offline):', e);
+          console.log('Background markAttendance error:', e);
         }
       }
     }
   };
 
   const handleUndoAttendance = async (slotId: string) => {
-    if (isDemoMode) {
-      const updatedLogs = removeDemoAttendanceLog(slotId, selectedDate);
-      setLogs([...updatedLogs]);
-    } else {
-      const slot = slots.find(s => s.id === slotId);
-      if (!slot) return;
-      setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === selectedDate)));
-      try {
-        const { removeAttendance } = await import('@/actions/db');
-        await removeAttendance({
-          subjectId: slot.subject_id,
-          timetableSlotId: slotId,
-          logDate: selectedDate
-        });
-      } catch (e) {
-        console.log('Undo failed offline:', e);
-      }
+    const slot = slots.find(s => s.id === slotId);
+    if (!slot) return;
+    setLogs(prev => prev.filter(l => !(l.timetable_slot_id === slotId && l.log_date === selectedDate)));
+    try {
+      await removeAttendance({
+        subjectId: slot.subject_id,
+        timetableSlotId: slotId,
+        logDate: selectedDate
+      });
+    } catch (e) {
+      console.log('Undo failed offline:', e);
     }
   };
 
@@ -428,26 +376,6 @@ export default function DashboardPage() {
       <main 
         className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 sm:pb-32 md:py-8 w-full"
       >
-        {isDemoMode && (
-          <div className="mb-6 p-3 sm:px-4 rounded-lg bg-[#121417] border border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2 text-slate-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 shrink-0" />
-              <span><strong>Demo mode active:</strong> Testing attendance marking, safe skips, and undo.</span>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  resetDemoData();
-                  window.location.reload();
-                }}
-                className="px-2.5 py-1 rounded bg-[#181B1F] hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
-              >
-                Reset demo data
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT COLUMN: HERO STATS & GOALS */}

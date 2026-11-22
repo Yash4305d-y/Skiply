@@ -343,7 +343,7 @@ export async function getSemesterData() {
     holidaysData = oldRes.data ? oldRes.data.map((h: Record<string, unknown>) => ({ ...h, holiday_name: h.description })) : [];
   }
 
-  // If profile doesn't exist yet, or if there are no subjects/slots in the cloud DB, return null so frontend cleanly falls back to Demo Store
+  // If profile doesn't exist yet, or if there are no subjects/slots in the cloud DB, return null
   if (!profileRes.data || ((!subjectsRes.data || subjectsRes.data.length === 0) && (!slotsRes.data || slotsRes.data.length === 0))) {
     return null;
   }
