@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import NextLink from 'next/link';
 import { Instrument_Serif } from 'next/font/google';
@@ -14,16 +12,9 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
 });
 
-export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-
-  React.useEffect(() => {
-    getCurrentUser().then((user) => {
-      if (user && user.full_name) {
-        setIsLoggedIn(true);
-      }
-    });
-  }, []);
+export default async function Home() {
+  const user = await getCurrentUser();
+  const isLoggedIn = !!(user && user.full_name);
 
   return (
     <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100 overflow-x-hidden w-full">

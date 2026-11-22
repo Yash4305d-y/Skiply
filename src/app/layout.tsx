@@ -10,8 +10,8 @@ import RubberBandContainer from "@/components/ui/rubber-band-container";
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "optional",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const instrumentSerif = Instrument_Serif({

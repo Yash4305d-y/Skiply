@@ -6,7 +6,6 @@ import {
   FileText, ChevronRight, Trash2, AlertTriangle, Check, 
   Plus, BookOpen, Clock, Calendar, ArrowRight 
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { 
   AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday 
 } from '@/types';
@@ -23,6 +22,54 @@ function formatReadableDate(isoDateStr: string): string {
   const date = new Date(y, m - 1, d);
   if (isNaN(date.getTime())) return isoDateStr;
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Downscale image to max 1600px long edge with 0.8 JPEG quality to protect low-end mobile memory
+async function downscaleImageForUpload(file: File): Promise<string> {
+  const fallback = (): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  if (typeof window === 'undefined' || typeof createImageBitmap === 'undefined') {
+    return fallback();
+  }
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const maxEdge = 1600;
+    let width = bitmap.width;
+    let height = bitmap.height;
+
+    if (width > maxEdge || height > maxEdge) {
+      if (width > height) {
+        height = Math.round((height * maxEdge) / width);
+        width = maxEdge;
+      } else {
+        width = Math.round((width * maxEdge) / height);
+        height = maxEdge;
+      }
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      bitmap.close();
+      return fallback();
+    }
+
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    return canvas.toDataURL('image/jpeg', 0.8);
+  } catch (err) {
+    console.warn('Image downscaling fallback:', err);
+    return fallback();
+  }
 }
 
 export default function OnboardingWizard() {
@@ -95,20 +142,16 @@ export default function OnboardingWizard() {
     }
   }, [targetPercentage, startDate, endDate]);
 
-  const handleFileSelect = (file: File | undefined, type: 'TIMETABLE' | 'CALENDAR') => {
+  const handleFileSelect = async (file: File | undefined, type: 'TIMETABLE' | 'CALENDAR') => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const b64 = reader.result as string;
-      if (type === 'TIMETABLE') {
-        setTimetableFile(file);
-        setTimetablePreview(b64);
-      } else {
-        setCalendarFile(file);
-        setCalendarPreview(b64);
-      }
-    };
-    reader.readAsDataURL(file);
+    const b64 = await downscaleImageForUpload(file);
+    if (type === 'TIMETABLE') {
+      setTimetableFile(file);
+      setTimetablePreview(b64);
+    } else {
+      setCalendarFile(file);
+      setCalendarPreview(b64);
+    }
   };
 
   const removeFile = (e: React.MouseEvent, type: 'TIMETABLE' | 'CALENDAR') => {
@@ -192,11 +235,14 @@ export default function OnboardingWizard() {
     setIsSaving(false);
     setCurrentStep(4);
     
-    confetti({
-      particleCount: 60,
-      spread: 50,
-      origin: { y: 0.6 }
-    });
+    import('canvas-confetti').then((mod) => {
+      const runConfetti = mod.default;
+      runConfetti({
+        particleCount: 60,
+        spread: 50,
+        origin: { y: 0.6 }
+      });
+    }).catch(() => {});
 
     setTimeout(() => {
       router.push('/dashboard');

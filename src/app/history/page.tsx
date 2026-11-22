@@ -9,7 +9,7 @@ const HistoryView = dynamic(() => import('@/features/history/components/history-
   loading: () => <div className="animate-pulse h-96 bg-[#121417] rounded-2xl border border-white/[0.06]" />
 });
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
-import { LoaderCircle, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import NextLink from 'next/link';
 import { markAttendance, getSemesterData, removeAttendance } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
@@ -38,6 +38,24 @@ export default function HistoryPage() {
 
   useEffect(() => {
     async function initData() {
+      // 1. Cached read from sessionStorage for instant render on low-end devices
+      if (typeof window !== 'undefined') {
+        try {
+          const cached = sessionStorage.getItem('skiply_semester_data_cache');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.profile) {
+              setProfile(parsed.profile);
+              setSubjects(parsed.subjects || []);
+              setSlots(parsed.slots || []);
+              setHolidays(parsed.holidays || []);
+              setLogs(parsed.logs || []);
+              setIsLoaded(true);
+            }
+          }
+        } catch (_) {}
+      }
+
       try {
         const cloudData = await getSemesterData();
         if (cloudData && cloudData.profile) {
@@ -47,6 +65,9 @@ export default function HistoryPage() {
           setHolidays(cloudData.holidays);
           setLogs(cloudData.logs);
           setIsLoaded(true);
+          try {
+            sessionStorage.setItem('skiply_semester_data_cache', JSON.stringify(cloudData));
+          } catch (_) {}
           return;
         }
       } catch (e) {
@@ -65,11 +86,35 @@ export default function HistoryPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen min-h-dvh bg-[#0B0C0E] flex items-center justify-center text-slate-400">
-        <div className="flex items-center gap-2">
-          <LoaderCircle strokeWidth={1.65} className="w-5 h-5 text-slate-400 animate-spin" />
-          <span className="text-sm">Loading attendance audit logs...</span>
-        </div>
+      <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
+        <Navbar />
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-28 sm:pb-32 md:py-8 w-full">
+          <div className="space-y-6">
+            {/* Header skeleton */}
+            <div className="h-14 bg-[#121417] rounded-xl animate-pulse border border-white/[0.06] flex items-center justify-between px-4">
+              <div className="h-5 w-40 bg-white/[0.08] rounded" />
+              <div className="h-8 w-32 bg-white/[0.04] rounded-lg" />
+            </div>
+            {/* Card skeletons */}
+            <div className="space-y-3">
+              <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
+                <div className="space-y-2.5">
+                  <div className="h-4 w-32 bg-white/[0.08] rounded" />
+                  <div className="h-3 w-48 bg-white/[0.04] rounded" />
+                </div>
+                <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+              </div>
+              <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
+                <div className="space-y-2.5">
+                  <div className="h-4 w-28 bg-white/[0.08] rounded" />
+                  <div className="h-3 w-40 bg-white/[0.04] rounded" />
+                </div>
+                <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }

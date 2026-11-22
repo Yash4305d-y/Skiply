@@ -55,6 +55,24 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function initData() {
+      // 1. Instant cached read from sessionStorage for low-end device instant render
+      if (typeof window !== 'undefined') {
+        try {
+          const cached = sessionStorage.getItem('skiply_semester_data_cache');
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.profile) {
+              setProfile(parsed.profile);
+              setSubjects(parsed.subjects || []);
+              setSlots(parsed.slots || []);
+              setHolidays(parsed.holidays || []);
+              setLogs(parsed.logs || []);
+              setIsLoaded(true);
+            }
+          }
+        } catch (_) {}
+      }
+
       try {
         const cloudData = await getSemesterData();
         if (cloudData && cloudData.profile) {
@@ -64,6 +82,9 @@ export default function DashboardPage() {
           setHolidays(cloudData.holidays);
           setLogs(cloudData.logs);
           setIsLoaded(true);
+          try {
+            sessionStorage.setItem('skiply_semester_data_cache', JSON.stringify(cloudData));
+          } catch (_) {}
           return;
         }
       } catch (e) {
@@ -323,6 +344,7 @@ export default function DashboardPage() {
   ) => {
     if (!profile) return;
 
+    const previousLogs = logs;
     const newLog: AttendanceLog = {
       id: `log-${selectedDate}-${slotId}`,
       user_id: profile.id,
@@ -359,15 +381,18 @@ export default function DashboardPage() {
       return;
     }
 
-    // 2. BACKGROUND SERVER ACTION
+    // 2. BACKGROUND SERVER ACTION WITH ROLLBACK
     if (status === 'PRESENT' || status === 'ABSENT' || status === 'CANCELLED') {
       try {
-        await markAttendance({
+        const res = await markAttendance({
           subjectId,
           timetableSlotId: slotId,
           logDate: selectedDate,
           status,
         });
+        if (res && (res as any).error) {
+          throw new Error((res as any).error);
+        }
       } catch (e) {
         // If fetch failed due to network / offline error, queue it!
         if (e instanceof Error && (e.message.includes('fetch') || e.message.includes('network') || e.message.includes('Failed to fetch') || !navigator.onLine)) {
@@ -381,6 +406,10 @@ export default function DashboardPage() {
           setTimeout(() => setOfflineToast(null), 3500);
         } else {
           console.log('Background markAttendance error:', e);
+          // Rollback optimistic update
+          setLogs(previousLogs);
+          setOfflineToast('Failed to save attendance — changes reverted');
+          setTimeout(() => setOfflineToast(null), 3500);
         }
       }
     }

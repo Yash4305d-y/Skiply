@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, startTransition } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Sun } from 'lucide-react';
 import NextLink from 'next/link';
 import { DailyClassItem, AttendanceStatus, Subject, AcademicHoliday } from '@/types';
@@ -50,7 +50,9 @@ export default function DailyClassList({
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
-    onDateChange(`${year}-${month}-${day}`);
+    startTransition(() => {
+      onDateChange(`${year}-${month}-${day}`);
+    });
   };
 
   const isToday = () => {
@@ -126,7 +128,9 @@ export default function DailyClassList({
               const y = now.getFullYear();
               const m = String(now.getMonth() + 1).padStart(2, '0');
               const d = String(now.getDate()).padStart(2, '0');
-              onDateChange(`${y}-${m}-${d}`);
+              startTransition(() => {
+                onDateChange(`${y}-${m}-${d}`);
+              });
             }}
             className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
               isToday() ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-slate-200'
@@ -142,7 +146,11 @@ export default function DailyClassList({
               aria-label="Select date"
               value={selectedDate}
               onChange={(e) => {
-                if (e.target.value) onDateChange(e.target.value);
+                if (e.target.value) {
+                  startTransition(() => {
+                    onDateChange(e.target.value);
+                  });
+                }
               }}
               className="absolute w-0 h-0 opacity-0 overflow-hidden pointer-events-none"
             />
@@ -220,13 +228,17 @@ export default function DailyClassList({
           </div>
         ) : (
           items.map(item => (
-            <ClassCard
-              key={item.slot_id}
-              item={item}
-              allSubjects={allSubjects}
-              onMarkAttendance={onMarkAttendance}
-              onUndoAttendance={onUndoAttendance}
-            />
+            <div 
+              key={item.slot_id} 
+              style={{ contentVisibility: 'auto', containIntrinsicSize: '1px 96px' }}
+            >
+              <ClassCard
+                item={item}
+                allSubjects={allSubjects}
+                onMarkAttendance={onMarkAttendance}
+                onUndoAttendance={onUndoAttendance}
+              />
+            </div>
           ))
         )}
       </div>

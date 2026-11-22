@@ -47,5 +47,18 @@ export default function NavigationHandler() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [router]);
 
+  // Pause looping animations when tab is backgrounded
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        document.documentElement.classList.add('tab-hidden');
+      } else {
+        document.documentElement.classList.remove('tab-hidden');
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
   return null;
 }

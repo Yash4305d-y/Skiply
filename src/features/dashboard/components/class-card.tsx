@@ -11,7 +11,7 @@ interface ClassCardProps {
   onUndoAttendance: (slotId: string) => void;
 }
 
-export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoAttendance }: ClassCardProps) {
+export function ClassCard({ item, allSubjects, onMarkAttendance, onUndoAttendance }: ClassCardProps) {
   const [isSwapping, setIsSwapping] = useState(false);
   const [selectedSwapSubject, setSelectedSwapSubject] = useState<string>(item.subject_id);
 
@@ -33,6 +33,7 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
 
   return (
     <div 
+      style={{ contain: 'layout paint' }}
       className={`group relative rounded-xl p-3 sm:px-4 sm:py-3 transition-colors border select-none ${
         isMarked && currentStatus === 'PRESENT' 
           ? 'border-teal-500/30 bg-[#121417]' 
@@ -197,3 +198,5 @@ export default function ClassCard({ item, allSubjects, onMarkAttendance, onUndoA
     </div>
   );
 }
+
+export default React.memo(ClassCard);

@@ -1,16 +1,87 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, startTransition } from 'react';
+import dynamic from 'next/dynamic';
 import { AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, Check, X, Ban, 
   ArrowRightLeft, Grid, List, ChevronLeft, ChevronRight 
 } from 'lucide-react';
-import { TableAuditView } from './table-audit-view';
 import { AttendanceLog, Subject, TimetableSlot, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { calculateRemainingLectures, calculateSubjectStats, calculateConductedTillDate } from '@/lib/math-engine';
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 import { AnimatedNumber } from '@/components/ui/animated-number';
+
+const TableAuditView = dynamic(() => import('./table-audit-view').then(m => m.TableAuditView), {
+  ssr: false,
+  loading: () => <div className="animate-pulse h-96 bg-[#121417] rounded-xl border border-white/[0.06]" />
+});
+
+// Memoized Calendar Cell with CSS layout/paint containment
+const CalendarCell = React.memo(function CalendarCell({
+  dayNum,
+  dateStr,
+  isOutOfSemester,
+  isToday,
+  dayLogs,
+  onOpenModal
+}: {
+  dayNum: number;
+  dateStr: string;
+  isOutOfSemester: boolean;
+  isToday: boolean;
+  dayLogs: AttendanceLog[];
+  onOpenModal: (dateStr: string) => void;
+}) {
+  return (
+    <div
+      style={{ contain: 'layout paint' }}
+      onClick={() => {
+        if (!isOutOfSemester) onOpenModal(dateStr);
+      }}
+      className={`p-1 sm:p-1.5 aspect-square rounded-lg transition-colors flex flex-col justify-between ${
+        isOutOfSemester
+          ? 'opacity-20 pointer-events-none bg-transparent'
+          : isToday
+          ? 'bg-[#181B1F] border border-white/20 cursor-pointer'
+          : dayLogs.length > 0
+          ? 'bg-[#181B1F] hover:bg-white/[0.08] cursor-pointer'
+          : 'bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer'
+      }`}
+    >
+      <div className="flex items-start justify-between">
+        {isToday ? (
+          <span className="w-5 h-5 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center text-[10px] font-mono leading-none">
+            {dayNum}
+          </span>
+        ) : (
+          <span className="text-[11px] font-mono font-medium text-slate-400 pl-0.5 pt-0.5">
+            {dayNum}
+          </span>
+        )}
+      </div>
+
+      {/* Attendance dots: up to 3 dots (Present: teal, Absent: muted red, Cancelled: grey) */}
+      <div className="flex items-center justify-center gap-1 pb-1 min-h-[6px]">
+        {dayLogs.slice(0, 3).map((l, i) => {
+          const dotColor =
+            l.status === 'PRESENT'
+              ? 'bg-teal-400'
+              : l.status === 'ABSENT'
+              ? 'bg-rose-400'
+              : 'bg-slate-500';
+          return (
+            <span
+              key={l.id || i}
+              className={`w-1.5 h-1.5 rounded-full ${dotColor} shrink-0`}
+              title={`${l.status}`}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+});
 
 interface HistoryViewProps {
   logs: AttendanceLog[];
@@ -85,8 +156,10 @@ export default function HistoryView({
     let y = currentYear;
     if (m < 0) { m = 11; y -= 1; }
     else if (m > 11) { m = 0; y += 1; }
-    setCurrentMonth(m);
-    setCurrentYear(y);
+    startTransition(() => {
+      setCurrentMonth(m);
+      setCurrentYear(y);
+    });
   };
 
   const getMonthName = (y: number, m: number) => {
@@ -138,7 +211,11 @@ export default function HistoryView({
         <div className="flex items-center gap-2">
           <div className="inline-flex items-center p-1 rounded-lg bg-[#121417] border border-white/[0.06]">
             <button
-              onClick={() => setViewMode('CALENDAR')}
+              onClick={() => {
+                startTransition(() => {
+                  setViewMode('CALENDAR');
+                });
+              }}
               className={`px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1.5 transition-colors ${
                 viewMode === 'CALENDAR' ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-white'
               }`}
@@ -147,7 +224,11 @@ export default function HistoryView({
               <span>Calendar</span>
             </button>
             <button
-              onClick={() => setViewMode('TABLE')}
+              onClick={() => {
+                startTransition(() => {
+                  setViewMode('TABLE');
+                });
+              }}
               className={`px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1.5 transition-colors ${
                 viewMode === 'TABLE' ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-white'
               }`}
@@ -216,6 +297,7 @@ export default function HistoryView({
               <div
                 key={s.id}
                 onClick={() => openSubjectModal(s.id)}
+                style={{ contentVisibility: 'auto', containIntrinsicSize: '1px 110px', contain: 'layout paint' }}
                 className="p-3 sm:p-3.5 rounded-lg border border-white/[0.06] bg-[#181B1F] hover:bg-white/[0.04] transition-colors cursor-pointer select-none"
               >
                 {/* Top Row: Full Subject Name (no truncation) & Prominent Safe to Skip Figure */}
@@ -392,52 +474,15 @@ export default function HistoryView({
               const isToday = cell.dateStr === new Date().toISOString().split('T')[0];
 
               return (
-                <div
+                <CalendarCell
                   key={cell.dateStr}
-                  onClick={() => {
-                    if (!isOutOfSemester) openDayModal(cell.dateStr!);
-                  }}
-                  className={`p-1 sm:p-1.5 aspect-square rounded-lg transition-colors flex flex-col justify-between ${
-                    isOutOfSemester
-                      ? 'opacity-20 pointer-events-none bg-transparent'
-                      : isToday
-                      ? 'bg-[#181B1F] border border-white/20 cursor-pointer'
-                      : dayLogs.length > 0
-                      ? 'bg-[#181B1F] hover:bg-white/[0.08] cursor-pointer'
-                      : 'bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    {isToday ? (
-                      <span className="w-5 h-5 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center text-[10px] font-mono leading-none">
-                        {cell.dayNum}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-mono font-medium text-slate-400 pl-0.5 pt-0.5">
-                        {cell.dayNum}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Attendance dots: up to 3 dots (Present: teal, Absent: muted red, Cancelled: grey) */}
-                  <div className="flex items-center justify-center gap-1 pb-1 min-h-[6px]">
-                    {dayLogs.slice(0, 3).map((l, i) => {
-                      const dotColor =
-                        l.status === 'PRESENT'
-                          ? 'bg-teal-400'
-                          : l.status === 'ABSENT'
-                          ? 'bg-rose-400'
-                          : 'bg-slate-500';
-                      return (
-                        <span
-                          key={l.id || i}
-                          className={`w-1.5 h-1.5 rounded-full ${dotColor} shrink-0`}
-                          title={`${l.status}`}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
+                  dayNum={cell.dayNum}
+                  dateStr={cell.dateStr}
+                  isOutOfSemester={isOutOfSemester}
+                  isToday={isToday}
+                  dayLogs={dayLogs}
+                  onOpenModal={openDayModal}
+                />
               );
             })}
           </div>

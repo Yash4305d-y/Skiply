@@ -243,4 +243,9 @@
       animation: none !important;
     }
   }
+
+  /* Pause looping/ambient animations when tab is hidden or backgrounded */
+  html.tab-hidden *, html.tab-hidden *::before, html.tab-hidden *::after {
+    animation-play-state: paused !important;
+  }
 }

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 import { AIParsingResult, AIExtractedSubject, AIExtractedSlot, AIExtractedHoliday } from '@/types';
 
 const Type = { OBJECT: 'object', ARRAY: 'array', STRING: 'string', INTEGER: 'integer', BOOLEAN: 'boolean' };

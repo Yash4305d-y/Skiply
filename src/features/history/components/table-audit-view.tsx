@@ -79,6 +79,7 @@ export function TableAuditView({
                     style={{
                       height: `${virtualRow.size}px`,
                       transform: `translateY(${virtualRow.start}px)`,
+                      contain: 'layout paint'
                     }}
                   >
                     <div className="p-3.5 font-mono text-slate-300 w-32 shrink-0 tabular-nums">
