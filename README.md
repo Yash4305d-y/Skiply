@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="public/banner.png" alt="Skiply — Attendance Safety Margin Engine" width="100%">
+  <img src="public/banner.svg" alt="Skiply — Attendance Safety Margin Engine" width="100%">
 </p>
 
 <div align="center">
 
-# Skiply
+# <img src="public/icon.svg" alt="Skiply Icon" width="40" height="40" align="center" style="vertical-align: -6px;"/> Skiply
 
 **Know exactly when you can safely skip.**
 
@@ -24,7 +24,6 @@
 </div>
 
 ---
-
 
 ## 🌐 Live Demo
 
@@ -46,18 +45,17 @@ Experience the live production application deployed on Vercel:
 
 ---
 
-
 ## 📖 Overview
 
-Every college and university student with mandatory attendance policies (typically 75% or 80%) constantly confronts the same critical dilemma:
+Every college student with mandatory attendance rules (typically 75% or 80%) asks the same question:
 
 > *"Can I safely skip today's lecture without dropping below my attendance criteria?"*
 
-Conventional attendance apps merely log past records and output a backward-looking percentage ($\frac{\text{Attended}}{\text{Conducted}}$). They leave the student to mentally estimate future lectures, semester end dates, lab multipliers, and risk boundaries.
+Conventional attendance apps only show past percentages ($\frac{\text{Attended}}{\text{Conducted}}$). They leave you to mentally calculate remaining lectures, semester end dates, and safe thresholds.
 
-**Skiply solves this through a forward-looking, deterministic margin engine.**
+**Skiply solves this with an intelligent, deterministic margin engine.**
 
-Instead of guessing, Skiply models your complete academic timetable, holiday calendar, and semester boundary dates to calculate **the exact number of lectures you can safely skip** while remaining mathematically guaranteed to finish the semester at or above your target threshold.
+By modeling your academic timetable, holidays, and semester timeline, Skiply calculates **the exact number of lectures you can safely skip** while guaranteeing you finish at or above your target percentage.
 
 ```text
 Traditional Trackers:  "You have attended 14 of 18 classes (77.8%)."
@@ -71,13 +69,13 @@ Skiply Engine:         "You can safely skip 3 more classes this semester.
 
 | Capability | Engineering Highlight |
 | :--- | :--- |
-| 📐 **Deterministic Margin Engine** | 100% mathematically proven safe skip and deficit recovery calculations. Zero stochastic LLM hallucinations. |
-| 📸 **Optical Schedule Extraction** | Upload a photo or screenshot of your timetable. Google Gemini Vision automatically extracts subjects, slots, and rooms. |
-| ⚡ **Single-Tap Logging** | Tap once to mark Present, Absent, Cancelled, or Swapped. Real-time telemetry recalculates margins immediately. |
-| 📶 **Offline-First Resilience** | In low-connectivity lecture halls, actions queue locally and automatically synchronize to Supabase when connectivity returns. |
-| 📅 **RFC 5545 `.ics` Export** | Export your entire university timetable to Apple Calendar, Google Calendar, and Microsoft Outlook with one click. |
-| 📱 **Tactile PWA Architecture** | Dynamic viewport scaling (`dvh`), physics-based spring gestures, matched icon stroke weights, and mobile safe-area clearance. |
-| 🎨 **Editorial Flat Aesthetic** | Flat near-black (`#0B0C0E`) theme with disciplined `teal-400` accents, Instrument Serif headings, and Plus Jakarta Sans UI. |
+| 📐 **Deterministic Margin Engine** | Exact discrete arithmetic for safe skips and deficit recovery. Zero guessing. |
+| 📸 **Optical Schedule Extraction** | Upload a photo of your timetable. Google Gemini Vision automatically extracts subjects, timings, and rooms. |
+| ⚡ **Single-Tap Logging** | Log Present, Absent, Cancelled, or Swapped with one tap. Margins update instantaneously. |
+| 📶 **Offline-First Resilience** | Queues actions locally in lecture halls with spotty connectivity and auto-syncs when back online. |
+| 📅 **RFC 5545 `.ics` Export** | Sync your timetable with Apple Calendar, Google Calendar, and Microsoft Outlook. |
+| 📱 **Tactile PWA Architecture** | Dynamic viewport scaling (`dvh`), spring physics, matched icon weights, and safe-area clearance. |
+| 🎨 **Editorial Flat Aesthetic** | Flat near-black (`#0B0C0E`) palette with disciplined `teal-400` accents and Instrument Serif typography. |
 
 ---
 
@@ -116,106 +114,33 @@ Skiply Engine:         "You can safely skip 3 more classes this semester.
 
 ---
 
-## 🧠 Deterministic Mathematical Model
+## 🧠 How Safe Skips Work
 
-Skiply does not guess. The margin engine operates entirely on deterministic discrete arithmetic implemented in [`src/lib/math-engine.ts`](src/lib/math-engine.ts):
+Skiply calculates your safe skip margin using discrete arithmetic implemented in [`src/lib/math-engine.ts`](src/lib/math-engine.ts):
 
-### 1. Current Attendance Standing
+$$\text{Safe Skips} = \left\lfloor N_{\text{total}} \times (1 - T) \right\rfloor - \text{Absences}$$
 
-#### Individual Subject Attendance Rate
-The current attendance standing for any subject is calculated strictly from verified instructional records:
+- **$N_{\text{total}}$**: Total semester classes (conducted so far + scheduled classes remaining until the semester end date).
+- **$T$**: Your attendance target (e.g. $0.75$ for $75\%$).
+- **Cancelled Sessions**: Automatically deducted from conducted classes so you are never penalized.
+- **Academic Holidays**: Excluded from remaining class counts using your university holiday schedule.
 
-$$\text{Attendance Rate } (\%) = \begin{cases} 100.0\% & \text{if } C = 0 \\ \left(\dfrac{P}{C}\right) \times 100 & \text{if } C > 0 \end{cases}$$
-
-Where:
-- **$P$ (Attended)**: Count of classes logged as `PRESENT`.
-- **$A$ (Absent)**: Count of classes logged as `ABSENT`.
-- **$C$ (Conducted Classes)**: Total instructional sessions held to date ($C = P + A_{\text{effective}}$).
-
-#### Dynamic Conducted Class Accounting
-When calculating past conducted classes from the semester timeline, the engine accounts for timetable slots, institutional holidays, and cancellations:
-
-$$C = \max\left(0, \; \sum_{d = \text{StartDate}}^{\text{Today}} \text{Slots}(d) \;-\; \text{Holidays} \;-\; \text{Cancelled} \;+\; \text{Extra}\right)$$
-
-- **Cancelled Sessions (`CANCELLED`)**: Never penalize the student; excluded from the conducted denominator $C$.
-- **Swapped Sessions (`SWAPPED`)**: Transferred seamlessly to the replacement subject credit pool.
-- **Academic Holidays**: Automatically bypassed using the university holiday calendar.
-
-#### Overall Aggregate Semester Standing
-The composite metric across all enrolled subjects ($M$) on the student's dashboard:
-
-$$\text{Overall Attendance Rate } (\%) = \begin{cases} 100.0\% & \text{if } \sum C_i = 0 \\ \left(\dfrac{\sum_{i=1}^{M} P_i}{\sum_{i=1}^{M} C_i}\right) \times 100 & \text{if } \sum C_i > 0 \end{cases}$$
-
----
-
-### 2. Total Semester Availability ($N_{\text{total}}$) & Future Runway
-
-To calculate safe skips accurately, Skiply projects the instructional runway from tomorrow until the configured semester end date:
-
-$$R = \sum_{d = \text{Tomorrow}}^{\text{EndDate}} \text{Scheduled Slots}(d) \quad \Big[\text{excluding weekends without classes and Academic Holidays}\Big]$$
-
-$$\text{Total Semester Classes } (N_{\text{total}}) = C + R$$
-
----
-
-### 3. Verified Safe Skips Remaining
-
-Given the student's target percentage threshold $T$ (e.g., $75\%$ or $80\%$, where decimal $T_{\text{dec}} = \frac{T}{100}$):
-
-1. **Maximum Allowable Absences ($A_{\text{max}}$)** over the whole semester:
-   $$A_{\text{max}} = \left\lfloor N_{\text{total}} \times (1 - T_{\text{dec}}) \right\rfloor$$
-
-2. **Safe Skips Remaining**:
-   $$\text{Safe Skips} = A_{\text{max}} - A_{\text{effective}}$$
-
-#### Status Classification:
-- **`SAFE` ($\text{Safe Skips} > 2$)**: Comfortable safety cushion above target.
-- **`WARNING` ($\text{Safe Skips} \in [0, 2]$)**: High-risk boundary zone. Immediate caution advised.
-  - If $\text{Safe Skips} = 0$, student is right at the border: any absence causes a deficit.
-- **`DANGER` ($\text{Safe Skips} < 0$)**: Current standing is below the required threshold.
-
----
-
-### 4. Deficit Recovery Requirement
-
-When in the danger zone ($\text{Safe Skips} < 0$), the engine computes the exact minimum attendance streak required to recover:
-
-$$P_{\text{required}} = \left\lceil T_{\text{dec}} \times N_{\text{total}} \right\rceil$$
-
-$$\text{Classes to Attend} = \max\Big(1, \; P_{\text{required}} - P\Big)$$
-
-- **Feasibility Check**: If $\text{Classes to Attend} > R$, the deficit is flagged as **irrecoverable** through standard scheduled lectures alone, alerting the student to seek faculty makeup classes or medical waivers.
+```text
+Status Classification:
+  🟢 SAFE      ·  Safe Skips > 2  (Comfortable buffer above target)
+  🟡 WARNING   ·  Safe Skips 0–2  (Border zone; any skip reduces margin to zero)
+  🔴 DANGER    ·  Deficit        (Below target; displays exact classes needed to recover)
+```
 
 ---
 
 ## 🏗️ System Architecture
 
 ```mermaid
-flowchart TD
-    subgraph Client["Client Interface (PWA / Next.js)"]
-        UI["Next.js 16 App Router\n(React 19 + Tailwind CSS)"]
-        OfflineQueue["Offline Queue Handler\n(LocalStorage / IndexedDB)"]
-        MathEngine["Deterministic Math Engine\n(calculateSubjectStats)"]
-    end
-
-    subgraph AI["Intelligent Ingestion"]
-        Upload["Timetable Photo / Screenshot"] --> Gemini["Google Gemini Vision API\n(@google/genai)"]
-        Gemini --> SchemaParser["Structured Schedule Extractor\n(Subjects, Slots, Holidays)"]
-    end
-
-    subgraph Backend["Cloud & Database Infrastructure"]
-        SupabaseAuth["Supabase Auth (Student ID / Email)"]
-        SupabaseDB[("PostgreSQL Database\n(Profiles, Subjects, Slots, Logs)")]
-        Vercel["Vercel Edge & Serverless Functions"]
-    end
-
-    SchemaParser --> UI
-    UI --> MathEngine
-    UI <--> OfflineQueue
-    OfflineQueue <--> SupabaseDB
-    UI <--> SupabaseAuth
-    UI <--> SupabaseDB
-    UI --> ICS["RFC 5545 .ics Calendar Export"]
+flowchart LR
+    Ingest["📸 Timetable Photo / OCR\n(Google Gemini Vision)"] --> Core["⚡ Deterministic Engine\n(Next.js 16 + Offline Queue)"]
+    Core --> Storage[("🗄️ PostgreSQL\n(Supabase Database)")]
+    Core --> Output["📅 Daily Schedule & Safe Skips\n(RFC 5545 .ics Calendar Export)"]
 ```
 
 ---
@@ -243,7 +168,6 @@ flowchart TD
 ```text
 Skiply/
 ├── public/                     # Static assets, branding & icons
-│   ├── banner.png              # High-resolution 1200x630 project banner
 │   ├── banner.svg              # Scalable vector banner
 │   ├── icon.svg                # Minimal Forward Skip vector mark
 │   ├── logo.svg                # Primary brand lockup
@@ -394,6 +318,6 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for full details
 
 **Plan Your Attendance. Skip Smarter.**
 
-[🌐 Launch Live App](https://skiply-kk.vercel.app/) · [🐛 Report Issue](https://github.com/Yash4305d-y/Skiply/issues) · [💡 Request Feature](https://github.com/Yash4305d-y/Skiply/pulls)
+[🌐 Launch Live App](https://skiply-kk.vercel.app/) · [🐛 Report Bug](https://github.com/Yash4305d-y/Skiply/issues/new?labels=bug) · [💡 Request Feature](https://github.com/Yash4305d-y/Skiply/issues/new?labels=enhancement)
 
 </div>
