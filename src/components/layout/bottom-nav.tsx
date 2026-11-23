@@ -48,20 +48,17 @@ export default function BottomNav() {
   // Lock background body scroll when either Actions or About sheet is open
   useEffect(() => {
     if (isActionsOpen || isAboutOpen) {
-      const originalBodyOverflow = document.body.style.overflow;
-      const originalBodyTouchAction = document.body.style.touchAction;
-      const originalHtmlOverflow = document.documentElement.style.overflow;
-
       document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
       document.documentElement.style.overflow = 'hidden';
-
-      return () => {
-        document.body.style.overflow = originalBodyOverflow;
-        document.body.style.touchAction = originalBodyTouchAction;
-        document.documentElement.style.overflow = originalHtmlOverflow;
-      };
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
+
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
   }, [isActionsOpen, isAboutOpen]);
 
   const showToast = (msg: string) => {
@@ -581,18 +578,11 @@ export default function BottomNav() {
             const isActive = tab.href === '/' 
               ? pathname === '/' 
               : pathname.startsWith(tab.href);
-            const isProtected = PROTECTED_PATHS.includes(tab.href);
 
             return (
               <NextLink
                 key={tab.id}
                 href={tab.href}
-                onClick={(e) => {
-                  if (isProtected && !isLoggedIn) {
-                    e.preventDefault();
-                    router.push(`/login?redirect=${encodeURIComponent(tab.href)}`);
-                  }
-                }}
                 className="relative py-1 px-2.5 rounded-xl flex flex-col items-center justify-center flex-1 max-w-[80px] group outline-none"
               >
                 {/* Squash & Squeeze tactile feedback on tap */}

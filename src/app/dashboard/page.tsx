@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
-
-const HeroWidget = dynamic(() => import('@/features/dashboard/components/hero-widget'), { ssr: false });
-const DailyClassList = dynamic(() => import('@/features/dashboard/components/daily-class-list'), { ssr: false });
-const AttendanceReminder = dynamic(() => import('@/features/dashboard/components/attendance-reminder'), { ssr: false });
-import { getSemesterData, getDailySchedule, markAttendance, removeAttendance, updateSemesterConfig } from '@/actions/db';
+import HeroWidget from '@/features/dashboard/components/hero-widget';
+import DailyClassList from '@/features/dashboard/components/daily-class-list';
+import AttendanceReminder from '@/features/dashboard/components/attendance-reminder';
+import { getSemesterData, markAttendance, removeAttendance, updateSemesterConfig } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 import { calculateOverallSemesterStats } from '@/lib/math-engine';
 import { 
@@ -19,13 +17,26 @@ import NextLink from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
 
+function getInitialSemesterData() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('skiply_semester_data_cache') || sessionStorage.getItem('skiply_semester_data_cache');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.profile) return parsed;
+    }
+  } catch (_) {}
+  return null;
+}
+
 export default function DashboardPage() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [slots, setSlots] = useState<TimetableSlot[]>([]);
-  const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
-  const [logs, setLogs] = useState<AttendanceLog[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const cachedData = useMemo(() => getInitialSemesterData(), []);
+  const [profile, setProfile] = useState<Profile | null>(() => cachedData?.profile || null);
+  const [subjects, setSubjects] = useState<Subject[]>(() => cachedData?.subjects || []);
+  const [slots, setSlots] = useState<TimetableSlot[]>(() => cachedData?.slots || []);
+  const [holidays, setHolidays] = useState<AcademicHoliday[]>(() => cachedData?.holidays || []);
+  const [logs, setLogs] = useState<AttendanceLog[]>(() => cachedData?.logs || []);
+  const [isLoaded, setIsLoaded] = useState<boolean>(() => Boolean(cachedData?.profile));
 
   // Selected Date State (YYYY-MM-DD)
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -36,8 +47,14 @@ export default function DashboardPage() {
     const d = String(now.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
   });
-  const [dailyHoliday, setDailyHoliday] = useState<boolean>(false);
-  const [dailyHolidayName, setDailyHolidayName] = useState<string | null>(null);
+
+  // Derive holiday status locally from semester holidays (instant, 0ms latency)
+  const localHoliday = useMemo(() => {
+    return holidays.find(h => h.holiday_date === selectedDate);
+  }, [holidays, selectedDate]);
+  const dailyHoliday = Boolean(localHoliday);
+  const dailyHolidayName = localHoliday ? ((localHoliday as any).holiday_name || localHoliday.description) : null;
+
   const [offlineToast, setOfflineToast] = useState<string | null>(null);
   const [syncToast, setSyncToast] = useState<string | null>(null);
 
@@ -55,24 +72,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function initData() {
-      // 1. Instant cached read from sessionStorage for low-end device instant render
-      if (typeof window !== 'undefined') {
-        try {
-          const cached = sessionStorage.getItem('skiply_semester_data_cache');
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (parsed && parsed.profile) {
-              setProfile(parsed.profile);
-              setSubjects(parsed.subjects || []);
-              setSlots(parsed.slots || []);
-              setHolidays(parsed.holidays || []);
-              setLogs(parsed.logs || []);
-              setIsLoaded(true);
-            }
-          }
-        } catch (_) {}
-      }
-
       try {
         const cloudData = await getSemesterData();
         if (cloudData && cloudData.profile) {
@@ -83,7 +82,9 @@ export default function DashboardPage() {
           setLogs(cloudData.logs);
           setIsLoaded(true);
           try {
-            sessionStorage.setItem('skiply_semester_data_cache', JSON.stringify(cloudData));
+            const str = JSON.stringify(cloudData);
+            localStorage.setItem('skiply_semester_data_cache', str);
+            sessionStorage.setItem('skiply_semester_data_cache', str);
           } catch (_) {}
           return;
         }
@@ -91,44 +92,18 @@ export default function DashboardPage() {
         console.log('Cloud getSemesterData error:', e);
       }
 
-      setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
-      setSubjects([]);
-      setSlots([]);
-      setHolidays([]);
-      setLogs([]);
-      setIsLoaded(true);
+      if (!cachedData?.profile) {
+        setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
+        setSubjects([]);
+        setSlots([]);
+        setHolidays([]);
+        setLogs([]);
+        setIsLoaded(true);
+      }
     }
 
     initData();
-  }, []);
-
-  // Effect to query getDailySchedule whenever selectedDate changes
-  useEffect(() => {
-    if (!selectedDate || !isLoaded) return;
-    const [sy, sm, sd] = selectedDate.split('-').map(Number);
-    const selectedDateObj = new Date(sy, sm - 1, sd);
-    const dayOfWeek = selectedDateObj.getDay();
-
-    async function checkDailySchedule() {
-      try {
-        const res = await getDailySchedule(dayOfWeek, selectedDate);
-        if (res) {
-          setDailyHoliday(res.isHoliday);
-          setDailyHolidayName(res.holidayName);
-          return;
-        }
-      } catch (e) {
-        console.log('getDailySchedule error:', e);
-      }
-
-      // Fallback local holiday check
-      const localHol = holidays.find(h => h.holiday_date === selectedDate);
-      setDailyHoliday(Boolean(localHol));
-      setDailyHolidayName(localHol ? localHol.description : null);
-    }
-
-    checkDailySchedule();
-  }, [selectedDate, holidays, isLoaded]);
+  }, [cachedData]);
 
   // Debounced save to backend for target percentage updates
   useEffect(() => {

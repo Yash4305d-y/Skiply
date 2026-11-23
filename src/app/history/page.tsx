@@ -1,26 +1,35 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
-import dynamic from 'next/dynamic';
-const HistoryView = dynamic(() => import('@/features/history/components/history-view'), {
-  ssr: false,
-  loading: () => <div className="animate-pulse h-96 bg-[#121417] rounded-2xl border border-white/[0.06]" />
-});
+import HistoryView from '@/features/history/components/history-view';
 import { Subject, TimetableSlot, AttendanceLog, AttendanceStatus, AcademicHoliday, Profile } from '@/types';
 import { ArrowRight } from 'lucide-react';
 import NextLink from 'next/link';
 import { markAttendance, getSemesterData, removeAttendance } from '@/actions/db';
 import { queueAttendanceAction } from '@/lib/utils/offlineQueue';
 
+function getInitialSemesterData() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('skiply_semester_data_cache') || sessionStorage.getItem('skiply_semester_data_cache');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.profile) return parsed;
+    }
+  } catch (_) {}
+  return null;
+}
+
 export default function HistoryPage() {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [slots, setSlots] = useState<TimetableSlot[]>([]);
-  const [logs, setLogs] = useState<AttendanceLog[]>([]);
-  const [holidays, setHolidays] = useState<AcademicHoliday[]>([]);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const cachedData = useMemo(() => getInitialSemesterData(), []);
+  const [profile, setProfile] = useState<Profile | null>(() => cachedData?.profile || null);
+  const [subjects, setSubjects] = useState<Subject[]>(() => cachedData?.subjects || []);
+  const [slots, setSlots] = useState<TimetableSlot[]>(() => cachedData?.slots || []);
+  const [logs, setLogs] = useState<AttendanceLog[]>(() => cachedData?.logs || []);
+  const [holidays, setHolidays] = useState<AcademicHoliday[]>(() => cachedData?.holidays || []);
+  const [isLoaded, setIsLoaded] = useState<boolean>(() => Boolean(cachedData?.profile));
   const [offlineToast, setOfflineToast] = useState<string | null>(null);
   const [syncToast, setSyncToast] = useState<string | null>(null);
 
@@ -38,24 +47,6 @@ export default function HistoryPage() {
 
   useEffect(() => {
     async function initData() {
-      // 1. Cached read from sessionStorage for instant render on low-end devices
-      if (typeof window !== 'undefined') {
-        try {
-          const cached = sessionStorage.getItem('skiply_semester_data_cache');
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (parsed && parsed.profile) {
-              setProfile(parsed.profile);
-              setSubjects(parsed.subjects || []);
-              setSlots(parsed.slots || []);
-              setHolidays(parsed.holidays || []);
-              setLogs(parsed.logs || []);
-              setIsLoaded(true);
-            }
-          }
-        } catch (_) {}
-      }
-
       try {
         const cloudData = await getSemesterData();
         if (cloudData && cloudData.profile) {
@@ -66,7 +57,9 @@ export default function HistoryPage() {
           setLogs(cloudData.logs);
           setIsLoaded(true);
           try {
-            sessionStorage.setItem('skiply_semester_data_cache', JSON.stringify(cloudData));
+            const str = JSON.stringify(cloudData);
+            localStorage.setItem('skiply_semester_data_cache', str);
+            sessionStorage.setItem('skiply_semester_data_cache', str);
           } catch (_) {}
           return;
         }
@@ -74,15 +67,17 @@ export default function HistoryPage() {
         console.log('Cloud getSemesterData error:', e);
       }
 
-      setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
-      setSubjects([]);
-      setSlots([]);
-      setHolidays([]);
-      setLogs([]);
-      setIsLoaded(true);
+      if (!cachedData?.profile) {
+        setProfile({ id: 'new', target_attendance_percentage: 75 } as any);
+        setSubjects([]);
+        setSlots([]);
+        setHolidays([]);
+        setLogs([]);
+        setIsLoaded(true);
+      }
     }
     initData();
-  }, []);
+  }, [cachedData]);
 
   if (!isLoaded) {
     return (

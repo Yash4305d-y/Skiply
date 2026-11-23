@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, startTransition } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, Check, X, Ban, 
@@ -12,10 +11,7 @@ import { calculateRemainingLectures, calculateSubjectStats, calculateConductedTi
 import { usePerformanceTier } from '@/lib/utils/use-performance-tier';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 
-const TableAuditView = dynamic(() => import('./table-audit-view').then(m => m.TableAuditView), {
-  ssr: false,
-  loading: () => <div className="animate-pulse h-96 bg-[#121417] rounded-xl border border-white/[0.06]" />
-});
+import { TableAuditView } from './table-audit-view';
 
 // Memoized Calendar Cell with CSS layout/paint containment
 const CalendarCell = React.memo(function CalendarCell({
@@ -120,15 +116,15 @@ export default function HistoryView({
   const [selectedDayModal, setSelectedDayModal] = useState<string | null>(null);
   const [selectedSubjectModal, setSelectedSubjectModal] = useState<string | null>(null);
 
-  const openSubjectModal = (id: string) => {
+  const openSubjectModal = useCallback((id: string) => {
     setSelectedSubjectModal(id);
     window.history.pushState({ modal: 'subject' }, '', window.location.href);
-  };
+  }, []);
 
-  const openDayModal = (dateStr: string) => {
+  const openDayModal = useCallback((dateStr: string) => {
     setSelectedDayModal(dateStr);
     window.history.pushState({ modal: 'day' }, '', window.location.href);
-  };
+  }, []);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -156,10 +152,8 @@ export default function HistoryView({
     let y = currentYear;
     if (m < 0) { m = 11; y -= 1; }
     else if (m > 11) { m = 0; y += 1; }
-    startTransition(() => {
-      setCurrentMonth(m);
-      setCurrentYear(y);
-    });
+    setCurrentMonth(m);
+    setCurrentYear(y);
   };
 
   const getMonthName = (y: number, m: number) => {
@@ -211,11 +205,7 @@ export default function HistoryView({
         <div className="flex items-center gap-2">
           <div className="inline-flex items-center p-1 rounded-lg bg-[#121417] border border-white/[0.06]">
             <button
-              onClick={() => {
-                startTransition(() => {
-                  setViewMode('CALENDAR');
-                });
-              }}
+              onClick={() => setViewMode('CALENDAR')}
               className={`px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1.5 transition-colors ${
                 viewMode === 'CALENDAR' ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-white'
               }`}
@@ -224,11 +214,7 @@ export default function HistoryView({
               <span>Calendar</span>
             </button>
             <button
-              onClick={() => {
-                startTransition(() => {
-                  setViewMode('TABLE');
-                });
-              }}
+              onClick={() => setViewMode('TABLE')}
               className={`px-3 py-1.5 rounded text-xs font-medium flex items-center gap-1.5 transition-colors ${
                 viewMode === 'TABLE' ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-white'
               }`}

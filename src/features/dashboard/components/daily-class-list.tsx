@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, startTransition } from 'react';
+import React from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Sun } from 'lucide-react';
 import NextLink from 'next/link';
 import { DailyClassItem, AttendanceStatus, Subject, AcademicHoliday } from '@/types';
@@ -33,8 +33,6 @@ export default function DailyClassList({
   semesterStartDate,
   semesterEndDate,
 }: DailyClassListProps) {
-  const dateInputRef = useRef<HTMLInputElement>(null);
-
   // Check if selectedDate is a holiday
   const localHoliday = holidays.find(h => h.holiday_date === selectedDate);
   const activeHolidayName = cloudHolidayName || (localHoliday ? localHoliday.description : null);
@@ -50,9 +48,7 @@ export default function DailyClassList({
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
-    startTransition(() => {
-      onDateChange(`${year}-${month}-${day}`);
-    });
+    onDateChange(`${year}-${month}-${day}`);
   };
 
   const isToday = () => {
@@ -128,9 +124,7 @@ export default function DailyClassList({
               const y = now.getFullYear();
               const m = String(now.getMonth() + 1).padStart(2, '0');
               const d = String(now.getDate()).padStart(2, '0');
-              startTransition(() => {
-                onDateChange(`${y}-${m}-${d}`);
-              });
+              onDateChange(`${y}-${m}-${d}`);
             }}
             className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
               isToday() ? 'bg-[#181B1F] text-white' : 'text-slate-400 hover:text-slate-200'
@@ -141,36 +135,22 @@ export default function DailyClassList({
 
           <div className="relative">
             <input
-              ref={dateInputRef}
               type="date"
               aria-label="Select date"
               value={selectedDate}
               onChange={(e) => {
                 if (e.target.value) {
-                  startTransition(() => {
-                    onDateChange(e.target.value);
-                  });
+                  onDateChange(e.target.value);
                 }
               }}
-              className="absolute w-0 h-0 opacity-0 overflow-hidden pointer-events-none"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
-            <button
-              type="button"
-              onClick={() => {
-                if (dateInputRef.current) {
-                  if (typeof dateInputRef.current.showPicker === 'function') {
-                    dateInputRef.current.showPicker();
-                  } else {
-                    dateInputRef.current.focus();
-                  }
-                }
-              }}
-              className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-[#181B1F] transition-colors"
-              aria-label="Pick date from calendar"
-              title="Pick date"
+            <div
+              className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-[#181B1F] transition-colors flex items-center justify-center pointer-events-none"
+              aria-hidden="true"
             >
               <CalendarIcon strokeWidth={1.65} className="w-3.5 h-3.5" />
-            </button>
+            </div>
           </div>
 
           <button

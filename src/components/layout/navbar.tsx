@@ -57,17 +57,10 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
-              const isProtected = PROTECTED_PATHS.includes(item.href);
               return (
                 <NextLink
                   key={item.href}
                   href={item.href}
-                  onClick={(e) => {
-                    if (isProtected && !isLoggedIn) {
-                      e.preventDefault();
-                      router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
-                    }
-                  }}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     isActive ? 'text-white bg-white/[0.06]' : 'text-slate-400 hover:text-white hover:bg-white/[0.03]'
                   }`}
@@ -144,18 +137,11 @@ export default function Navbar() {
               <div className="flex flex-col gap-6 pt-4">
                 {navItems.map((item) => {
                   const isActive = pathname === item.href;
-                  const isProtected = PROTECTED_PATHS.includes(item.href);
                   return (
                     <NextLink
                       key={item.href}
                       href={item.href}
-                      onClick={(e) => {
-                        setIsMobileMenuOpen(false);
-                        if (isProtected && !isLoggedIn) {
-                          e.preventDefault();
-                          router.push(`/login?redirect=${encodeURIComponent(item.href)}`);
-                        }
-                      }}
+                      onClick={() => setIsMobileMenuOpen(false)}
                       className={`text-xl font-medium transition-colors ${
                         isActive ? 'text-white' : 'text-slate-400 hover:text-white'
                       }`}
