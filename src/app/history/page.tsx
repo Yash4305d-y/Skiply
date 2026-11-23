@@ -83,28 +83,40 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen min-h-dvh flex flex-col bg-[#0B0C0E] text-slate-100">
         <Navbar />
-        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-28 sm:pb-32 md:py-8 w-full">
-          <div className="space-y-6">
-            {/* Header skeleton */}
-            <div className="h-14 bg-[#121417] rounded-xl animate-pulse border border-white/[0.06] flex items-center justify-between px-4">
-              <div className="h-5 w-40 bg-white/[0.08] rounded" />
-              <div className="h-8 w-32 bg-white/[0.04] rounded-lg" />
+        <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28 sm:pb-32 md:py-8 w-full">
+          <div className="space-y-6 animate-pulse">
+            {/* Title Skeleton */}
+            <div className="space-y-2">
+              <div className="h-8 w-64 bg-white/[0.08] rounded-md" />
+              <div className="h-3.5 w-80 bg-white/[0.04] rounded" />
             </div>
-            {/* Card skeletons */}
-            <div className="space-y-3">
-              <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
-                <div className="space-y-2.5">
-                  <div className="h-4 w-32 bg-white/[0.08] rounded" />
-                  <div className="h-3 w-48 bg-white/[0.04] rounded" />
+
+            {/* Subject Summary Cards Row */}
+            <div className="flex gap-3 overflow-x-hidden pt-1">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="min-w-[160px] p-3 rounded-xl bg-[#121417] border border-white/[0.06] space-y-2">
+                  <div className="h-3 w-16 bg-white/[0.08] rounded" />
+                  <div className="h-5 w-24 bg-white/[0.06] rounded" />
                 </div>
-                <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+              ))}
+            </div>
+
+            {/* Filter toolbar skeleton */}
+            <div className="h-12 bg-[#121417] rounded-xl border border-white/[0.06] flex items-center justify-between px-4">
+              <div className="h-4 w-32 bg-white/[0.06] rounded" />
+              <div className="h-7 w-28 bg-white/[0.04] rounded-lg" />
+            </div>
+
+            {/* Calendar Grid Skeleton */}
+            <div className="bg-[#121417] border border-white/[0.06] rounded-xl p-4 space-y-4">
+              <div className="flex justify-between items-center pb-2">
+                <div className="h-5 w-32 bg-white/[0.08] rounded" />
+                <div className="h-7 w-20 bg-white/[0.04] rounded-lg" />
               </div>
-              <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
-                <div className="space-y-2.5">
-                  <div className="h-4 w-28 bg-white/[0.08] rounded" />
-                  <div className="h-3 w-40 bg-white/[0.04] rounded" />
-                </div>
-                <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
+              <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                {Array.from({ length: 35 }).map((_, i) => (
+                  <div key={i} className="aspect-square rounded-lg bg-white/[0.02] border border-white/[0.03]" />
+                ))}
               </div>
             </div>
           </div>

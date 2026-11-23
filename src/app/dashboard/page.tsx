@@ -138,75 +138,101 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex flex-col bg-[#0B0C0E] text-slate-100">
         <Navbar />
-        <m.main 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ duration: 0.3 }}
-          className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-28 sm:pb-32 md:py-8 w-full"
+        <main 
+          className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-28 sm:pb-32 md:py-8 w-full"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Column Skeleton (Hero Metrics) */}
-            <div className="lg:col-span-4 space-y-4">
-              <div className="h-72 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-6 flex flex-col items-center justify-center space-y-4">
-                <div className="h-3 w-28 bg-white/[0.08] rounded-full" />
-                <div className="w-36 h-36 rounded-full border-4 border-white/[0.06] border-t-teal-500/30 animate-spin" />
-                <div className="h-5 w-36 bg-white/[0.06] rounded-md" />
-              </div>
-              <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 space-y-3">
-                <div className="h-3 w-24 bg-white/[0.08] rounded" />
-                <div className="h-8 w-full bg-white/[0.04] rounded-lg" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column Skeleton (Hero Metrics Mirror) */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="bg-[#121417] border border-white/[0.06] rounded-xl p-5 space-y-4 animate-pulse">
+                {/* Top row: Status badge + Target */}
+                <div className="flex items-center justify-between">
+                  <div className="h-6 w-32 bg-white/[0.08] rounded-lg" />
+                  <div className="h-4 w-20 bg-white/[0.04] rounded" />
+                </div>
+
+                {/* Main Metric */}
+                <div className="space-y-3">
+                  <div className="flex items-baseline justify-between">
+                    <div className="h-10 w-24 bg-white/[0.08] rounded-md" />
+                    <div className="h-4 w-28 bg-white/[0.04] rounded" />
+                  </div>
+                  {/* Progress bar line */}
+                  <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-full w-2/3 bg-white/[0.08] rounded-full" />
+                  </div>
+                </div>
+
+                {/* Hero message & subtext */}
+                <div className="pt-3 border-t border-white/[0.06] space-y-2">
+                  <div className="h-4 w-44 bg-white/[0.08] rounded" />
+                  <div className="h-3 w-56 bg-white/[0.04] rounded" />
+                </div>
+
+                {/* 4 Stat Figures Grid */}
+                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-white/[0.06]">
+                  <div className="p-2.5 rounded-lg bg-[#181B1F] space-y-2">
+                    <div className="h-3 w-12 bg-white/[0.06] rounded" />
+                    <div className="h-6 w-10 bg-white/[0.08] rounded" />
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-[#181B1F] space-y-2">
+                    <div className="h-3 w-12 bg-white/[0.06] rounded" />
+                    <div className="h-6 w-10 bg-white/[0.08] rounded" />
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-[#181B1F] space-y-2">
+                    <div className="h-3 w-16 bg-teal-500/15 rounded" />
+                    <div className="h-6 w-10 bg-teal-500/25 rounded" />
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-[#181B1F] space-y-2">
+                    <div className="h-3 w-14 bg-white/[0.06] rounded" />
+                    <div className="h-6 w-10 bg-white/[0.08] rounded" />
+                  </div>
+                </div>
+
+                {/* Target slider placeholder */}
+                <div className="pt-3 border-t border-white/[0.06] space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-3 w-28 bg-white/[0.06] rounded" />
+                    <div className="h-3 w-10 bg-white/[0.06] rounded" />
+                  </div>
+                  <div className="h-2 w-full bg-white/[0.04] rounded-full" />
+                </div>
               </div>
             </div>
 
-            {/* Right Column Skeleton (Daily Schedule) */}
+            {/* Right Column Skeleton (Daily Schedule Mirror) */}
             <div className="lg:col-span-8 space-y-4">
+              {/* Heading */}
+              <div className="space-y-1.5 animate-pulse">
+                <div className="h-7 w-36 bg-white/[0.08] rounded-md" />
+                <div className="h-3 w-56 bg-white/[0.04] rounded" />
+              </div>
+
               {/* Date Header Skeleton */}
-              <div className="h-14 bg-[#121417] rounded-xl animate-pulse border border-white/[0.06] flex items-center justify-between px-4">
-                <div className="h-4 w-36 bg-white/[0.08] rounded" />
-                <div className="h-8 w-24 bg-white/[0.04] rounded-lg" />
+              <div className="flex items-center justify-between pt-2 animate-pulse">
+                <div className="h-5 w-40 bg-white/[0.08] rounded" />
+                <div className="h-8 w-32 bg-[#121417] border border-white/[0.06] rounded-lg" />
               </div>
 
               {/* Class Cards Skeleton */}
               <div className="space-y-3">
-                <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
-                  <div className="space-y-2.5">
-                    <div className="h-4 w-28 bg-white/[0.08] rounded" />
-                    <div className="h-3 w-48 bg-white/[0.04] rounded" />
-                    <div className="h-3 w-32 bg-white/[0.04] rounded" />
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-[#121417] rounded-xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
+                    <div className="space-y-2.5">
+                      <div className="h-4 w-32 bg-white/[0.08] rounded" />
+                      <div className="h-3 w-48 bg-white/[0.04] rounded" />
+                      <div className="h-3 w-24 bg-white/[0.04] rounded" />
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-8 w-16 bg-white/[0.06] rounded-lg" />
+                      <div className="h-8 w-16 bg-white/[0.06] rounded-lg" />
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
-                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
-                  </div>
-                </div>
-
-                <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
-                  <div className="space-y-2.5">
-                    <div className="h-4 w-32 bg-white/[0.08] rounded" />
-                    <div className="h-3 w-40 bg-white/[0.04] rounded" />
-                    <div className="h-3 w-24 bg-white/[0.04] rounded" />
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
-                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
-                  </div>
-                </div>
-
-                <div className="h-28 bg-[#121417] rounded-2xl animate-pulse border border-white/[0.06] p-4 flex items-center justify-between">
-                  <div className="space-y-2.5">
-                    <div className="h-4 w-24 bg-white/[0.08] rounded" />
-                    <div className="h-3 w-36 bg-white/[0.04] rounded" />
-                    <div className="h-3 w-28 bg-white/[0.04] rounded" />
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
-                    <div className="h-9 w-20 bg-white/[0.06] rounded-xl" />
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>
-        </m.main>
+        </main>
       </div>
     );
   }
