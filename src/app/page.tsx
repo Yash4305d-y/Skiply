@@ -46,6 +46,7 @@ export default async function Home() {
           <div className="flex items-center gap-4 w-full">
             <NextLink 
               href={isLoggedIn ? "/dashboard" : "/login"} 
+              prefetch={true}
               className="w-fit"
             >
               <button 

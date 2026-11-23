@@ -583,6 +583,7 @@ export default function BottomNav() {
               <NextLink
                 key={tab.id}
                 href={tab.href}
+                prefetch={true}
                 className="relative py-1 px-2.5 rounded-xl flex flex-col items-center justify-center flex-1 max-w-[80px] group outline-none"
               >
                 {/* Squash & Squeeze tactile feedback on tap */}

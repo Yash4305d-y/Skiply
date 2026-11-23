@@ -61,6 +61,7 @@ export default function Navbar() {
                 <NextLink
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     isActive ? 'text-white bg-white/[0.06]' : 'text-slate-400 hover:text-white hover:bg-white/[0.03]'
                   }`}
@@ -141,6 +142,7 @@ export default function Navbar() {
                     <NextLink
                       key={item.href}
                       href={item.href}
+                      prefetch={true}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`text-xl font-medium transition-colors ${
                         isActive ? 'text-white' : 'text-slate-400 hover:text-white'
