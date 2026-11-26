@@ -113,7 +113,25 @@ function runTests() {
     console.log('✅ Test 6 Passed: Dynamic Conducted Till Date calculation (11 conducted, 81.8% attendance)');
   }
 
-  console.log('\n🎉 ALL 6 MATH ENGINE VERIFICATION TESTS PASSED SUCCESSFULLY!');
+  // Test 7: Conducted Till Date Stops at Semester End Date
+  {
+    const iotSlots: TimetableSlot[] = [
+      { id: 'sl-iot-1', user_id: 'u-1', subject_id: 'sub-iot', day_of_week: 1, start_time: '10:00', end_time: '11:00' }, // Mon
+      { id: 'sl-iot-2', user_id: 'u-1', subject_id: 'sub-iot', day_of_week: 3, start_time: '10:00', end_time: '11:00' }, // Wed
+      { id: 'sl-iot-3', user_id: 'u-1', subject_id: 'sub-iot', day_of_week: 5, start_time: '10:00', end_time: '11:00' }, // Fri
+    ];
+
+    const startDateStr = '2024-07-01';
+    const endDateStr = '2024-07-26';
+    // Reference date is 2 months AFTER semester_end_date
+    const afterEndMs = new Date('2024-09-30T12:00:00Z').getTime();
+
+    const conductedCapped = calculateConductedTillDate('sub-iot', iotSlots, [], startDateStr, afterEndMs, 0, 0, endDateStr);
+    assert.strictEqual(conductedCapped, 12, 'Expected conducted lectures to stop at semester_end_date (12 lectures)');
+    console.log('✅ Test 7 Passed: Conducted Till Date stops counting once semester_end_date passes');
+  }
+
+  console.log('\n🎉 ALL 7 MATH ENGINE VERIFICATION TESTS PASSED SUCCESSFULLY!');
 }
 
 runTests();

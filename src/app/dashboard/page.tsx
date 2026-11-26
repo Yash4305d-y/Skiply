@@ -66,8 +66,19 @@ export default function DashboardPage() {
         setTimeout(() => setSyncToast(null), 4000);
       }
     };
+    const handleJumpToToday = () => {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      setSelectedDate(`${y}-${m}-${d}`);
+    };
     window.addEventListener('skiply_offline_synced', handleSynced);
-    return () => window.removeEventListener('skiply_offline_synced', handleSynced);
+    window.addEventListener('skiply_jump_to_today', handleJumpToToday);
+    return () => {
+      window.removeEventListener('skiply_offline_synced', handleSynced);
+      window.removeEventListener('skiply_jump_to_today', handleJumpToToday);
+    };
   }, []);
 
   useEffect(() => {

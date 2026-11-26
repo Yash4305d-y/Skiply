@@ -250,12 +250,13 @@ export default function HistoryView({
             const cancelled = subLogs.filter(l => l.status === 'CANCELLED').length;
             const swapped = subLogs.filter(l => l.status === 'SWAPPED').length;
 
-            const remaining = (slots && holidays && endDateStr) 
-              ? calculateRemainingLectures(s.id, slots, holidays, endDateStr) 
+            const effectiveEndDate = endDateStr || profile?.semester_end_date;
+            const remaining = (slots && holidays && effectiveEndDate) 
+              ? calculateRemainingLectures(s.id, slots, holidays, effectiveEndDate) 
               : 0;
             const targetPct = s.target_attendance_percentage || profile?.target_attendance_percentage || 75.0;
             const conductedTillDate = (profile?.semester_start_date && slots && holidays) 
-              ? calculateConductedTillDate(s.id, slots, holidays, profile.semester_start_date, Date.now(), 0, cancelled) 
+              ? calculateConductedTillDate(s.id, slots, holidays, profile.semester_start_date, Date.now(), 0, cancelled, effectiveEndDate) 
               : undefined;
             const stats = calculateSubjectStats(s, present, absent, cancelled, swapped, remaining, targetPct, conductedTillDate);
 

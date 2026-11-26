@@ -108,7 +108,11 @@ export default function BottomNav() {
   // 2. Secondary Action: Jump to Today on Dashboard
   const handleJumpToToday = () => {
     setIsActionsOpen(false);
-    router.push('/dashboard');
+    if (pathname.startsWith('/dashboard')) {
+      window.dispatchEvent(new CustomEvent('skiply_jump_to_today'));
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   // 3. Secondary Action: Export Timetable to .ics Calendar

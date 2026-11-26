@@ -99,9 +99,26 @@ export function calculateSubjectStats(
   };
 }
 
+function parseLocalDate(dateStr: string, endOfDay: boolean = false): Date {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    return endOfDay
+      ? new Date(y, m - 1, d, 23, 59, 59, 999)
+      : new Date(y, m - 1, d, 0, 0, 0, 0);
+  }
+  const parsed = new Date(dateStr);
+  if (endOfDay) {
+    parsed.setHours(23, 59, 59, 999);
+  } else {
+    parsed.setHours(0, 0, 0, 0);
+  }
+  return parsed;
+}
+
 /**
  * Calculates how many lectures should have been conducted for a subject from semester_start_date until today (or reference date),
- * by reading the timetable, counting scheduled lecture days, ignoring holidays, and applying extra/cancelled class modifications.
+ * capped at semester_end_date when provided, by reading the timetable, counting scheduled lecture days, ignoring holidays,
+ * and applying extra/cancelled class modifications.
  */
 export function calculateConductedTillDate(
   subjectId: string,
@@ -110,7 +127,8 @@ export function calculateConductedTillDate(
   startDateStr: string,
   toTimeMs: number = Date.now(),
   extraClasses: number = 0,
-  cancelledClasses: number = 0
+  cancelledClasses: number = 0,
+  endDateStr?: string
 ): number {
   const subjectSlots = slots.filter(s => s.subject_id === subjectId);
   if (subjectSlots.length === 0) return Math.max(0, extraClasses - cancelledClasses);
@@ -118,11 +136,17 @@ export function calculateConductedTillDate(
   const activeDaysOfWeek = new Set(subjectSlots.map(s => s.day_of_week));
   const holidayDates = new Set(holidays.map(h => h.holiday_date));
 
-  const start = new Date(startDateStr);
-  start.setHours(0, 0, 0, 0);
+  const start = parseLocalDate(startDateStr, false);
 
   const end = new Date(toTimeMs);
   end.setHours(23, 59, 59, 999);
+
+  if (endDateStr) {
+    const semEnd = parseLocalDate(endDateStr, true);
+    if (semEnd < end) {
+      end.setTime(semEnd.getTime());
+    }
+  }
 
   if (start > end) return Math.max(0, extraClasses - cancelledClasses);
 
@@ -168,8 +192,7 @@ export function calculateRemainingLectures(
   curr.setDate(curr.getDate() + 1);
   curr.setHours(0, 0, 0, 0);
 
-  const end = new Date(endDateStr);
-  end.setHours(23, 59, 59, 999);
+  const end = parseLocalDate(endDateStr, true);
 
   if (curr > end) return 0;
 
@@ -219,7 +242,9 @@ export function calculateOverallSemesterStats(
     const cancelled = subLogs.filter(l => l.status === 'CANCELLED').length;
     const swapped = subLogs.filter(l => l.status === 'SWAPPED').length;
     const remaining = calculateRemainingLectures(sub.id, slots, holidays, endDateStr);
-    const conductedTillDate = startDateStr ? calculateConductedTillDate(sub.id, slots, holidays, startDateStr, Date.now(), 0, cancelled) : undefined;
+    const conductedTillDate = startDateStr
+      ? calculateConductedTillDate(sub.id, slots, holidays, startDateStr, Date.now(), 0, cancelled, endDateStr)
+      : undefined;
 
     const stats = calculateSubjectStats(sub, present, absent, cancelled, swapped, remaining, targetPct, conductedTillDate);
 
